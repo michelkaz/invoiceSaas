@@ -25,7 +25,7 @@ export interface Invoice {
   status: InvoiceStatus;
   issueDate: string;
   dueDate: string;
-  currency: "XOF" | "XAF";
+  currency: "XOF" | "XAF" | "CDF";
   tvaRate: number;
   items: InvoiceItem[];
   /** Montants figés (calculés depuis les lignes). */
@@ -43,8 +43,13 @@ export interface Company {
   country: string;
   phone: string;
   email: string;
-  taxId: string;
-  currency: "XOF" | "XAF";
+  /** Registre du Commerce et du Crédit Mobilier (RDC). */
+  rccm: string;
+  /** Numéro d'Identification Fiscale (RDC). */
+  nif: string;
+  /** Identifiant National (ID NAT, RDC). */
+  idNat: string;
+  currency: "XOF" | "XAF" | "CDF";
   defaultTvaRate: number;
   invoicePrefix: string;
   paymentTermsDays: number;

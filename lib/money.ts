@@ -1,8 +1,8 @@
 /**
  * Formatage monétaire.
  *
- * Le FCFA (XOF / XAF) n'a pas de sous-unité : tous les montants sont
- * manipulés en entiers et arrondis au franc le plus proche.
+ * Le franc congolais (CDF) est manipulé sans sous-unité : tous les montants
+ * sont des entiers, arrondis au franc le plus proche. Affichage suffixé « FC ».
  */
 
 const groupFormatter = new Intl.NumberFormat("fr-FR", {
@@ -14,9 +14,9 @@ export function formatNumber(value: number): string {
   return groupFormatter.format(Math.round(value));
 }
 
-/** Formate un montant en FCFA : 250000 -> "250 000 FCFA". */
+/** Formate un montant en francs congolais : 250000 -> "250 000 FC". */
 export function formatFCFA(amount: number): string {
-  return `${formatNumber(amount)} FCFA`;
+  return `${formatNumber(amount)} FC`;
 }
 
 /** Version compacte pour les graphiques : 1250000 -> "1,25 M". */

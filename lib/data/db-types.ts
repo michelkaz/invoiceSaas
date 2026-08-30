@@ -13,8 +13,10 @@ export interface CompanyRow {
   country: string;
   phone: string;
   email: string;
-  tax_id: string;
-  currency: "XOF" | "XAF";
+  rccm: string;
+  nif: string;
+  id_nat: string;
+  currency: "XOF" | "XAF" | "CDF";
   default_tva_rate: number;
   invoice_prefix: string;
   payment_terms_days: number;
@@ -50,7 +52,7 @@ export interface InvoiceRow {
   status: InvoiceStatus;
   issue_date: string;
   due_date: string;
-  currency: "XOF" | "XAF";
+  currency: "XOF" | "XAF" | "CDF";
   tva_rate: number;
   subtotal: number;
   tva_amount: number;

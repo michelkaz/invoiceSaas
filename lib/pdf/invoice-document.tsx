@@ -129,8 +129,12 @@ export function InvoiceDocument({
             </Text>
             {company.phone ? <Text style={s.muted}>{company.phone}</Text> : null}
             {company.email ? <Text style={s.muted}>{company.email}</Text> : null}
-            {company.taxId ? (
-              <Text style={s.muted}>NINEA / RCCM : {company.taxId}</Text>
+            {company.rccm ? (
+              <Text style={s.muted}>RCCM : {company.rccm}</Text>
+            ) : null}
+            {company.nif ? <Text style={s.muted}>NIF : {company.nif}</Text> : null}
+            {company.idNat ? (
+              <Text style={s.muted}>ID NAT : {company.idNat}</Text>
             ) : null}
           </View>
           <View style={s.right}>

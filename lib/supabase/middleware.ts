@@ -54,6 +54,11 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
+
+  // Landing page publique : la page elle-même redirige un utilisateur connecté
+  // vers /dashboard.
+  if (pathname === "/") return response;
+
   const isPublic = startsWithAny(pathname, PUBLIC_PAGES);
   const isAlwaysOpen = startsWithAny(pathname, ALWAYS_OPEN);
   const isVerifyPage = pathname === VERIFY_PAGE;

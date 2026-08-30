@@ -1,21 +1,25 @@
-# Facturi — SaaS de facturation pour entrepreneurs africains
+# Facturi — SaaS de facturation pour entrepreneurs congolais (RDC)
 
-Application web de facturation destinée aux indépendants et petites entreprises
-de la zone **FCFA** (UEMOA / CEMAC). Elle permet de créer des factures conformes,
-suivre les paiements et piloter son activité depuis un tableau de bord.
+Application web de facturation destinée aux entrepreneurs, indépendants, TPE et
+PME de **République Démocratique du Congo**, avec **Kinshasa** comme marché de
+lancement (extension prévue vers Lubumbashi, Goma, puis l'Afrique francophone).
+Elle permet de créer des factures conformes, suivre les paiements et piloter son
+activité depuis un tableau de bord.
 
 **Stack :** Next.js 14 (App Router) · React 18 · TypeScript strict · Tailwind CSS ·
-déploiement **Vercel**. Base de données **Supabase** prévue (pas encore branchée —
-voir §11).
-**Langue de l'UI et des commentaires : français.** **Devise : FCFA.**
+déploiement **Vercel**. Base de données **Supabase** (branchée : Auth + Postgres +
+RLS multi-tenant — voir §11).
+**Langue de l'UI et des commentaires : français.** **Devise : franc congolais
+(CDF), affiché « FC ».** **TVA par défaut : 16 %.**
 
 ---
 
 ## 1. Ce que fait l'application
 
-**Utilisateur type :** un entrepreneur africain francophone (graphiste, consultant,
-petite structure) qui facture des clients en FCFA et veut un outil simple, en
-français, adapté à la TVA locale (18 %) et aux mentions légales de la zone.
+**Utilisateur type :** un entrepreneur kinois (graphiste, consultant, commerce,
+agence, prestataire, petite structure) qui facture des clients en francs
+congolais et veut un outil simple, en français, adapté à la TVA locale (16 %) et
+aux mentions légales de la RDC (RCCM, NIF, ID NAT).
 
 **Tâches couvertes :**
 
@@ -24,21 +28,27 @@ français, adapté à la TVA locale (18 %) et aux mentions légales de la zone.
    statut, dernières factures.
 2. **Créer une facture** — sélection d'un client, dates d'émission / d'échéance,
    lignes dynamiques (description, quantité, prix unitaire), calcul automatique du
-   sous-total, de la **TVA 18 %** et du total TTC, tout en FCFA.
+   sous-total, de la **TVA 16 %** et du total TTC, tout en FC.
 3. **Gérer le cycle de vie d'une facture** — brouillon → envoyée → payée, plus
    « en retard » ; consultation d'un rendu type document ; modification ;
    suppression avec confirmation.
 4. **Gérer ses clients** — nom, email, téléphone, adresse ; ajout / modification
    dans une modale ; suppression (bloquée si des factures sont liées).
-5. **Configurer son entreprise** — identité, coordonnées, NINEA/RCCM, devise
-   (XOF / XAF), taux de TVA par défaut, préfixe de numérotation, délai de
-   paiement, coordonnées bancaires ; ces informations alimentent l'en-tête des
-   factures.
+5. **Configurer son entreprise** — identité, coordonnées, **RCCM / NIF / ID NAT**,
+   devise (**CDF** par défaut, XOF/XAF disponibles), taux de TVA par défaut,
+   préfixe de numérotation, délai de paiement, coordonnées bancaires ; ces
+   informations alimentent l'en-tête des factures.
 6. **Trouver de l'aide** — FAQ, contact, ressources.
+7. **Découvrir le produit (public)** — landing page marketing sur `/`
+   (positionnement Kinshasa/RDC, tarifs en FC), voir §4.
 
-**Ce que l'application ne fait pas encore :** authentification, multi-utilisateur,
-persistance serveur, export PDF, envoi d'e-mails, paiements en ligne, landing
-page. Voir la roadmap (§14).
+**Déjà en place :** authentification Supabase complète (inscription, connexion,
+vérification email, mot de passe oublié/reset, suppression de compte), RLS
+multi-tenant, persistance serveur, onboarding + tutoriel interactif, export PDF
+(`@react-pdf/renderer`), envoi de facture par email (Resend, si configuré),
+landing page publique.
+**Pas encore :** intégrations de paiement (Mobile Money…), upload de logo,
+relances automatiques, multi-utilisateurs par entreprise. Voir la roadmap (§14).
 
 ---
 
@@ -51,11 +61,12 @@ Toutes les pages applicatives vivent sous `app/(app)/` et héritent du shell
 |---|---|---|
 | `/dashboard` | **Tableau de bord** | 4 cartes de stats (factures émises, montant facturé, montant payé, montant en attente) + mini-sparkline ; graphique **Revenus facturés** (8 mois, barres SVG) ; **donut** de répartition par statut + légende avec montants ; tableau **Dernières factures** avec onglets Toutes / Payées / Impayées et lien « Voir tout ». |
 | `/invoices` | **Liste des factures** | Tableau complet ; filtres par statut (Tous / Brouillon / Envoyée / Payée / En retard) avec compteurs ; recherche par nom de client ou numéro ; menu d'actions par ligne (Voir, Modifier, changer de statut, Supprimer) ; suppression avec `ConfirmDialog` ; états vides. |
-| `/invoices/new` | **Créer une facture** | Sélection client (avec lien vers `/clients` si aucun) ; date d'émission = aujourd'hui, échéance = +`paymentTermsDays` jours ; **lignes dynamiques** (ajouter / supprimer, min. 1) ; total de ligne auto ; récapitulatif live sous-total / TVA (18 %) / **Total TTC** ; notes ; validation (client requis, ≥ 1 ligne valide, qté > 0, échéance ≥ émission) ; boutons **Sauvegarder comme brouillon** / **Envoyer la facture**. Numéro attribué : `FAC-<année>-<seq:0004>`. |
+| `/invoices/new` | **Créer une facture** | Sélection client (avec lien vers `/clients` si aucun) ; date d'émission = aujourd'hui, échéance = +`paymentTermsDays` jours ; **lignes dynamiques** (ajouter / supprimer, min. 1) ; total de ligne auto ; récapitulatif live sous-total / TVA (16 %) / **Total TTC** ; notes ; validation (client requis, ≥ 1 ligne valide, qté > 0, échéance ≥ émission) ; boutons **Sauvegarder comme brouillon** / **Envoyer la facture**. Numéro attribué : `FAC-<année>-<seq:0004>`. |
 | `/invoices/[id]` | **Détail facture** | Rendu type document : bloc entreprise, bloc « Facturé à », tableau des lignes, totaux, notes, coordonnées bancaires ; **Changer le statut** (dropdown) ; **Modifier** ; **Supprimer** (confirmation → retour à la liste) ; états « introuvable » et chargement. |
 | `/invoices/[id]/edit` | **Modifier une facture** | Même formulaire que la création, pré-rempli. Si brouillon : « Enregistrer » + « Enregistrer et envoyer ». Sinon : « Enregistrer les modifications » (statut conservé). |
 | `/clients` | **Clients** | Liste triée + recherche (nom / email) ; **Ajouter** / **Modifier** via `ClientFormModal` (nom*, email* + validation format, téléphone, adresse) ; **Supprimer** (`ConfirmDialog`), **bloquée** avec toast si le client a des factures ; compteur de factures par client ; état vide. |
-| `/settings` | **Paramètres** | Formulaire entreprise en sections (Identité, Coordonnées, Facturation, Coordonnées bancaires) ; devise XOF/XAF ; TVA, préfixe, délai de paiement ; zone d'upload logo **désactivée** (attente Supabase Storage) ; **« Réinitialiser les données de démo »** (`ConfirmDialog` → `resetDemoData()`). |
+| `/settings` | **Paramètres** | Formulaire entreprise en sections (Identité + RCCM/NIF/ID NAT, Coordonnées, Facturation, Coordonnées bancaires) ; devise CDF/XOF/XAF ; TVA (16 % défaut), préfixe, délai de paiement ; zone d'upload logo **désactivée** (attente Supabase Storage) ; **« Charger les données de démo »** ; **« Revoir le tutoriel »** ; **« Supprimer mon compte »** (`ConfirmDialog`). |
+| `/` | **Landing page** (publique) | Page marketing RSC : header sticky + menu mobile, hero + mockups (dashboard/facture en FC), problèmes, fonctionnalités, « comment ça marche », aperçu PDF, suivi des paiements (Mobile Money/M-Pesa/Airtel/Orange = **illustratifs**), « Pensé pour la RDC », tarifs (0 / 15 000 / 35 000 FC), témoignages fictifs Kinshasa, FAQ, CTA, footer 🇨🇩. Un utilisateur connecté est redirigé vers `/dashboard`. |
 | `/help` | **Aide & support** | FAQ en accordéon natif (`<details>`), carte contact (email `mailto:`, téléphone), liste de ressources. Écran statique (RSC). |
 
 **Transverses :** toasts (`useToast`) sur toutes les mutations (succès / erreur) ;
@@ -131,7 +142,8 @@ components/
     toast.tsx                    ToastProvider + useToast() ; pile bas-droite, auto-dismiss ~3,8 s
     avatar.tsx                   initiales, couleur dérivée du nom (hash), tailles sm/md/lg
   invoices/
-    status-badge.tsx            <StatusBadge status> — pastille + libellé par statut
+    status-badge.tsx            <StatusBadge status> (alias <InvoiceStatusBadge>) — pastille + libellé par statut
+    password-input.tsx          <PasswordInput> — champ mot de passe + bascule afficher/masquer (Eye/EyeOff)
     invoice-form.tsx            "use client" — création + édition (417 lignes : état + validation + vue)
     invoices-view.tsx           "use client" — liste + filtres + recherche + actions
     invoice-detail.tsx          "use client" — rendu document + changement de statut + suppression
@@ -148,14 +160,14 @@ components/
 
 lib/
   utils.ts                       cn() (clsx + tailwind-merge)
-  money.ts                       formatNumber, formatFCFA, formatCompactFCFA  (FCFA = entiers, 0 décimale)
+  money.ts                       formatNumber, formatFCFA (-> "… FC"), formatCompactFCFA  (CDF = entiers, 0 décimale)
   format.ts                      formatDate (jj/mm/aaaa), formatDateLong*, monthLabel, todayISO, addDaysISO
   invoice-calc.ts                lineTotal, subtotal, tvaAmount, computeInvoiceTotals  (fonctions pures)
   invoice-status.ts              INVOICE_STATUSES, STATUS_LABEL, STATUS_ACTION_LABEL
   dashboard-stats.ts             getOverview, getMonthlySeries, getMonthlyRevenue, getStatSeries, getStatusBreakdown
   data/
     types.ts                     InvoiceStatus, Client, InvoiceItem, Invoice, Company, InvoiceWithClient
-    mock.ts                      SEED : company "Atelier Baobab", currentUser "Awa Diallo", 8 clients, 14 factures
+    mock.ts                      SEED : company "Kinshasa Créative" (Kinshasa, CDF, TVA 16), currentUser "Michel Kazadi", 8 clients congolais fictifs, 14 factures en FC
 
 CLAUDE.md                        ce fichier
 tailwind.config.ts  tsconfig.json  next.config.mjs  postcss.config.mjs  .eslintrc.json
@@ -182,14 +194,15 @@ interface Invoice  {
   id; number;                      // "FAC-2026-0007"
   clientId; status;
   issueDate; dueDate;              // ISO court "AAAA-MM-JJ"
-  currency: "XOF" | "XAF";
-  tvaRate;                          // figé sur la facture
+  currency: "XOF" | "XAF" | "CDF";
+  tvaRate;                          // figé sur la facture (16 % par défaut)
   items: InvoiceItem[];
   subtotal; tvaAmount; total;       // FIGÉS à l'écriture (ne pas recalculer à l'affichage)
   notes?;
 }
 interface Company  {
-  name; legalName; address; city; country; phone; email; taxId;
+  name; legalName; address; city; country; phone; email;
+  rccm; nif; idNat;                 // identifiants légaux RDC
   currency; defaultTvaRate; invoicePrefix; paymentTermsDays; bankDetails?;
 }
 interface InvoiceWithClient extends Invoice { client?: Client; }
@@ -358,14 +371,14 @@ Chaque composant interactif prévoit : `default`, `hover`, `active`, `focus-visi
 
 | Donnée | Règle | Helper |
 |---|---|---|
-| Montants | `250 000 FCFA` — entier, 0 décimale, séparateur de milliers (`Intl` fr-FR) | `formatFCFA()` — [lib/money.ts](lib/money.ts) |
+| Montants | `250 000 FC` — entier, 0 décimale, séparateur de milliers (`Intl` fr-FR) | `formatFCFA()` — [lib/money.ts](lib/money.ts) |
 | Montants compacts (axes de graphes) | `1,3 M` / `750 k` | `formatCompactFCFA()` |
 | Dates | `27/08/2026` (jj/mm/aaaa) | `formatDate()` — [lib/format.ts](lib/format.ts) |
 | Statut de facture | pastille + libellé | `<StatusBadge status />` |
 | Initiales / avatar | couleur dérivée du nom | `<Avatar name />` |
 
 - **Calculs de facturation :** uniquement [lib/invoice-calc.ts](lib/invoice-calc.ts).
-  TVA 18 % par défaut, **arrondi au franc par ligne puis somme**. Les totaux sont
+  TVA 16 % par défaut, **arrondi au franc par ligne puis somme**. Les totaux sont
   figés sur la facture — **ne pas les recalculer à l'affichage**.
 - **Stats du dashboard :** uniquement [lib/dashboard-stats.ts](lib/dashboard-stats.ts)
   (fonctions pures, `reference` date injectable).
@@ -377,15 +390,16 @@ Chaque composant interactif prévoit : `default`, `hover`, `active`, `focus-visi
 | Décision | Raison |
 |---|---|
 | **Palette violette** (`brand`) | Reprise des maquettes de référence fournies (type Ecomic / Invoicer) : thème clair, cartes arrondies, ombres douces, sidebar à icônes, badges pills. |
-| **FCFA en entiers** | Le XOF/XAF n'a pas de sous-unité. Tout est manipulé en entiers, arrondi au franc. Affichage `Intl.NumberFormat("fr-FR")` + `" FCFA"` (séparateur = espace fine insécable). |
-| **TVA 18 %, arrondi par ligne** | Taux standard UEMOA. L'arrondi par ligne (puis somme) évite les écarts d'1 FCFA entre l'affichage des lignes et le total. Le taux est stocké **par facture** (modifiable via Paramètres). |
+| **Francs en entiers** | Le CDF est manipulé sans sous-unité. Tout est en entiers, arrondi au franc. Affichage `Intl.NumberFormat("fr-FR")` + `" FC"`. |
+| **TVA 16 %, arrondi par ligne** | Taux standard RDC. L'arrondi par ligne (puis somme) évite les écarts d'1 franc entre l'affichage des lignes et le total. Le taux est stocké **par facture** (modifiable via Paramètres). |
 | **Numérotation `PRÉFIXE-ANNÉE-SÉQ`** | Format lisible et classable, séquence annuelle. Calculée depuis le max existant (pas de compteur séparé à désynchroniser). |
 | **Statut `en_retard` manuel** | Pas de transition automatique à l'échéance pour l'instant : ça viendra avec un cron Supabase. En attendant, l'utilisateur change le statut à la main. |
 | **Graphiques SVG faits main** | Pas de dépendance `recharts`/`d3` (poids, surface d'API). Un `<svg viewBox>` donne une mise à l'échelle fluide gratuite et un contrôle total ; l'accessibilité passe par `role="img"` + `aria-label` énumérant les valeurs. |
 | **Store local en forme de « repository »** (`useData()`) | L'interface du Context préfigure une API serveur. La bascule Supabase = **remplacer l'implémentation interne**, sans réécrire les vues. |
 | **Dashboard rendu côté client** | On **ne peut pas** faire de RSC à partir de `localStorage`. C'est le bon choix pour la couche de données actuelle, pas de la dette. `dashboard/layout.tsx` porte le `metadata` (pattern Next.js pour page cliente). |
 | **`localStorage` comme base** | Permet de développer et valider toute l'UX sans backend. Clé versionnée (`…v1`). Sera remplacé, pas migré. |
-| **Français partout** | Public cible francophone (UEMOA/CEMAC). UI, libellés, messages d'erreur, commentaires de code. |
+| **Français partout** | Public cible francophone (RDC). UI, libellés, messages d'erreur, commentaires de code. |
+| **Identité RDC subtile** | Positionnement Kinshasa/RDC dans le copy, les exemples, la devise ; jamais de design « africain » caricatural (pas de drapeaux partout, pas de motifs clichés). 🇨🇩 réservé au footer. |
 | **`nav.ts` data-driven** | Ajouter une entrée de menu ne doit pas demander de toucher au JSX de la sidebar. |
 
 ---

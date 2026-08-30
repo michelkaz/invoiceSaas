@@ -130,7 +130,17 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
               </p>
               <p>{company.phone}</p>
               <p>{company.email}</p>
-              <p className="text-slate-400">NINEA / RCCM : {company.taxId}</p>
+              {(company.rccm || company.nif || company.idNat) && (
+                <p className="text-slate-500">
+                  {[
+                    company.rccm && `RCCM : ${company.rccm}`,
+                    company.nif && `NIF : ${company.nif}`,
+                    company.idNat && `ID NAT : ${company.idNat}`,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
+              )}
             </div>
             <div className="space-y-1 text-sm sm:text-right">
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">

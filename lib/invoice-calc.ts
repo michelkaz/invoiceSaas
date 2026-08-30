@@ -4,7 +4,8 @@ import type { InvoiceItem } from "@/lib/data/types";
  * Calculs de facturation — fonctions pures, testables.
  *
  * Règle d'arrondi : arrondi au franc PAR LIGNE, puis somme. Évite les
- * écarts d'un FCFA entre l'affichage des lignes et le total.
+ * écarts d'un franc entre l'affichage des lignes et le total.
+ * TVA par défaut : 16 % (taux standard RDC).
  */
 
 export function lineTotal(quantity: number, unitPrice: number): number {
@@ -15,7 +16,7 @@ export function subtotal(items: Pick<InvoiceItem, "quantity" | "unitPrice">[]): 
   return items.reduce((sum, item) => sum + lineTotal(item.quantity, item.unitPrice), 0);
 }
 
-export function tvaAmount(base: number, rate = 18): number {
+export function tvaAmount(base: number, rate = 16): number {
   return Math.round((base * rate) / 100);
 }
 
@@ -27,7 +28,7 @@ export interface InvoiceTotals {
 
 export function computeInvoiceTotals(
   items: Pick<InvoiceItem, "quantity" | "unitPrice">[],
-  rate = 18,
+  rate = 16,
 ): InvoiceTotals {
   const sub = subtotal(items);
   const tva = tvaAmount(sub, rate);

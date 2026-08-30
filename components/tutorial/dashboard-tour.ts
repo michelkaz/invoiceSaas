@@ -5,7 +5,7 @@ export const dashboardTourSteps: TourStep[] = [
   {
     selector: '[data-tour="stats"]',
     title: "Votre activité en un coup d'œil",
-    body: "Factures émises, montant facturé, encaissé et en attente — tout est résumé ici, en FCFA.",
+    body: "Factures émises, montant facturé, encaissé et en attente — tout est résumé ici, en francs congolais.",
   },
   {
     selector: '[data-tour="nav"]',

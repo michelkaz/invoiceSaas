@@ -80,9 +80,20 @@ export function SettingsView() {
             onChange={(e) => set("legalName", e.target.value)}
           />
           <Input
-            label="NINEA / RCCM"
-            value={form.taxId}
-            onChange={(e) => set("taxId", e.target.value)}
+            label="RCCM"
+            value={form.rccm}
+            onChange={(e) => set("rccm", e.target.value)}
+            placeholder="CD/KIN/RCCM/…"
+          />
+          <Input
+            label="N° Impôt (NIF)"
+            value={form.nif}
+            onChange={(e) => set("nif", e.target.value)}
+          />
+          <Input
+            label="ID NAT"
+            value={form.idNat}
+            onChange={(e) => set("idNat", e.target.value)}
             containerClassName="sm:col-span-2"
           />
           <div className="sm:col-span-2">
@@ -147,6 +158,7 @@ export function SettingsView() {
           <Select
             label="Devise"
             options={[
+              { value: "CDF", label: "Franc congolais — CDF (RDC)" },
               { value: "XOF", label: "Franc CFA — XOF (UEMOA)" },
               { value: "XAF", label: "Franc CFA — XAF (CEMAC)" },
             ]}

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { createClient } from "@/lib/supabase/client";
 import { authErrorMessage } from "@/lib/auth/errors";
 
@@ -78,18 +78,16 @@ export function ResetPasswordForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <Input
+      <PasswordInput
         label="Nouveau mot de passe"
-        type="password"
         autoComplete="new-password"
         required
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         hint="8 caractères minimum."
       />
-      <Input
+      <PasswordInput
         label="Confirmer le mot de passe"
-        type="password"
         autoComplete="new-password"
         required
         value={confirm}

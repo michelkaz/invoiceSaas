@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { createClient } from "@/lib/supabase/client";
 import { authErrorMessage } from "@/lib/auth/errors";
 
@@ -99,9 +100,8 @@ export function AuthForm({ mode }: { mode: Mode }) {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
-      <Input
+      <PasswordInput
         label="Mot de passe"
-        type="password"
         autoComplete={mode === "signup" ? "new-password" : "current-password"}
         required
         value={password}

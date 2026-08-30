@@ -298,7 +298,7 @@ export function InvoiceForm({
                     type="number"
                     min={0}
                     inputMode="decimal"
-                    suffix="FCFA"
+                    suffix="FC"
                     value={Number.isNaN(line.unitPrice) ? "" : line.unitPrice}
                     onChange={(e) =>
                       updateLine(line.key, { unitPrice: Number(e.target.value) })

@@ -9,97 +9,99 @@ import type {
 } from "@/lib/data/types";
 
 /**
- * Données fictives codées en dur (phase 1 — design).
- * Aucune base de données : tout est en mémoire.
+ * Jeu de démonstration — entreprise fictive basée à Kinshasa (RDC).
+ * Montants en francs congolais (CDF). Aucune donnée réelle.
  */
 
 export const company: Company = {
-  name: "Atelier Baobab",
-  legalName: "Atelier Baobab SARL",
-  address: "Rue 12, Point E",
-  city: "Dakar",
-  country: "Sénégal",
-  phone: "+221 33 825 14 20",
-  email: "contact@atelierbaobab.sn",
-  taxId: "SN-DKR-2021-A-12345",
-  currency: "XOF",
-  defaultTvaRate: 18,
+  name: "Kinshasa Créative",
+  legalName: "Kinshasa Créative SARL",
+  address: "12, avenue du Commerce, Gombe",
+  city: "Kinshasa",
+  country: "RD Congo",
+  phone: "+243 81 234 56 78",
+  email: "contact@kinshasa-creative.cd",
+  rccm: "CD/KIN/RCCM/22-B-01234",
+  nif: "A2201234X",
+  idNat: "01-F4300-N01234X",
+  currency: "CDF",
+  defaultTvaRate: 16,
   invoicePrefix: "FAC",
   paymentTermsDays: 30,
-  bankDetails: "CBAO Sénégal — IBAN SN08 SN01 0100 1234 5678 9012 34 — BIC CBAOSNDA",
+  bankDetails: "Rawbank — Compte 00012-34567890-12 (CDF) — Titulaire : Kinshasa Créative SARL",
 };
 
 export const currentUser = {
-  firstName: "Awa",
-  lastName: "Diallo",
-  email: "awa@atelierbaobab.sn",
-  role: "Fondatrice",
+  firstName: "Michel",
+  lastName: "Kazadi",
+  email: "michel@kinshasa-creative.cd",
+  role: "Fondateur",
 };
 
 export const clients: Client[] = [
   {
     id: "cli_01",
-    name: "Konaté & Fils",
-    email: "compta@konatefils.ci",
-    phone: "+225 07 08 09 10 11",
-    address: "Boulevard Latrille, Cocody, Abidjan, Côte d'Ivoire",
-    createdAt: "2025-11-04",
+    name: "Kivu Consulting",
+    email: "compta@kivuconsulting.cd",
+    phone: "+243 99 100 20 30",
+    address: "Boulevard Kanyamuhanga, Goma, RD Congo",
+    createdAt: "2025-10-14",
   },
   {
     id: "cli_02",
-    name: "Boutique Chez Fatou",
-    email: "fatou@chezfatou.bj",
-    phone: "+229 97 00 11 22",
-    address: "Quartier Ganhi, Cotonou, Bénin",
-    createdAt: "2025-12-18",
+    name: "Congo Digital",
+    email: "finance@congodigital.cd",
+    phone: "+243 81 555 11 22",
+    address: "Avenue de la Justice, Gombe, Kinshasa, RD Congo",
+    createdAt: "2025-11-22",
   },
   {
     id: "cli_03",
-    name: "AgroPlus SA",
-    email: "finance@agroplus.sn",
-    phone: "+221 33 889 10 20",
-    address: "Zone industrielle, Thiès, Sénégal",
-    createdAt: "2026-01-09",
+    name: "Kinshasa Services SARL",
+    email: "achats@kinshasa-services.cd",
+    phone: "+243 82 300 44 55",
+    address: "Route de Matadi, Limete, Kinshasa, RD Congo",
+    createdAt: "2025-12-09",
   },
   {
     id: "cli_04",
-    name: "Studio Mensah",
-    email: "hello@studiomensah.tg",
-    phone: "+228 90 55 66 77",
-    address: "Avenue de la Libération, Lomé, Togo",
-    createdAt: "2026-01-27",
+    name: "Lumumba Consulting",
+    email: "hello@lumumbaconsulting.cd",
+    phone: "+243 89 777 66 55",
+    address: "Avenue des Cliniques, Ngaliema, Kinshasa, RD Congo",
+    createdAt: "2026-01-18",
   },
   {
     id: "cli_05",
-    name: "Ouédraogo Logistics",
-    email: "devis@ouedraogo-log.bf",
-    phone: "+226 70 12 34 56",
-    address: "Secteur 15, Ouagadougou, Burkina Faso",
-    createdAt: "2026-02-14",
+    name: "Congo Business Solutions",
+    email: "devis@congobusiness.cd",
+    phone: "+243 97 200 33 44",
+    address: "Avenue Lumumba, Lubumbashi, RD Congo",
+    createdAt: "2026-02-11",
   },
   {
     id: "cli_06",
-    name: "Nour Digital",
-    email: "nour@nourdigital.ci",
-    phone: "+225 05 44 55 66",
-    address: "Rue des Jardins, Deux Plateaux, Abidjan, Côte d'Ivoire",
-    createdAt: "2026-03-02",
+    name: "Kasaï Technologies",
+    email: "contact@kasai-tech.cd",
+    phone: "+243 84 611 22 77",
+    address: "Avenue Kasa-Vubu, Kintambo, Kinshasa, RD Congo",
+    createdAt: "2026-03-05",
   },
   {
     id: "cli_07",
-    name: "Ibrahim Touré",
-    email: "i.toure@example.ml",
-    phone: "+223 66 22 33 44",
-    address: "Hippodrome, Bamako, Mali",
-    createdAt: "2026-04-11",
+    name: "Goma Logistics",
+    email: "operations@gomalogistics.cd",
+    phone: "+243 99 850 40 10",
+    address: "Rond-point Signers, Goma, RD Congo",
+    createdAt: "2026-04-02",
   },
   {
     id: "cli_08",
-    name: "Coopérative Teranga",
-    email: "bureau@teranga-coop.sn",
-    phone: "+221 77 645 90 12",
-    address: "Route de Rufisque, Dakar, Sénégal",
-    createdAt: "2026-05-20",
+    name: "Nzambe Services",
+    email: "bureau@nzambeservices.cd",
+    phone: "+243 85 404 90 12",
+    address: "Avenue du Port, Matadi, RD Congo",
+    createdAt: "2026-05-19",
   },
 ];
 
@@ -123,8 +125,8 @@ const invoiceSeeds: InvoiceSeed[] = [
     issueDate: "2026-08-24",
     dueDate: "2026-09-23",
     items: [
-      { description: "Identité visuelle — logo et charte", quantity: 1, unitPrice: 650_000 },
-      { description: "Déclinaisons réseaux sociaux", quantity: 6, unitPrice: 35_000 },
+      { description: "Identité visuelle — logo et charte graphique", quantity: 1, unitPrice: 1_800_000 },
+      { description: "Déclinaisons réseaux sociaux", quantity: 6, unitPrice: 95_000 },
     ],
   },
   {
@@ -135,21 +137,21 @@ const invoiceSeeds: InvoiceSeed[] = [
     issueDate: "2026-08-12",
     dueDate: "2026-09-11",
     items: [
-      { description: "Refonte site vitrine (5 pages)", quantity: 1, unitPrice: 1_200_000 },
-      { description: "Séance photo produits", quantity: 1, unitPrice: 180_000 },
-      { description: "Hébergement annuel", quantity: 1, unitPrice: 90_000 },
+      { description: "Refonte du site vitrine (6 pages)", quantity: 1, unitPrice: 3_200_000 },
+      { description: "Séance photo produits", quantity: 1, unitPrice: 480_000 },
+      { description: "Hébergement et nom de domaine (1 an)", quantity: 1, unitPrice: 260_000 },
     ],
   },
   {
     id: "inv_03",
     number: "FAC-2026-0012",
-    clientId: "cli_03",
+    clientId: "cli_02",
     status: "payee",
     issueDate: "2026-08-03",
     dueDate: "2026-09-02",
     items: [
-      { description: "Campagne d'affichage — conception", quantity: 1, unitPrice: 420_000 },
-      { description: "Impression bâches 3x2 m", quantity: 8, unitPrice: 45_000 },
+      { description: "Campagne d'affichage — conception", quantity: 1, unitPrice: 1_150_000 },
+      { description: "Impression bâches 3x2 m", quantity: 8, unitPrice: 130_000 },
     ],
   },
   {
@@ -160,8 +162,8 @@ const invoiceSeeds: InvoiceSeed[] = [
     issueDate: "2026-07-19",
     dueDate: "2026-08-18",
     items: [
-      { description: "Catalogue produits 24 pages", quantity: 1, unitPrice: 780_000 },
-      { description: "Retouches photo", quantity: 30, unitPrice: 6_000 },
+      { description: "Catalogue produits 24 pages", quantity: 1, unitPrice: 2_100_000 },
+      { description: "Retouches photo", quantity: 30, unitPrice: 18_000 },
     ],
   },
   {
@@ -172,20 +174,20 @@ const invoiceSeeds: InvoiceSeed[] = [
     issueDate: "2026-06-28",
     dueDate: "2026-07-28",
     items: [
-      { description: "Habillage de flotte (4 véhicules)", quantity: 4, unitPrice: 260_000 },
-      { description: "Pose sur site", quantity: 1, unitPrice: 120_000 },
+      { description: "Habillage de flotte (4 véhicules)", quantity: 4, unitPrice: 720_000 },
+      { description: "Pose sur site", quantity: 1, unitPrice: 350_000 },
     ],
   },
   {
     id: "inv_06",
     number: "FAC-2026-0009",
-    clientId: "cli_02",
+    clientId: "cli_03",
     status: "en_retard",
     issueDate: "2026-06-15",
     dueDate: "2026-07-15",
     items: [
-      { description: "Enseigne lumineuse", quantity: 1, unitPrice: 540_000 },
-      { description: "Cartes de visite (1000 ex.)", quantity: 1, unitPrice: 60_000 },
+      { description: "Enseigne lumineuse", quantity: 1, unitPrice: 1_550_000 },
+      { description: "Cartes de visite (1000 ex.)", quantity: 1, unitPrice: 165_000 },
     ],
   },
   {
@@ -196,7 +198,7 @@ const invoiceSeeds: InvoiceSeed[] = [
     issueDate: "2026-06-04",
     dueDate: "2026-07-04",
     items: [
-      { description: "Motion design — vidéo 45 s", quantity: 1, unitPrice: 950_000 },
+      { description: "Motion design — vidéo 45 s", quantity: 1, unitPrice: 2_650_000 },
     ],
   },
   {
@@ -207,19 +209,19 @@ const invoiceSeeds: InvoiceSeed[] = [
     issueDate: "2026-05-22",
     dueDate: "2026-06-21",
     items: [
-      { description: "Accompagnement branding (forfait mensuel)", quantity: 2, unitPrice: 300_000 },
+      { description: "Accompagnement branding (forfait mensuel)", quantity: 2, unitPrice: 850_000 },
     ],
   },
   {
     id: "inv_09",
     number: "FAC-2026-0006",
-    clientId: "cli_03",
+    clientId: "cli_02",
     status: "payee",
     issueDate: "2026-05-08",
     dueDate: "2026-06-07",
     items: [
-      { description: "Packaging gamme jus (3 références)", quantity: 3, unitPrice: 210_000 },
-      { description: "Bon à tirer et suivi imprimeur", quantity: 1, unitPrice: 85_000 },
+      { description: "Packaging gamme jus (3 références)", quantity: 3, unitPrice: 590_000 },
+      { description: "Bon à tirer et suivi imprimeur", quantity: 1, unitPrice: 240_000 },
     ],
   },
   {
@@ -230,8 +232,8 @@ const invoiceSeeds: InvoiceSeed[] = [
     issueDate: "2026-04-17",
     dueDate: "2026-05-17",
     items: [
-      { description: "Stand salon 6x3 m — conception", quantity: 1, unitPrice: 680_000 },
-      { description: "Kakémonos", quantity: 4, unitPrice: 40_000 },
+      { description: "Stand salon 6x3 m — conception", quantity: 1, unitPrice: 1_900_000 },
+      { description: "Kakémonos", quantity: 4, unitPrice: 110_000 },
     ],
   },
   {
@@ -242,19 +244,19 @@ const invoiceSeeds: InvoiceSeed[] = [
     issueDate: "2026-03-28",
     dueDate: "2026-04-27",
     items: [
-      { description: "Landing page campagne", quantity: 1, unitPrice: 480_000 },
-      { description: "Intégration emailing", quantity: 1, unitPrice: 150_000 },
+      { description: "Landing page campagne", quantity: 1, unitPrice: 1_350_000 },
+      { description: "Intégration emailing", quantity: 1, unitPrice: 420_000 },
     ],
   },
   {
     id: "inv_12",
     number: "FAC-2026-0003",
-    clientId: "cli_02",
+    clientId: "cli_03",
     status: "payee",
     issueDate: "2026-02-20",
     dueDate: "2026-03-22",
     items: [
-      { description: "Menu restaurant — design et impression", quantity: 1, unitPrice: 320_000 },
+      { description: "Menu restaurant — design et impression", quantity: 1, unitPrice: 890_000 },
     ],
   },
   {
@@ -265,7 +267,7 @@ const invoiceSeeds: InvoiceSeed[] = [
     issueDate: "2026-01-30",
     dueDate: "2026-03-01",
     items: [
-      { description: "Charte documentaire (modèles Word/PPT)", quantity: 1, unitPrice: 390_000 },
+      { description: "Charte documentaire (modèles Word/PPT)", quantity: 1, unitPrice: 1_080_000 },
     ],
   },
   {
@@ -276,8 +278,8 @@ const invoiceSeeds: InvoiceSeed[] = [
     issueDate: "2026-01-12",
     dueDate: "2026-02-11",
     items: [
-      { description: "Direction artistique — shooting mode", quantity: 1, unitPrice: 720_000 },
-      { description: "Location studio (2 jours)", quantity: 2, unitPrice: 130_000 },
+      { description: "Direction artistique — shooting mode", quantity: 1, unitPrice: 2_000_000 },
+      { description: "Location studio (2 jours)", quantity: 2, unitPrice: 360_000 },
     ],
   },
 ];

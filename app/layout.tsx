@@ -9,9 +9,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Facturi — Facturation pour entrepreneurs",
+  title: "Facturi — La gestion de votre entreprise, simplement",
   description:
-    "Créez vos factures, suivez vos paiements et pilotez votre activité en FCFA.",
+    "Créez vos factures, suivez vos paiements et gardez une vue claire sur votre activité, depuis une seule plateforme pensée pour les entreprises en RDC.",
 };
 
 export default function RootLayout({

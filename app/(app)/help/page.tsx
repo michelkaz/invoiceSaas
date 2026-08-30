@@ -11,11 +11,11 @@ export const metadata: Metadata = {
 const FAQ = [
   {
     q: "Comment créer ma première facture ?",
-    a: "Ouvrez « Factures » puis « Créer une facture ». Choisissez un client, ajoutez vos lignes (description, quantité, prix unitaire) : le sous-total, la TVA à 18 % et le total TTC se calculent automatiquement.",
+    a: "Ouvrez « Factures » puis « Créer une facture ». Choisissez un client, ajoutez vos lignes (description, quantité, prix unitaire) : le sous-total, la TVA à 16 % et le total TTC se calculent automatiquement.",
   },
   {
-    q: "Comment fonctionne la TVA à 18 % ?",
-    a: "La TVA est appliquée au sous-total hors taxes. Le taux par défaut (18 %) est modifiable dans Paramètres → Facturation, et reste enregistré par facture.",
+    q: "Comment fonctionne la TVA à 16 % ?",
+    a: "La TVA est appliquée au sous-total hors taxes. Le taux par défaut (16 %, taux standard en RDC) est modifiable dans Paramètres → Facturation, et reste enregistré par facture.",
   },
   {
     q: "Que signifient les statuts des factures ?",
@@ -23,11 +23,15 @@ const FAQ = [
   },
   {
     q: "Dans quelle devise sont affichés les montants ?",
-    a: "En francs CFA (FCFA), arrondis à l'unité, au format « 250 000 FCFA ». Le choix XOF (UEMOA) ou XAF (CEMAC) se fait dans les Paramètres.",
+    a: "En francs congolais, arrondis à l'unité, au format « 250 000 FC ». La devise se règle dans Paramètres → Facturation (CDF par défaut).",
+  },
+  {
+    q: "Quelles mentions légales apparaissent sur mes factures ?",
+    a: "Les informations de votre entreprise renseignées dans les Paramètres : RCCM, N° Impôt (NIF) et ID NAT. Elles s'affichent dans l'en-tête de chaque facture et de son PDF.",
   },
   {
     q: "Mes données sont-elles enregistrées ?",
-    a: "Pour l'instant, les données de démonstration sont stockées localement dans votre navigateur. La synchronisation avec un compte sécurisé (Supabase) arrive dans une prochaine étape.",
+    a: "Oui. Vos clients, factures et paramètres sont enregistrés dans votre espace sécurisé et ne sont visibles que par vous.",
   },
 ];
 
@@ -80,8 +84,8 @@ export default function HelpPage() {
                 <Phone className="mt-0.5 h-4 w-4 text-slate-400" />
                 <div>
                   <p className="font-medium text-slate-900">Téléphone</p>
-                  <p className="text-slate-600">+221 33 800 00 00</p>
-                  <p className="text-xs text-slate-400">Lun–Ven, 9h–18h GMT</p>
+                  <p className="text-slate-600">+243 80 000 00 00</p>
+                  <p className="text-xs text-slate-500">Lun–Ven, 8h–17h (Kinshasa)</p>
                 </div>
               </div>
               <Button variant="outline" className="w-full" disabled>
@@ -98,7 +102,7 @@ export default function HelpPage() {
                 "Guide de démarrage rapide",
                 "Bien remplir une facture",
                 "Gérer ses clients",
-                "Comprendre la TVA en zone UEMOA",
+                "Comprendre la TVA en RDC",
               ].map((label) => (
                 <a
                   key={label}

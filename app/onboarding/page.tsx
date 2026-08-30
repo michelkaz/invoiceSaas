@@ -34,7 +34,7 @@ export default function OnboardingPage() {
     name: "",
     city: "",
     country: "",
-    currency: "XOF",
+    currency: "CDF",
     invoicePrefix: "FAC",
   });
 
@@ -126,8 +126,8 @@ export default function OnboardingPage() {
                 Bienvenue sur Facturi 👋
               </h1>
               <p className="mx-auto mt-1 max-w-sm text-sm text-slate-500">
-                En trois étapes, votre espace de facturation en FCFA est prêt.
-                Configurons d&apos;abord votre entreprise.
+                En trois étapes, votre espace de facturation en francs
+                congolais est prêt. Configurons d&apos;abord votre entreprise.
               </p>
             </div>
             <Button onClick={() => setStep(1)} className="w-full">
@@ -176,6 +176,7 @@ export default function OnboardingPage() {
               <Select
                 label="Devise"
                 options={[
+                  { value: "CDF", label: "Franc congolais — CDF (RDC)" },
                   { value: "XOF", label: "Franc CFA — XOF (UEMOA)" },
                   { value: "XAF", label: "Franc CFA — XAF (CEMAC)" },
                 ]}
