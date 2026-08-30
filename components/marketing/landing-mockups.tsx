@@ -7,7 +7,7 @@ const bars = [38, 22, 30, 46, 34, 72, 40, 88];
 export function DashboardMockup() {
   const t = getServerT();
   return (
-    <div className="w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-pop sm:p-6">
+    <div className="w-full rounded-2xl border border-slate-200 bg-white p-4 shadow-pop transition-shadow duration-300 hover:shadow-[0_24px_60px_-15px_rgba(124,58,237,0.28)] sm:p-6">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-semibold text-slate-900">

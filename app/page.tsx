@@ -21,8 +21,13 @@ import {
   DashboardMockup,
   InvoiceMockup,
 } from "@/components/marketing/landing-mockups";
+import { Reveal } from "@/components/marketing/reveal";
+import { Parallax } from "@/components/marketing/parallax";
 import { createClient } from "@/lib/supabase/server";
 import { getServerT } from "@/lib/i18n/server";
+
+const CARD =
+  "rounded-2xl border border-slate-200 bg-white p-5 shadow-card transition duration-200 hover:-translate-y-1 hover:border-slate-300 hover:shadow-pop";
 
 export default async function LandingPage() {
   const supabase = createClient();
@@ -40,55 +45,100 @@ export default async function LandingPage() {
       <main>
         {/* ── Hero ─────────────────────────────────────────────── */}
         <section className="relative overflow-hidden border-b border-slate-100 bg-slate-50">
-          <div className="mx-auto grid max-w-[1200px] gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:items-center lg:gap-8 lg:px-8 lg:py-24">
+          {/* halos décoratifs, parallaxe très douce */}
+          <Parallax
+            strength={26}
+            className="pointer-events-none absolute -right-24 -top-24 h-[28rem] w-[28rem] rounded-full bg-brand-200/40 blur-3xl"
+          >
+            <span />
+          </Parallax>
+          <Parallax
+            strength={-18}
+            className="pointer-events-none absolute -bottom-32 left-1/4 h-72 w-72 rounded-full bg-brand-100/50 blur-3xl"
+          >
+            <span />
+          </Parallax>
+
+          <div className="relative mx-auto grid max-w-[1200px] gap-12 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:items-center lg:gap-8 lg:px-8 lg:py-24">
             <div>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600">
+              <span
+                className="hero-in inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600 shadow-sm"
+                style={{ animationDelay: "0ms" }}
+              >
                 <Receipt className="h-3.5 w-3.5 text-brand-600" />
                 {t("landing.heroBadge")}
               </span>
-              <h1 className="mt-5 text-4xl font-bold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl">
+              <h1
+                className="hero-in mt-5 text-4xl font-bold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl"
+                style={{ animationDelay: "80ms" }}
+              >
                 {t("landing.heroTitle")}
               </h1>
-              <p className="mt-4 max-w-xl text-lg text-slate-600">
+              <p
+                className="hero-in mt-4 max-w-xl text-lg text-slate-600"
+                style={{ animationDelay: "160ms" }}
+              >
                 {t("landing.heroSubtitle")}
               </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Button href="/signup" size="lg">
+              <div
+                className="hero-in mt-8 flex flex-col gap-3 sm:flex-row"
+                style={{ animationDelay: "240ms" }}
+              >
+                <Button
+                  href="/signup"
+                  size="lg"
+                  className="transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                >
                   {t("landing.heroCtaPrimary")}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
-                <Button href="#fonctionnalites" size="lg" variant="outline">
+                <Button
+                  href="#fonctionnalites"
+                  size="lg"
+                  variant="outline"
+                  className="transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                >
                   {t("landing.heroCtaSecondary")}
                 </Button>
               </div>
-              <p className="mt-4 text-xs text-slate-500">
+              <p
+                className="hero-in mt-4 text-xs text-slate-500"
+                style={{ animationDelay: "320ms" }}
+              >
                 {t("landing.heroReassurance")}
               </p>
             </div>
-            <div className="lg:pl-8">
-              <DashboardMockup />
+            <div
+              className="hero-in lg:pl-8"
+              style={{ animationDelay: "220ms" }}
+            >
+              <Parallax strength={16}>
+                <DashboardMockup />
+              </Parallax>
             </div>
           </div>
         </section>
 
         {/* ── Problèmes ────────────────────────────────────────── */}
         <Section>
-          <SectionHead
-            title={t("landing.problemsTitle")}
-            subtitle={t("landing.problemsSubtitle")}
-          />
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <Reveal>
+            <SectionHead
+              title={t("landing.problemsTitle")}
+              subtitle={t("landing.problemsSubtitle")}
+            />
+          </Reveal>
+          <Reveal
+            stagger
+            className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4"
+          >
             {[
               { icon: FileSpreadsheet, t: "landing.problem1T", d: "landing.problem1D" },
               { icon: PenLine, t: "landing.problem2T", d: "landing.problem2D" },
               { icon: Search, t: "landing.problem3T", d: "landing.problem3D" },
               { icon: LayoutDashboard, t: "landing.problem4T", d: "landing.problem4D" },
             ].map(({ icon: Icon, t: tk, d: dk }) => (
-              <div
-                key={tk}
-                className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card"
-              >
-                <span className="grid h-10 w-10 place-items-center rounded-xl bg-slate-100 text-slate-500">
+              <div key={tk} className={`group ${CARD}`}>
+                <span className="grid h-10 w-10 place-items-center rounded-xl bg-slate-100 text-slate-500 transition-transform duration-200 group-hover:scale-110">
                   <Icon className="h-5 w-5" />
                 </span>
                 <p className="mt-4 text-sm font-semibold text-slate-900">
@@ -97,17 +147,19 @@ export default async function LandingPage() {
                 <p className="mt-1 text-sm text-slate-500">{t(dk)}</p>
               </div>
             ))}
-          </div>
+          </Reveal>
         </Section>
 
         {/* ── Solution / Fonctionnalités ───────────────────────── */}
         <section id="fonctionnalites" className="scroll-mt-20 bg-slate-50">
           <Section>
-            <SectionHead
-              title={t("landing.featuresTitle")}
-              subtitle={t("landing.featuresSubtitle")}
-            />
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <Reveal>
+              <SectionHead
+                title={t("landing.featuresTitle")}
+                subtitle={t("landing.featuresSubtitle")}
+              />
+            </Reveal>
+            <Reveal stagger className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {[
                 { icon: Users, t: "landing.feat1T", d: "landing.feat1D" },
                 { icon: FileText, t: "landing.feat2T", d: "landing.feat2D" },
@@ -116,11 +168,8 @@ export default async function LandingPage() {
                 { icon: FileDown, t: "landing.feat5T", d: "landing.feat5D" },
                 { icon: Smartphone, t: "landing.feat6T", d: "landing.feat6D" },
               ].map(({ icon: Icon, t: tk, d: dk }) => (
-                <div
-                  key={tk}
-                  className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card"
-                >
-                  <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand-50 text-brand-600">
+                <div key={tk} className={`group ${CARD}`}>
+                  <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand-50 text-brand-600 transition-transform duration-200 group-hover:scale-110">
                     <Icon className="h-5 w-5" />
                   </span>
                   <p className="mt-4 text-sm font-semibold text-slate-900">
@@ -129,43 +178,44 @@ export default async function LandingPage() {
                   <p className="mt-1 text-sm text-slate-500">{t(dk)}</p>
                 </div>
               ))}
-            </div>
+            </Reveal>
           </Section>
         </section>
 
         {/* ── Comment ça marche ────────────────────────────────── */}
         <Section>
-          <SectionHead
-            title={t("landing.howTitle")}
-            subtitle={t("landing.howSubtitle")}
-          />
-          <ol className="grid gap-5 md:grid-cols-3 lg:grid-cols-5">
-            {[
-              ["01", "landing.how1T", "landing.how1D"],
-              ["02", "landing.how2T", "landing.how2D"],
-              ["03", "landing.how3T", "landing.how3D"],
-              ["04", "landing.how4T", "landing.how4D"],
-              ["05", "landing.how5T", "landing.how5D"],
-            ].map(([n, tk, dk]) => (
-              <li
-                key={n}
-                className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card"
-              >
-                <span className="text-sm font-bold text-brand-600">{n}</span>
-                <p className="mt-2 text-sm font-semibold text-slate-900">
-                  {t(tk)}
-                </p>
-                <p className="mt-1 text-sm text-slate-500">{t(dk)}</p>
-              </li>
-            ))}
-          </ol>
+          <Reveal>
+            <SectionHead
+              title={t("landing.howTitle")}
+              subtitle={t("landing.howSubtitle")}
+            />
+          </Reveal>
+          <Reveal stagger>
+            <ol className="grid gap-5 md:grid-cols-3 lg:grid-cols-5">
+              {[
+                ["01", "landing.how1T", "landing.how1D"],
+                ["02", "landing.how2T", "landing.how2D"],
+                ["03", "landing.how3T", "landing.how3D"],
+                ["04", "landing.how4T", "landing.how4D"],
+                ["05", "landing.how5T", "landing.how5D"],
+              ].map(([n, tk, dk]) => (
+                <li key={n} className={CARD}>
+                  <span className="text-sm font-bold text-brand-600">{n}</span>
+                  <p className="mt-2 text-sm font-semibold text-slate-900">
+                    {t(tk)}
+                  </p>
+                  <p className="mt-1 text-sm text-slate-500">{t(dk)}</p>
+                </li>
+              ))}
+            </ol>
+          </Reveal>
         </Section>
 
         {/* ── Facture PDF ──────────────────────────────────────── */}
         <section className="bg-slate-50">
           <Section>
             <div className="grid items-center gap-12 lg:grid-cols-2">
-              <div>
+              <Reveal>
                 <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
                   {t("landing.pdfTitle")}
                 </h2>
@@ -194,8 +244,12 @@ export default async function LandingPage() {
                     <ArrowRight className="h-4 w-4" /> {t("landing.pdfActionSend")}
                   </span>
                 </div>
-              </div>
-              <InvoiceMockup />
+              </Reveal>
+              <Reveal delay={120}>
+                <div className="float-slow">
+                  <InvoiceMockup />
+                </div>
+              </Reveal>
             </div>
           </Section>
         </section>
@@ -203,7 +257,7 @@ export default async function LandingPage() {
         {/* ── Paiements ────────────────────────────────────────── */}
         <Section>
           <div className="grid items-center gap-12 lg:grid-cols-2">
-            <div className="order-2 lg:order-1">
+            <Reveal className="order-2 lg:order-1">
               <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
                 <p className="text-sm text-slate-500">{t("landing.payMonth")}</p>
                 <p className="mt-1 text-3xl font-bold tracking-tight tabular-nums text-slate-900">
@@ -229,8 +283,8 @@ export default async function LandingPage() {
                   ))}
                 </div>
               </div>
-            </div>
-            <div className="order-1 lg:order-2">
+            </Reveal>
+            <Reveal className="order-1 lg:order-2">
               <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
                 {t("landing.payTitle")}
               </h2>
@@ -238,18 +292,20 @@ export default async function LandingPage() {
               <p className="mt-3 text-xs text-slate-500">
                 {t("landing.payDisclaimer")}
               </p>
-            </div>
+            </Reveal>
           </div>
         </Section>
 
         {/* ── Pensé pour la RDC ────────────────────────────────── */}
-        <section className="bg-slate-50">
+        <section className="bg-gradient-to-b from-brand-50/50 via-brand-50/20 to-white">
           <Section>
-            <SectionHead
-              title={t("landing.rdcTitle")}
-              subtitle={t("landing.rdcSubtitle")}
-            />
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <Reveal>
+              <SectionHead
+                title={t("landing.rdcTitle")}
+                subtitle={t("landing.rdcSubtitle")}
+              />
+            </Reveal>
+            <Reveal stagger className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {[
                 "landing.rdc1",
                 "landing.rdc2",
@@ -262,24 +318,26 @@ export default async function LandingPage() {
               ].map((f) => (
                 <div
                   key={f}
-                  className="flex items-start gap-2.5 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700 shadow-card"
+                  className="flex items-start gap-2.5 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700 shadow-card transition duration-200 hover:-translate-y-0.5 hover:shadow-pop"
                 >
                   <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" />
                   {t(f)}
                 </div>
               ))}
-            </div>
+            </Reveal>
           </Section>
         </section>
 
         {/* ── Tarifs ───────────────────────────────────────────── */}
         <section id="tarifs" className="scroll-mt-20">
           <Section>
-            <SectionHead
-              title={t("landing.pricingTitle")}
-              subtitle={t("landing.pricingSubtitle")}
-            />
-            <div className="grid gap-5 md:grid-cols-3">
+            <Reveal>
+              <SectionHead
+                title={t("landing.pricingTitle")}
+                subtitle={t("landing.pricingSubtitle")}
+              />
+            </Reveal>
+            <Reveal stagger className="grid gap-5 md:grid-cols-3">
               {[
                 {
                   name: "landing.planFreeName",
@@ -305,10 +363,10 @@ export default async function LandingPage() {
               ].map((p) => (
                 <div
                   key={p.name}
-                  className={`flex flex-col rounded-2xl border bg-white p-6 shadow-card ${
+                  className={`flex flex-col rounded-2xl border bg-white p-6 shadow-card transition duration-200 hover:-translate-y-1 hover:shadow-pop ${
                     p.highlight
                       ? "border-brand-300 ring-1 ring-brand-200"
-                      : "border-slate-200"
+                      : "border-slate-200 hover:border-slate-300"
                   }`}
                 >
                   {p.highlight && (
@@ -341,13 +399,13 @@ export default async function LandingPage() {
                   <Button
                     href="/signup"
                     variant={p.highlight ? "primary" : "outline"}
-                    className="mt-6 w-full"
+                    className="mt-6 w-full transition-transform hover:scale-[1.02] active:scale-[0.98]"
                   >
                     {t("landing.planStart")}
                   </Button>
                 </div>
               ))}
-            </div>
+            </Reveal>
             <p className="mt-4 text-center text-xs text-slate-500">
               {t("landing.pricingNote")}
             </p>
@@ -357,20 +415,19 @@ export default async function LandingPage() {
         {/* ── Témoignages ──────────────────────────────────────── */}
         <section className="bg-slate-50">
           <Section>
-            <SectionHead
-              title={t("landing.testimonialsTitle")}
-              subtitle={t("landing.testimonialsSubtitle")}
-            />
-            <div className="grid gap-5 md:grid-cols-3">
+            <Reveal>
+              <SectionHead
+                title={t("landing.testimonialsTitle")}
+                subtitle={t("landing.testimonialsSubtitle")}
+              />
+            </Reveal>
+            <Reveal stagger className="grid gap-5 md:grid-cols-3">
               {[
                 { q: "landing.testi1Q", n: "Sarah", r: "landing.testi1R" },
                 { q: "landing.testi2Q", n: "David", r: "landing.testi2R" },
                 { q: "landing.testi3Q", n: "Kevin", r: "landing.testi3R" },
               ].map((ti) => (
-                <figure
-                  key={ti.n}
-                  className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card"
-                >
+                <figure key={ti.n} className={CARD}>
                   <blockquote className="text-sm leading-relaxed text-slate-700">
                     « {t(ti.q)} »
                   </blockquote>
@@ -380,15 +437,17 @@ export default async function LandingPage() {
                   </figcaption>
                 </figure>
               ))}
-            </div>
+            </Reveal>
           </Section>
         </section>
 
         {/* ── FAQ ──────────────────────────────────────────────── */}
         <section id="faq" className="scroll-mt-20">
           <Section>
-            <SectionHead title={t("landing.faqTitle")} />
-            <div className="mx-auto max-w-2xl divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white p-2 shadow-card">
+            <Reveal>
+              <SectionHead title={t("landing.faqTitle")} />
+            </Reveal>
+            <Reveal className="mx-auto max-w-2xl divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white p-2 shadow-card">
               {[
                 ["landing.faq1Q", "landing.faq1A"],
                 ["landing.faq2Q", "landing.faq2A"],
@@ -397,9 +456,9 @@ export default async function LandingPage() {
                 ["landing.faq5Q", "landing.faq5A"],
               ].map(([qk, ak]) => (
                 <details key={qk} className="group p-4">
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-slate-900">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-slate-900 transition-colors hover:text-brand-700">
                     {t(qk)}
-                    <span className="text-slate-400 transition-transform group-open:rotate-45">
+                    <span className="text-slate-400 transition-transform duration-200 group-open:rotate-45">
                       +
                     </span>
                   </summary>
@@ -408,29 +467,37 @@ export default async function LandingPage() {
                   </p>
                 </details>
               ))}
-            </div>
+            </Reveal>
           </Section>
         </section>
 
         {/* ── CTA final ────────────────────────────────────────── */}
         <section className="px-4 pb-16 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-[1200px] rounded-3xl bg-gradient-to-br from-brand-600 to-brand-800 px-6 py-14 text-center text-white sm:py-16">
-            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              {t("landing.ctaTitle")}
-            </h2>
-            <p className="mx-auto mt-2 max-w-md text-sm text-white/80">
-              {t("landing.ctaBody")}
-            </p>
-            <div className="mt-7">
-              <Link
-                href="/signup"
-                className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-brand-700 shadow-sm transition hover:bg-slate-50"
+          <Reveal className="mx-auto max-w-[1200px]">
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-600 to-brand-800 px-6 py-14 text-center text-white sm:py-16">
+              <Parallax
+                strength={20}
+                className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-white/10 blur-2xl"
               >
-                {t("landing.ctaButton")}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
+                <span />
+              </Parallax>
+              <h2 className="relative text-2xl font-bold tracking-tight sm:text-3xl">
+                {t("landing.ctaTitle")}
+              </h2>
+              <p className="relative mx-auto mt-2 max-w-md text-sm text-white/80">
+                {t("landing.ctaBody")}
+              </p>
+              <div className="relative mt-7">
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-brand-700 shadow-sm transition hover:scale-[1.03] hover:shadow-lg active:scale-[0.98]"
+                >
+                  {t("landing.ctaButton")}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
             </div>
-          </div>
+          </Reveal>
         </section>
       </main>
 
@@ -487,7 +554,9 @@ export default async function LandingPage() {
                 <ul className="mt-3 space-y-2">
                   {col.links.map((l) => (
                     <li key={l}>
-                      <span className="text-sm text-slate-500">{t(l)}</span>
+                      <span className="text-sm text-slate-500 transition-colors hover:text-slate-800">
+                        {t(l)}
+                      </span>
                     </li>
                   ))}
                 </ul>

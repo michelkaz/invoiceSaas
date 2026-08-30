@@ -1,14 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu, X, Receipt } from "lucide-react";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { useT } from "@/components/providers/i18n-provider";
+import { cn } from "@/lib/utils";
 
 export function LandingHeader() {
   const t = useT();
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const links = [
     { href: "#fonctionnalites", label: t("landing.navFeatures") },
@@ -17,10 +26,15 @@ export function LandingHeader() {
   ];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/80 backdrop-blur">
+    <header
+      className={cn(
+        "sticky top-0 z-40 border-b bg-white/80 backdrop-blur transition-shadow duration-300",
+        scrolled ? "border-slate-200 shadow-sm" : "border-transparent",
+      )}
+    >
       <div className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-600 text-white">
+        <Link href="/" className="group flex items-center gap-2">
+          <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand-600 text-white transition-transform duration-200 group-hover:scale-105">
             <Receipt className="h-5 w-5" />
           </span>
           <span className="text-lg font-bold tracking-tight text-slate-900">
@@ -33,7 +47,7 @@ export function LandingHeader() {
             <a
               key={l.href}
               href={l.href}
-              className="text-sm font-medium text-slate-600 transition-colors hover:text-slate-900"
+              className="relative text-sm font-medium text-slate-600 transition-colors hover:text-slate-900 after:absolute after:-bottom-1.5 after:left-0 after:h-0.5 after:w-0 after:rounded-full after:bg-brand-500 after:transition-all after:duration-200 hover:after:w-full"
             >
               {l.label}
             </a>
@@ -50,7 +64,7 @@ export function LandingHeader() {
           </Link>
           <Link
             href="/signup"
-            className="rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700"
+            className="rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all duration-200 hover:scale-[1.03] hover:bg-brand-700 hover:shadow-md active:scale-95"
           >
             {t("landing.getStarted")}
           </Link>
@@ -61,21 +75,21 @@ export function LandingHeader() {
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? t("topbar.closeMenu") : t("topbar.openMenu")}
           aria-expanded={open}
-          className="grid h-10 w-10 place-items-center rounded-lg text-slate-600 hover:bg-slate-100 md:hidden"
+          className="grid h-10 w-10 place-items-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 md:hidden"
         >
           {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
         </button>
       </div>
 
       {open && (
-        <div className="border-t border-slate-200 bg-white px-4 py-4 md:hidden">
+        <div className="animate-fade-in border-t border-slate-200 bg-white px-4 py-4 md:hidden">
           <nav className="flex flex-col gap-1">
             {links.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                className="rounded-lg px-3 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
               >
                 {l.label}
               </a>

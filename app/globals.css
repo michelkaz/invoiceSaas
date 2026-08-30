@@ -7,6 +7,10 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-slate-50 text-slate-900 antialiased;
   }
@@ -25,9 +29,90 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* ── Révélation au scroll (piloté par <Reveal>) ─────────────────────────── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Révélation en cascade des enfants directs (une seule sonde par section) */
+  .reveal-stagger > * {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal-stagger.is-visible > * {
+    opacity: 1;
+    transform: none;
+  }
+  .reveal-stagger.is-visible > *:nth-child(1) {
+    transition-delay: 0ms;
+  }
+  .reveal-stagger.is-visible > *:nth-child(2) {
+    transition-delay: 70ms;
+  }
+  .reveal-stagger.is-visible > *:nth-child(3) {
+    transition-delay: 140ms;
+  }
+  .reveal-stagger.is-visible > *:nth-child(4) {
+    transition-delay: 210ms;
+  }
+  .reveal-stagger.is-visible > *:nth-child(5) {
+    transition-delay: 280ms;
+  }
+  .reveal-stagger.is-visible > *:nth-child(6) {
+    transition-delay: 350ms;
+  }
+  .reveal-stagger.is-visible > *:nth-child(7) {
+    transition-delay: 420ms;
+  }
+  .reveal-stagger.is-visible > *:nth-child(8) {
+    transition-delay: 490ms;
+  }
+
+  /* Entrée du hero (animation CSS pure, au chargement) */
+  .hero-in {
+    animation: hero-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  /* Flottement lent et discret (éléments décoratifs / mockups) */
+  .float-slow {
+    animation: float-slow 7s ease-in-out infinite;
+  }
 }
 
-/* Respect de la préférence système : on neutralise les animations. */
+@keyframes hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+/* Respect de la préférence système : on neutralise toute animation. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -36,6 +121,18 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+  .reveal,
+  .reveal-stagger > * {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .hero-in,
+  .float-slow {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 
