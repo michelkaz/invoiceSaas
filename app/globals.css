@@ -33,23 +33,26 @@
   /* ── Révélation au scroll (piloté par <Reveal>) ─────────────────────────── */
   .reveal {
     opacity: 0;
-    transform: translateY(18px);
+    transform: translateY(42px) scale(0.965);
+    filter: blur(8px);
     transition:
-      opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+      filter 0.9s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .reveal.is-visible {
     opacity: 1;
     transform: none;
+    filter: none;
   }
 
-  /* Révélation en cascade des enfants directs (une seule sonde par section) */
+  /* Cascade des enfants directs — translate + scale (pas de blur : perf) */
   .reveal-stagger > * {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(36px) scale(0.97);
     transition:
-      opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
-      transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+      transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .reveal-stagger.is-visible > * {
     opacity: 1;
@@ -59,42 +62,97 @@
     transition-delay: 0ms;
   }
   .reveal-stagger.is-visible > *:nth-child(2) {
-    transition-delay: 70ms;
+    transition-delay: 90ms;
   }
   .reveal-stagger.is-visible > *:nth-child(3) {
-    transition-delay: 140ms;
+    transition-delay: 180ms;
   }
   .reveal-stagger.is-visible > *:nth-child(4) {
-    transition-delay: 210ms;
+    transition-delay: 270ms;
   }
   .reveal-stagger.is-visible > *:nth-child(5) {
-    transition-delay: 280ms;
+    transition-delay: 360ms;
   }
   .reveal-stagger.is-visible > *:nth-child(6) {
-    transition-delay: 350ms;
+    transition-delay: 450ms;
   }
   .reveal-stagger.is-visible > *:nth-child(7) {
-    transition-delay: 420ms;
+    transition-delay: 540ms;
   }
   .reveal-stagger.is-visible > *:nth-child(8) {
-    transition-delay: 490ms;
+    transition-delay: 630ms;
   }
 
   /* Entrée du hero (animation CSS pure, au chargement) */
   .hero-in {
-    animation: hero-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: hero-in 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
-  /* Flottement lent et discret (éléments décoratifs / mockups) */
+  /* Flottement lent et discret */
   .float-slow {
     animation: float-slow 7s ease-in-out infinite;
+  }
+
+  /* Ruban défilant (villes) */
+  .marquee {
+    display: flex;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 12%,
+      #000 88%,
+      transparent
+    );
+    mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 12%,
+      #000 88%,
+      transparent
+    );
+  }
+  .marquee-track {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 2.75rem;
+    padding-right: 2.75rem;
+    animation: marquee 34s linear infinite;
+  }
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
+  }
+
+  /* Reflet balayant les CTA au survol */
+  .cta-shine {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .cta-shine::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      110deg,
+      transparent 32%,
+      rgba(255, 255, 255, 0.4) 50%,
+      transparent 68%
+    );
+    transform: translateX(-130%);
+    transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+  }
+  .cta-shine:hover::after {
+    transform: translateX(130%);
   }
 }
 
 @keyframes hero-in {
   from {
     opacity: 0;
-    transform: translateY(22px);
+    transform: translateY(28px) scale(0.98);
   }
   to {
     opacity: 1;
@@ -108,7 +166,13 @@
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-7px);
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-100%);
   }
 }
 
@@ -126,13 +190,18 @@
   .reveal-stagger > * {
     opacity: 1 !important;
     transform: none !important;
+    filter: none !important;
     transition: none !important;
   }
   .hero-in,
-  .float-slow {
+  .float-slow,
+  .marquee-track {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
+  }
+  .cta-shine::after {
+    display: none;
   }
 }
 

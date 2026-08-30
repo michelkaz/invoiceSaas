@@ -23,6 +23,8 @@ import {
 } from "@/components/marketing/landing-mockups";
 import { Reveal } from "@/components/marketing/reveal";
 import { Parallax } from "@/components/marketing/parallax";
+import { Marquee } from "@/components/marketing/marquee";
+import { CountUp, groupFR } from "@/components/marketing/count-up";
 import { createClient } from "@/lib/supabase/server";
 import { getServerT } from "@/lib/i18n/server";
 
@@ -45,16 +47,16 @@ export default async function LandingPage() {
       <main>
         {/* ── Hero ─────────────────────────────────────────────── */}
         <section className="relative overflow-hidden border-b border-slate-100 bg-slate-50">
-          {/* halos décoratifs, parallaxe très douce */}
+          {/* halos décoratifs, parallaxe douce */}
           <Parallax
-            strength={26}
-            className="pointer-events-none absolute -right-24 -top-24 h-[28rem] w-[28rem] rounded-full bg-brand-200/40 blur-3xl"
+            strength={44}
+            className="pointer-events-none absolute -right-24 -top-24 h-[30rem] w-[30rem] rounded-full bg-brand-200/45 blur-3xl"
           >
             <span />
           </Parallax>
           <Parallax
-            strength={-18}
-            className="pointer-events-none absolute -bottom-32 left-1/4 h-72 w-72 rounded-full bg-brand-100/50 blur-3xl"
+            strength={-30}
+            className="pointer-events-none absolute -bottom-40 left-1/4 h-80 w-80 rounded-full bg-brand-100/60 blur-3xl"
           >
             <span />
           </Parallax>
@@ -87,7 +89,7 @@ export default async function LandingPage() {
                 <Button
                   href="/signup"
                   size="lg"
-                  className="transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                  className="cta-shine transition-transform hover:scale-[1.03] active:scale-[0.97]"
                 >
                   {t("landing.heroCtaPrimary")}
                   <ArrowRight className="h-4 w-4" />
@@ -112,12 +114,26 @@ export default async function LandingPage() {
               className="hero-in lg:pl-8"
               style={{ animationDelay: "220ms" }}
             >
-              <Parallax strength={16}>
+              <Parallax strength={30}>
                 <DashboardMockup />
               </Parallax>
             </div>
           </div>
         </section>
+
+        {/* ── Ruban villes ─────────────────────────────────────── */}
+        <Marquee
+          items={[
+            "Kinshasa",
+            "Lubumbashi",
+            "Goma",
+            "Kolwezi",
+            "Kisangani",
+            "Matadi",
+            "Bukavu",
+            "Mbuji-Mayi",
+          ]}
+        />
 
         {/* ── Problèmes ────────────────────────────────────────── */}
         <Section>
@@ -261,7 +277,7 @@ export default async function LandingPage() {
               <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
                 <p className="text-sm text-slate-500">{t("landing.payMonth")}</p>
                 <p className="mt-1 text-3xl font-bold tracking-tight tabular-nums text-slate-900">
-                  1 850 000 FC
+                  <CountUp end={1850000} format={groupFR} suffix=" FC" />
                 </p>
                 <div className="mt-5 space-y-3">
                   {[
@@ -399,7 +415,7 @@ export default async function LandingPage() {
                   <Button
                     href="/signup"
                     variant={p.highlight ? "primary" : "outline"}
-                    className="mt-6 w-full transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                    className="cta-shine mt-6 w-full transition-transform hover:scale-[1.03] active:scale-[0.97]"
                   >
                     {t("landing.planStart")}
                   </Button>
@@ -490,7 +506,7 @@ export default async function LandingPage() {
               <div className="relative mt-7">
                 <Link
                   href="/signup"
-                  className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-brand-700 shadow-sm transition hover:scale-[1.03] hover:shadow-lg active:scale-[0.98]"
+                  className="cta-shine inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-brand-700 shadow-sm transition-transform hover:scale-[1.04] hover:shadow-lg active:scale-[0.97]"
                 >
                   {t("landing.ctaButton")}
                   <ArrowRight className="h-4 w-4" />

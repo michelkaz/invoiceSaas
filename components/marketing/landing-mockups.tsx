@@ -1,5 +1,6 @@
 import { Wallet, CheckCircle2, Clock, FileStack } from "lucide-react";
 import { getServerT } from "@/lib/i18n/server";
+import { CountUp, groupFR } from "@/components/marketing/count-up";
 
 const bars = [38, 22, 30, 46, 34, 72, 40, 88];
 
@@ -22,10 +23,30 @@ export function DashboardMockup() {
 
       <div className="mt-4 grid grid-cols-2 gap-3">
         {[
-          { icon: Wallet, label: t("landing.mockRevenue"), value: "2 450 000 FC", accent: "text-brand-600 bg-brand-50" },
-          { icon: FileStack, label: t("landing.mockInvoices"), value: "34", accent: "text-slate-600 bg-slate-100" },
-          { icon: CheckCircle2, label: t("landing.mockPaid"), value: "24", accent: "text-emerald-600 bg-emerald-50" },
-          { icon: Clock, label: t("landing.mockPending"), value: "7", accent: "text-amber-600 bg-amber-50" },
+          {
+            icon: Wallet,
+            label: t("landing.mockRevenue"),
+            value: <CountUp end={2450000} format={groupFR} suffix=" FC" />,
+            accent: "text-brand-600 bg-brand-50",
+          },
+          {
+            icon: FileStack,
+            label: t("landing.mockInvoices"),
+            value: <CountUp end={34} />,
+            accent: "text-slate-600 bg-slate-100",
+          },
+          {
+            icon: CheckCircle2,
+            label: t("landing.mockPaid"),
+            value: <CountUp end={24} />,
+            accent: "text-emerald-600 bg-emerald-50",
+          },
+          {
+            icon: Clock,
+            label: t("landing.mockPending"),
+            value: <CountUp end={7} />,
+            accent: "text-amber-600 bg-amber-50",
+          },
         ].map(({ icon: Icon, label, value, accent }) => (
           <div key={label} className="rounded-xl border border-slate-100 p-3">
             <span className={`grid h-8 w-8 place-items-center rounded-lg ${accent}`}>
