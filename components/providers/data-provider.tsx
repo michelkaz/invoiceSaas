@@ -28,6 +28,7 @@ import {
   rowToInvoice,
 } from "@/lib/data/serialize";
 import { useToast } from "@/components/ui/toast";
+import { useT } from "@/components/providers/i18n-provider";
 import type {
   Client,
   Company,
@@ -149,6 +150,7 @@ const EMPTY_STATE: DataState = {
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const supabase = useMemo(() => createClient(), []);
   const { toast } = useToast();
+  const t = useT();
 
   const [state, setState] = useState<DataState>(EMPTY_STATE);
   const [hydrated, setHydrated] = useState(false);
@@ -166,11 +168,11 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const handleAuthLoss = useCallback(() => {
     toast({
       variant: "error",
-      title: "Session expirée",
-      description: "Reconnectez-vous pour continuer.",
+      title: t("errors.sessionExpired"),
+      description: t("errors.sessionExpiredDesc"),
     });
     window.location.assign("/login?next=" + encodeURIComponent(window.location.pathname));
-  }, [toast]);
+  }, [toast, t]);
 
   // ── Lecture complète depuis Supabase ──────────────────────────────────────
   const fetchAll = useCallback(
@@ -225,12 +227,12 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       }
       toast({
         variant: "error",
-        title,
-        description: "La modification n'a pas été enregistrée.",
+        title: t(title),
+        description: t("errors.mutationFailed"),
       });
       void refetch();
     },
-    [toast, refetch, handleAuthLoss],
+    [toast, refetch, handleAuthLoss, t],
   );
 
   const persist = useCallback(
@@ -335,7 +337,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             ...clientToRow(data),
             created_at: client.createdAt,
           }),
-          "Ajout du client impossible",
+          "errors.addClientFailed",
         );
       }
       return client;
@@ -351,7 +353,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       }));
       void persist(
         supabase.from("clients").update(clientToRow(data)).eq("id", id),
-        "Modification du client impossible",
+        "errors.updateClientFailed",
       );
     },
     [supabase, persist],
@@ -365,7 +367,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       }));
       void persist(
         supabase.from("clients").delete().eq("id", id),
-        "Suppression du client impossible",
+        "errors.deleteClientFailed",
       );
     },
     [supabase, persist],
@@ -404,7 +406,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       setState((prev) => ({ ...prev, invoices: [invoice, ...prev.invoices] }));
       void persist(
         supabase.rpc("create_invoice", invoiceToPayload(invoice)),
-        "Enregistrement de la facture impossible",
+        "errors.createInvoiceFailed",
       );
       return invoice;
     },
@@ -422,7 +424,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       }));
       void persist(
         supabase.rpc("update_invoice", invoiceToPayload(updated)),
-        "Modification de la facture impossible",
+        "errors.updateInvoiceFailed",
       );
     },
     [supabase, persist, buildInvoice],
@@ -436,7 +438,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       }));
       void persist(
         supabase.from("invoices").delete().eq("id", id),
-        "Suppression de la facture impossible",
+        "errors.deleteInvoiceFailed",
       );
     },
     [supabase, persist],
@@ -452,7 +454,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       }));
       void persist(
         supabase.from("invoices").update({ status }).eq("id", id),
-        "Changement de statut impossible",
+        "errors.statusFailed",
       );
     },
     [supabase, persist],
@@ -465,7 +467,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       if (uid) {
         void persist(
           supabase.from("companies").update(companyToRow(data)).eq("owner_id", uid),
-          "Enregistrement des paramètres impossible",
+          "errors.settingsFailed",
         );
       }
     },
@@ -481,7 +483,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           .from("companies")
           .update({ onboarding_completed: true })
           .eq("owner_id", uid),
-        "Enregistrement impossible",
+        "errors.saveFailed",
       );
     }
   }, [supabase, persist]);
@@ -496,7 +498,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
             .from("companies")
             .update({ tutorial_seen: seen })
             .eq("owner_id", uid),
-          "Enregistrement impossible",
+          "errors.saveFailed",
         );
       }
     },
@@ -532,7 +534,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         .insert(seedInvoices.flatMap(invoiceItemsToRows));
       setState(await fetchAll(uid));
     } catch (e) {
-      fail("Chargement des données de démonstration impossible", e);
+      fail("errors.demoLoadFailed", e);
     }
   }, [supabase, fetchAll, fail]);
 
@@ -543,7 +545,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const deleteAccount = useCallback(async () => {
     const { error } = await supabase.rpc("delete_own_account");
     if (error) {
-      fail("Suppression du compte impossible", error);
+      fail("errors.deleteAccountFailed", error);
       return;
     }
     await supabase.auth.signOut();

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import { getServerT } from "@/lib/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Tableau de bord — Facturi",
-};
+export function generateMetadata(): Metadata {
+  return { title: `${getServerT()("dashboard.title")} — Facturi` };
+}
 
 export default function DashboardLayout({
   children,

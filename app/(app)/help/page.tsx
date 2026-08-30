@@ -3,61 +3,43 @@ import { Mail, Phone, MessageCircle, BookOpen, ChevronDown } from "lucide-react"
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { getServerT } from "@/lib/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Aide & support — Facturi",
-};
-
-const FAQ = [
-  {
-    q: "Comment créer ma première facture ?",
-    a: "Ouvrez « Factures » puis « Créer une facture ». Choisissez un client, ajoutez vos lignes (description, quantité, prix unitaire) : le sous-total, la TVA à 16 % et le total TTC se calculent automatiquement.",
-  },
-  {
-    q: "Comment fonctionne la TVA à 16 % ?",
-    a: "La TVA est appliquée au sous-total hors taxes. Le taux par défaut (16 %, taux standard en RDC) est modifiable dans Paramètres → Facturation, et reste enregistré par facture.",
-  },
-  {
-    q: "Que signifient les statuts des factures ?",
-    a: "Brouillon : non finalisée. Envoyée : transmise au client, en attente de paiement. Payée : réglée. En retard : envoyée mais échéance dépassée. Vous pouvez changer le statut depuis la liste ou le détail d'une facture.",
-  },
-  {
-    q: "Dans quelle devise sont affichés les montants ?",
-    a: "En francs congolais, arrondis à l'unité, au format « 250 000 FC ». La devise se règle dans Paramètres → Facturation (CDF par défaut).",
-  },
-  {
-    q: "Quelles mentions légales apparaissent sur mes factures ?",
-    a: "Les informations de votre entreprise renseignées dans les Paramètres : RCCM, N° Impôt (NIF) et ID NAT. Elles s'affichent dans l'en-tête de chaque facture et de son PDF.",
-  },
-  {
-    q: "Mes données sont-elles enregistrées ?",
-    a: "Oui. Vos clients, factures et paramètres sont enregistrés dans votre espace sécurisé et ne sont visibles que par vous.",
-  },
-];
+export function generateMetadata(): Metadata {
+  return { title: `Facturi — ${getServerT()("help.title")}` };
+}
 
 export default function HelpPage() {
+  const t = getServerT();
+  const faq = [
+    ["help.q1", "help.a1"],
+    ["help.q2", "help.a2"],
+    ["help.q3", "help.a3"],
+    ["help.q4", "help.a4"],
+    ["help.q5", "help.a5"],
+    ["help.q6", "help.a6"],
+  ];
+  const resources = ["help.res1", "help.res2", "help.res3", "help.res4"];
+
   return (
     <div className="space-y-6">
-      <PageHeader
-        title="Aide & support"
-        description="Trouvez une réponse ou contactez notre équipe."
-      />
+      <PageHeader title={t("help.title")} description={t("help.subtitle")} />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader
-            title="Questions fréquentes"
-            description="Les réponses aux questions les plus courantes."
+            title={t("help.faqTitle")}
+            description={t("help.faqDesc")}
           />
           <CardBody className="divide-y divide-slate-100">
-            {FAQ.map((item) => (
-              <details key={item.q} className="group py-3 first:pt-0 last:pb-0">
+            {faq.map(([qk, ak]) => (
+              <details key={qk} className="group py-3 first:pt-0 last:pb-0">
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-slate-900">
-                  {item.q}
+                  {t(qk)}
                   <ChevronDown className="h-4 w-4 shrink-0 text-slate-400 transition-transform group-open:rotate-180" />
                 </summary>
                 <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                  {item.a}
+                  {t(ak)}
                 </p>
               </details>
             ))}
@@ -66,12 +48,12 @@ export default function HelpPage() {
 
         <div className="space-y-6">
           <Card>
-            <CardHeader title="Nous contacter" />
+            <CardHeader title={t("help.contactTitle")} />
             <CardBody className="space-y-4 text-sm">
               <div className="flex items-start gap-3">
                 <Mail className="mt-0.5 h-4 w-4 text-slate-400" />
                 <div>
-                  <p className="font-medium text-slate-900">Email</p>
+                  <p className="font-medium text-slate-900">{t("help.email")}</p>
                   <a
                     href="mailto:support@facturi.app"
                     className="text-brand-600 hover:text-brand-700"
@@ -83,34 +65,29 @@ export default function HelpPage() {
               <div className="flex items-start gap-3">
                 <Phone className="mt-0.5 h-4 w-4 text-slate-400" />
                 <div>
-                  <p className="font-medium text-slate-900">Téléphone</p>
+                  <p className="font-medium text-slate-900">{t("help.phone")}</p>
                   <p className="text-slate-600">+243 80 000 00 00</p>
-                  <p className="text-xs text-slate-500">Lun–Ven, 8h–17h (Kinshasa)</p>
+                  <p className="text-xs text-slate-500">{t("help.phoneHours")}</p>
                 </div>
               </div>
               <Button variant="outline" className="w-full" disabled>
                 <MessageCircle className="h-4 w-4" />
-                Chat en direct (bientôt)
+                {t("help.chatSoon")}
               </Button>
             </CardBody>
           </Card>
 
           <Card>
-            <CardHeader title="Ressources" />
+            <CardHeader title={t("help.resourcesTitle")} />
             <CardBody className="space-y-2 text-sm">
-              {[
-                "Guide de démarrage rapide",
-                "Bien remplir une facture",
-                "Gérer ses clients",
-                "Comprendre la TVA en RDC",
-              ].map((label) => (
+              {resources.map((key) => (
                 <a
-                  key={label}
+                  key={key}
                   href="#"
                   className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
                 >
                   <BookOpen className="h-4 w-4 text-slate-400" />
-                  {label}
+                  {t(key)}
                 </a>
               ))}
             </CardBody>

@@ -13,6 +13,7 @@ import { ImageUpload } from "@/components/ui/image-upload";
 import { useData } from "@/components/providers/data-provider";
 import { useToast } from "@/components/ui/toast";
 import { REPLAY_TOUR_KEY } from "@/components/tutorial/dashboard-tour";
+import { useT } from "@/components/providers/i18n-provider";
 import { createClient } from "@/lib/supabase/client";
 import type { Company } from "@/lib/data/types";
 
@@ -28,6 +29,7 @@ export function SettingsView() {
     refresh,
   } = useData();
   const { toast } = useToast();
+  const t = useT();
 
   const [form, setForm] = useState<Company>(company);
   const [resetOpen, setResetOpen] = useState(false);
@@ -37,7 +39,7 @@ export function SettingsView() {
   const saveLogo = (url: string | null) => {
     setForm((f) => ({ ...f, logoUrl: url ?? undefined }));
     updateCompany({ ...form, logoUrl: url ?? undefined });
-    toast({ variant: "success", title: url ? "Logo enregistré" : "Logo retiré" });
+    toast({ variant: "success", title: url ? t("settings.logoSaved") : t("settings.logoRemoved") });
   };
 
   const saveAvatar = async (url: string | null) => {
@@ -46,13 +48,13 @@ export function SettingsView() {
       data: { avatar_url: url },
     });
     if (error) {
-      toast({ variant: "error", title: "Enregistrement de la photo impossible" });
+      toast({ variant: "error", title: t("settings.photoFailed") });
       return;
     }
     await refresh();
     toast({
       variant: "success",
-      title: url ? "Photo de profil enregistrée" : "Photo retirée",
+      title: url ? t("settings.photoSaved") : t("settings.photoRemoved"),
     });
   };
 
@@ -75,7 +77,7 @@ export function SettingsView() {
 
   const handleSave = () => {
     if (!form.name.trim()) {
-      toast({ variant: "error", title: "Le nom de l'entreprise est requis." });
+      toast({ variant: "error", title: t("settings.nameRequiredToast") });
       return;
     }
     updateCompany({
@@ -84,56 +86,56 @@ export function SettingsView() {
       defaultTvaRate: Number(form.defaultTvaRate) || 0,
       paymentTermsDays: Number(form.paymentTermsDays) || 0,
     });
-    toast({ variant: "success", title: "Paramètres enregistrés" });
+    toast({ variant: "success", title: t("settings.savedToast") });
   };
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Paramètres"
-        description="Ces informations apparaissent sur vos factures."
-        actions={<Button onClick={handleSave}>Enregistrer</Button>}
+        title={t("settings.title")}
+        description={t("settings.subtitle")}
+        actions={<Button onClick={handleSave}>{t("settings.save")}</Button>}
       />
 
       <Card>
-        <CardHeader title="Identité de l'entreprise" />
+        <CardHeader title={t("settings.identityTitle")} />
         <CardBody className="grid gap-4 sm:grid-cols-2">
           <Input
-            label="Nom commercial"
+            label={t("settings.tradeName")}
             required
             value={form.name}
             onChange={(e) => set("name", e.target.value)}
           />
           <Input
-            label="Raison sociale"
+            label={t("settings.legalName")}
             value={form.legalName}
             onChange={(e) => set("legalName", e.target.value)}
           />
           <Input
-            label="RCCM"
+            label={t("settings.rccm")}
             value={form.rccm}
             onChange={(e) => set("rccm", e.target.value)}
             placeholder="CD/KIN/RCCM/…"
           />
           <Input
-            label="N° Impôt (NIF)"
+            label={t("settings.nif")}
             value={form.nif}
             onChange={(e) => set("nif", e.target.value)}
           />
           <Input
-            label="ID NAT"
+            label={t("settings.idNat")}
             value={form.idNat}
             onChange={(e) => set("idNat", e.target.value)}
             containerClassName="sm:col-span-2"
           />
           <div className="sm:col-span-2">
             <ImageUpload
-              label="Logo de l'entreprise"
+              label={t("settings.logoLabel")}
               kind="logo"
               shape="square"
               value={form.logoUrl}
               onChange={saveLogo}
-              hint="Apparaît en en-tête de vos factures et de leur PDF."
+              hint={t("settings.logoHint")}
             />
           </div>
         </CardBody>
@@ -141,12 +143,12 @@ export function SettingsView() {
 
       <Card>
         <CardHeader
-          title="Votre profil"
-          description="Photo affichée dans l'application (elle n'apparaît pas sur les factures)."
+          title={t("settings.profileTitle")}
+          description={t("settings.profileDesc")}
         />
         <CardBody>
           <ImageUpload
-            label="Photo de profil"
+            label={t("settings.avatarLabel")}
             kind="avatar"
             shape="circle"
             value={user?.avatarUrl ?? null}
@@ -156,31 +158,31 @@ export function SettingsView() {
       </Card>
 
       <Card>
-        <CardHeader title="Coordonnées" />
+        <CardHeader title={t("settings.contactTitle")} />
         <CardBody className="grid gap-4 sm:grid-cols-2">
           <Input
-            label="Adresse"
+            label={t("settings.address")}
             value={form.address}
             onChange={(e) => set("address", e.target.value)}
             containerClassName="sm:col-span-2"
           />
           <Input
-            label="Ville"
+            label={t("settings.city")}
             value={form.city}
             onChange={(e) => set("city", e.target.value)}
           />
           <Input
-            label="Pays"
+            label={t("settings.country")}
             value={form.country}
             onChange={(e) => set("country", e.target.value)}
           />
           <Input
-            label="Téléphone"
+            label={t("settings.phone")}
             value={form.phone}
             onChange={(e) => set("phone", e.target.value)}
           />
           <Input
-            label="Email"
+            label={t("settings.email")}
             type="email"
             value={form.email}
             onChange={(e) => set("email", e.target.value)}
@@ -190,22 +192,22 @@ export function SettingsView() {
 
       <Card>
         <CardHeader
-          title="Facturation"
-          description="Valeurs appliquées par défaut aux nouvelles factures."
+          title={t("settings.billingTitle")}
+          description={t("settings.billingDesc")}
         />
         <CardBody className="grid gap-4 sm:grid-cols-2">
           <Select
-            label="Devise"
+            label={t("settings.currency")}
             options={[
-              { value: "CDF", label: "Franc congolais — CDF (RDC)" },
-              { value: "XOF", label: "Franc CFA — XOF (UEMOA)" },
-              { value: "XAF", label: "Franc CFA — XAF (CEMAC)" },
+              { value: "CDF", label: t("settings.currencyCDF") },
+              { value: "XOF", label: t("settings.currencyXOF") },
+              { value: "XAF", label: t("settings.currencyXAF") },
             ]}
             value={form.currency}
             onChange={(e) => set("currency", e.target.value as Company["currency"])}
           />
           <Input
-            label="Taux de TVA par défaut"
+            label={t("settings.tvaRate")}
             type="number"
             min={0}
             suffix="%"
@@ -213,36 +215,36 @@ export function SettingsView() {
             onChange={(e) => set("defaultTvaRate", Number(e.target.value))}
           />
           <Input
-            label="Préfixe de numérotation"
+            label={t("settings.invoicePrefix")}
             value={form.invoicePrefix}
             onChange={(e) => set("invoicePrefix", e.target.value)}
-            hint="Ex. FAC → FAC-2026-0001"
+            hint={t("settings.invoicePrefixHint")}
           />
           <Input
-            label="Délai de paiement"
+            label={t("settings.paymentTerms")}
             type="number"
             min={0}
-            suffix="jours"
+            suffix={t("settings.paymentTermsSuffix")}
             value={form.paymentTermsDays}
             onChange={(e) => set("paymentTermsDays", Number(e.target.value))}
           />
           <Textarea
-            label="Coordonnées bancaires"
+            label={t("settings.bankDetails")}
             value={form.bankDetails ?? ""}
             onChange={(e) => set("bankDetails", e.target.value)}
             containerClassName="sm:col-span-2"
-            placeholder="Banque, IBAN, BIC…"
+            placeholder={t("settings.bankDetailsPlaceholder")}
           />
         </CardBody>
       </Card>
 
       <Card>
         <CardHeader
-          title="Aide & découverte"
-          description="Revoir la visite guidée du tableau de bord."
+          title={t("settings.helpTitle")}
+          description={t("settings.helpDesc")}
           action={
             <Button variant="outline" onClick={replayTutorial}>
-              Revoir le tutoriel
+              {t("settings.replayTutorial")}
             </Button>
           }
         />
@@ -250,11 +252,10 @@ export function SettingsView() {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-medium text-slate-700">
-                Données de démonstration
+                {t("settings.demoDataName")}
               </p>
               <p className="text-sm text-slate-500">
-                Remplace vos données actuelles par un jeu d&apos;exemple (8 clients,
-                14 factures).
+                {t("settings.demoDataDesc")}
               </p>
             </div>
             <Button
@@ -262,7 +263,7 @@ export function SettingsView() {
               className="shrink-0"
               onClick={() => setResetOpen(true)}
             >
-              Charger les données de démo
+              {t("settings.loadDemo")}
             </Button>
           </div>
         </CardBody>
@@ -270,18 +271,18 @@ export function SettingsView() {
 
       <Card className="border-rose-200">
         <CardHeader
-          title="Zone de danger"
-          description="La suppression du compte efface définitivement vos clients, factures et paramètres."
+          title={t("settings.dangerTitle")}
+          description={t("settings.dangerDesc")}
           action={
             <Button variant="danger" onClick={() => setDeleteOpen(true)}>
-              Supprimer mon compte
+              {t("settings.deleteAccount")}
             </Button>
           }
         />
       </Card>
 
       <div className="flex justify-end">
-        <Button onClick={handleSave}>Enregistrer les paramètres</Button>
+        <Button onClick={handleSave}>{t("settings.saveAll")}</Button>
       </div>
 
       <ConfirmDialog
@@ -290,11 +291,11 @@ export function SettingsView() {
         onConfirm={() => {
           resetDemoData();
           setResetOpen(false);
-          toast({ variant: "success", title: "Données de démonstration chargées" });
+          toast({ variant: "success", title: t("settings.demoLoaded") });
         }}
-        title="Charger les données de démo"
-        message="Vos clients et factures actuels seront remplacés par le jeu de démonstration."
-        confirmLabel="Charger"
+        title={t("settings.confirmLoadTitle")}
+        message={t("settings.confirmLoadMsg")}
+        confirmLabel={t("settings.confirmLoadBtn")}
       />
 
       <ConfirmDialog
@@ -305,15 +306,9 @@ export function SettingsView() {
           setDeleting(true);
           await deleteAccount();
         }}
-        title="Supprimer définitivement mon compte"
-        message={
-          <>
-            Le compte <strong>{user?.email}</strong> et toutes ses données
-            (clients, factures, paramètres) seront <strong>définitivement</strong>{" "}
-            supprimés. Cette action est irréversible.
-          </>
-        }
-        confirmLabel="Supprimer mon compte"
+        title={t("settings.confirmDeleteTitle")}
+        message={t("settings.confirmDeleteMsg", { email: user?.email ?? "" })}
+        confirmLabel={t("settings.confirmDeleteBtn")}
       />
     </div>
   );

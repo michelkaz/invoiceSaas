@@ -15,11 +15,13 @@ import { Avatar } from "@/components/ui/avatar";
 import { ClientFormModal } from "@/components/clients/client-form-modal";
 import { useData } from "@/components/providers/data-provider";
 import { useToast } from "@/components/ui/toast";
+import { useT } from "@/components/providers/i18n-provider";
 import type { Client } from "@/lib/data/types";
 
 export function ClientsView() {
   const { hydrated, clients, invoiceCountForClient, deleteClient } = useData();
   const { toast } = useToast();
+  const t = useT();
 
   const [query, setQuery] = useState("");
   const [formOpen, setFormOpen] = useState(false);
@@ -50,8 +52,11 @@ export function ClientsView() {
     if (count > 0) {
       toast({
         variant: "error",
-        title: "Suppression impossible",
-        description: `${client.name} a ${count} facture${count > 1 ? "s" : ""} liée${count > 1 ? "s" : ""}.`,
+        title: t("clients.deleteBlockedTitle"),
+        description: t(
+          count > 1 ? "clients.deleteBlockedMany" : "clients.deleteBlockedOne",
+          { name: client.name, count },
+        ),
       });
       return;
     }
@@ -63,12 +68,15 @@ export function ClientsView() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Clients"
-        description={`${clients.length} client${clients.length > 1 ? "s" : ""}`}
+        title={t("clients.title")}
+        description={t(
+          clients.length > 1 ? "clients.countMany" : "clients.countOne",
+          { count: clients.length },
+        )}
         actions={
           <Button onClick={openAdd}>
             <Plus className="h-4 w-4" />
-            Ajouter un client
+            {t("clients.add")}
           </Button>
         }
       />
@@ -78,7 +86,7 @@ export function ClientsView() {
           <SearchInput
             value={query}
             onChange={setQuery}
-            placeholder="Rechercher par nom ou email…"
+            placeholder={t("clients.search")}
             className="sm:w-80"
           />
         </div>
@@ -87,22 +95,20 @@ export function ClientsView() {
           <EmptyState
             icon={Users}
             title={
-              !hydrated
-                ? "Chargement…"
-                : query
-                  ? "Aucun client ne correspond"
-                  : "Aucun client pour l'instant"
+              query
+                ? t("clients.emptyFilteredTitle")
+                : t("clients.emptyTitle")
             }
             description={
               query
-                ? "Essayez une autre recherche."
-                : "Ajoutez un client pour commencer à facturer."
+                ? t("clients.emptyFilteredDesc")
+                : t("clients.emptyDesc")
             }
             action={
               !query ? (
                 <Button onClick={openAdd}>
                   <Plus className="h-4 w-4" />
-                  Ajouter un client
+                  {t("clients.add")}
                 </Button>
               ) : undefined
             }
@@ -110,11 +116,11 @@ export function ClientsView() {
         ) : (
           <Table minWidth={760}>
             <THead>
-              <TH>Client</TH>
-              <TH>Email</TH>
-              <TH>Téléphone</TH>
-              <TH>Adresse</TH>
-              <TH className="text-right">Factures</TH>
+              <TH>{t("clients.colClient")}</TH>
+              <TH>{t("clients.colEmail")}</TH>
+              <TH>{t("clients.colPhone")}</TH>
+              <TH>{t("clients.colAddress")}</TH>
+              <TH className="text-right">{t("clients.colInvoices")}</TH>
               <TH />
             </THead>
             <TBody>
@@ -142,12 +148,12 @@ export function ClientsView() {
                     <DropdownMenu
                       items={[
                         {
-                          label: "Modifier",
+                          label: t("clients.edit"),
                           icon: Pencil,
                           onClick: () => openEdit(client),
                         },
                         {
-                          label: "Supprimer",
+                          label: t("clients.delete"),
                           icon: Trash2,
                           danger: true,
                           separatorBefore: true,
@@ -177,19 +183,15 @@ export function ClientsView() {
             deleteClient(toDelete.id);
             toast({
               variant: "success",
-              title: "Client supprimé",
+              title: t("clients.deleted"),
               description: toDelete.name,
             });
           }
           setToDelete(null);
         }}
-        title="Supprimer le client"
-        message={
-          <>
-            <strong>{toDelete?.name}</strong> sera définitivement supprimé.
-          </>
-        }
-        confirmLabel="Supprimer"
+        title={t("clients.confirmDeleteTitle")}
+        message={t("clients.confirmDeleteMsg", { name: toDelete?.name ?? "" })}
+        confirmLabel={t("common.delete")}
       />
     </div>
   );

@@ -5,6 +5,7 @@ import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { useT } from "@/components/providers/i18n-provider";
 
 export default function AppError({
   error,
@@ -13,6 +14,8 @@ export default function AppError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const t = useT();
+
   useEffect(() => {
     console.error(error);
   }, [error]);
@@ -21,14 +24,14 @@ export default function AppError({
     <Card>
       <EmptyState
         icon={AlertTriangle}
-        title="Une erreur est survenue"
-        description="Nous n'avons pas pu afficher cette page. Réessayez ; si le problème persiste, revenez au tableau de bord."
+        title={t("errors.appTitle")}
+        description={t("errors.appDesc")}
         action={
           <div className="flex flex-wrap justify-center gap-2">
             <Button variant="outline" onClick={reset}>
-              Réessayer
+              {t("errors.retry")}
             </Button>
-            <Button href="/dashboard">Tableau de bord</Button>
+            <Button href="/dashboard">{t("errors.dashboard")}</Button>
           </div>
         }
       />

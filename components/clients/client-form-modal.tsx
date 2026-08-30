@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useData } from "@/components/providers/data-provider";
 import { useToast } from "@/components/ui/toast";
+import { useT } from "@/components/providers/i18n-provider";
 import type { Client } from "@/lib/data/types";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -24,6 +25,7 @@ export function ClientFormModal({
 }) {
   const { addClient, updateClient } = useData();
   const { toast } = useToast();
+  const t = useT();
   const isEdit = Boolean(client);
 
   const [values, setValues] = useState(EMPTY);
@@ -49,9 +51,9 @@ export function ClientFormModal({
 
   const handleSubmit = () => {
     const next: Record<string, string> = {};
-    if (!values.name.trim()) next.name = "Le nom est requis.";
-    if (!values.email.trim()) next.email = "L'email est requis.";
-    else if (!EMAIL_RE.test(values.email.trim())) next.email = "Email invalide.";
+    if (!values.name.trim()) next.name = t("clients.nameRequired");
+    if (!values.email.trim()) next.email = t("clients.emailRequired");
+    else if (!EMAIL_RE.test(values.email.trim())) next.email = t("clients.emailInvalid");
     setErrors(next);
     if (Object.keys(next).length > 0) return;
 
@@ -64,10 +66,10 @@ export function ClientFormModal({
 
     if (isEdit && client) {
       updateClient(client.id, payload);
-      toast({ variant: "success", title: "Client modifié", description: payload.name });
+      toast({ variant: "success", title: t("clients.clientUpdated"), description: payload.name });
     } else {
       addClient(payload);
-      toast({ variant: "success", title: "Client ajouté", description: payload.name });
+      toast({ variant: "success", title: t("clients.clientAdded"), description: payload.name });
     }
     onClose();
   };
@@ -76,52 +78,49 @@ export function ClientFormModal({
     <Modal
       open={open}
       onClose={onClose}
-      title={isEdit ? "Modifier le client" : "Ajouter un client"}
+      title={isEdit ? t("clients.modalEditTitle") : t("clients.modalAddTitle")}
       description={
-        isEdit
-          ? "Mettez à jour les coordonnées du client."
-          : "Renseignez les coordonnées du nouveau client."
+        isEdit ? t("clients.modalEditDesc") : t("clients.modalAddDesc")
       }
       footer={
         <>
           <Button variant="outline" onClick={onClose}>
-            Annuler
+            {t("common.cancel")}
           </Button>
           <Button onClick={handleSubmit}>
-            {isEdit ? "Enregistrer" : "Ajouter le client"}
+            {isEdit ? t("clients.save") : t("clients.addClient")}
           </Button>
         </>
       }
     >
       <div className="space-y-4">
         <Input
-          label="Nom"
+          label={t("clients.name")}
           required
           value={values.name}
           onChange={(e) => set("name", e.target.value)}
           error={errors.name}
-          placeholder="Nom du client ou de l'entreprise"
+          placeholder={t("clients.namePlaceholder")}
         />
         <Input
-          label="Email"
+          label={t("clients.email")}
           type="email"
           required
           value={values.email}
           onChange={(e) => set("email", e.target.value)}
           error={errors.email}
-          placeholder="contact@exemple.com"
+          placeholder={t("clients.emailPlaceholder")}
         />
         <Input
-          label="Téléphone"
+          label={t("clients.phone")}
           value={values.phone}
           onChange={(e) => set("phone", e.target.value)}
-          placeholder="+221 77 000 00 00"
+          placeholder={t("clients.phonePlaceholder")}
         />
         <Textarea
-          label="Adresse"
+          label={t("clients.address")}
           value={values.address}
           onChange={(e) => set("address", e.target.value)}
-          placeholder="Rue, ville, pays"
         />
       </div>
     </Modal>

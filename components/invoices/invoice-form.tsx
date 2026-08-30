@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/components/ui/toast";
 import { useData } from "@/components/providers/data-provider";
+import { useT } from "@/components/providers/i18n-provider";
 import { computeInvoiceTotals, lineTotal } from "@/lib/invoice-calc";
 import { formatFCFA } from "@/lib/money";
 import { addDaysISO, todayISO } from "@/lib/format";
@@ -41,6 +42,7 @@ export function InvoiceForm({
 }) {
   const router = useRouter();
   const { toast } = useToast();
+  const t = useT();
   const {
     hydrated,
     clients,
@@ -101,9 +103,9 @@ export function InvoiceForm({
       <Card>
         <EmptyState
           icon={FileWarning}
-          title="Facture introuvable"
-          description="Cette facture n'existe pas ou a été supprimée."
-          action={<Button href="/invoices">Retour aux factures</Button>}
+          title={t("invoices.notFoundTitle")}
+          description={t("invoices.notFoundDesc")}
+          action={<Button href="/invoices">{t("invoices.backToList")}</Button>}
         />
       </Card>
     );
@@ -124,16 +126,16 @@ export function InvoiceForm({
 
   const validate = () => {
     const nextErrors: Record<string, string> = {};
-    if (!clientId) nextErrors.clientId = "Sélectionnez un client.";
-    if (!issueDate) nextErrors.issueDate = "Date requise.";
-    if (!dueDate) nextErrors.dueDate = "Date requise.";
+    if (!clientId) nextErrors.clientId = t("invoiceForm.errClient");
+    if (!issueDate) nextErrors.issueDate = t("clients.nameRequired");
+    if (!dueDate) nextErrors.dueDate = t("clients.nameRequired");
     else if (issueDate && dueDate < issueDate)
-      nextErrors.dueDate = "L'échéance doit être postérieure à l'émission.";
+      nextErrors.dueDate = t("invoiceForm.errDue");
 
     const nextLineErrors: LineError[] = lines.map((l) => {
       const e: LineError = {};
-      if (!l.description.trim()) e.description = "Description requise.";
-      if (!(num(l.quantity) > 0)) e.quantity = "Qté > 0";
+      if (!l.description.trim()) e.description = t("invoiceForm.lineDescription");
+      if (!(num(l.quantity) > 0)) e.quantity = "> 0";
       if (num(l.unitPrice) < 0) e.unitPrice = "≥ 0";
       return e;
     });
@@ -155,14 +157,14 @@ export function InvoiceForm({
 
   const handleCreate = (status: InvoiceStatus) => {
     if (!validate()) {
-      toast({ variant: "error", title: "Formulaire incomplet", description: "Corrigez les champs signalés." });
+      toast({ variant: "error", title: t("invoiceForm.incompleteTitle"), description: t("invoiceForm.incompleteDesc") });
       return;
     }
     setSubmitting(status === "brouillon" ? "brouillon" : "envoyee");
     const created = addInvoice(buildInput(), status);
     toast({
       variant: "success",
-      title: status === "brouillon" ? "Brouillon enregistré" : "Facture envoyée",
+      title: status === "brouillon" ? t("invoiceForm.draftSaved") : t("invoiceForm.invoiceSent"),
       description: `${created.number} · ${formatFCFA(created.total)}`,
     });
     router.push(`/invoices/${created.id}`);
@@ -171,7 +173,7 @@ export function InvoiceForm({
   const handleSave = (alsoSend: boolean) => {
     if (!invoiceId || !validate()) {
       if (invoiceId)
-        toast({ variant: "error", title: "Formulaire incomplet", description: "Corrigez les champs signalés." });
+        toast({ variant: "error", title: t("invoiceForm.incompleteTitle"), description: t("invoiceForm.incompleteDesc") });
       return;
     }
     setSubmitting("save");
@@ -179,7 +181,7 @@ export function InvoiceForm({
     if (alsoSend) setInvoiceStatus(invoiceId, "envoyee");
     toast({
       variant: "success",
-      title: alsoSend ? "Facture envoyée" : "Modifications enregistrées",
+      title: alsoSend ? t("invoiceForm.invoiceSent") : t("invoiceForm.changesSaved"),
     });
     router.push(`/invoices/${invoiceId}`);
   };
@@ -191,14 +193,14 @@ export function InvoiceForm({
     <div className="space-y-5">
       <Card>
         <CardHeader
-          title="Informations"
-          description={`Facture n° ${number}`}
+          title={t("invoiceForm.infoTitle")}
+          description={t("invoiceForm.invoiceNo", { number })}
         />
         <CardBody className="grid gap-4 sm:grid-cols-2">
           <Select
-            label="Client"
+            label={t("invoiceForm.client")}
             required
-            placeholder="Sélectionner un client"
+            placeholder={t("invoiceForm.selectClient")}
             options={clientOptions}
             value={clientId}
             onChange={(e) => setClientId(e.target.value)}
@@ -206,9 +208,9 @@ export function InvoiceForm({
             hint={
               clients.length === 0 ? (
                 <>
-                  Aucun client.{" "}
+                  {t("invoiceForm.noClientsHint")}{" "}
                   <Link href="/clients" className="font-medium text-brand-600">
-                    Ajouter un client
+                    {t("invoiceForm.goToClients")}
                   </Link>
                 </>
               ) : undefined
@@ -217,7 +219,7 @@ export function InvoiceForm({
           />
           <Input
             type="date"
-            label="Date d'émission"
+            label={t("invoiceForm.issueDate")}
             required
             value={issueDate}
             onChange={(e) => setIssueDate(e.target.value)}
@@ -225,7 +227,7 @@ export function InvoiceForm({
           />
           <Input
             type="date"
-            label="Date d'échéance"
+            label={t("invoiceForm.dueDate")}
             required
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
@@ -236,11 +238,11 @@ export function InvoiceForm({
 
       <Card>
         <CardHeader
-          title="Lignes de la facture"
+          title={t("invoiceForm.linesTitle")}
           action={
             <Button variant="outline" size="sm" onClick={addLine}>
               <Plus className="h-4 w-4" />
-              Ajouter une ligne
+              {t("invoiceForm.addLine")}
             </Button>
           }
         />
@@ -248,10 +250,10 @@ export function InvoiceForm({
           <div
             className={`hidden gap-3 px-1 text-xs font-semibold uppercase tracking-wider text-slate-400 sm:grid ${gridCols}`}
           >
-            <span>Description</span>
-            <span>Qté</span>
-            <span>Prix unitaire</span>
-            <span className="text-right">Total</span>
+            <span>{t("invoiceForm.lineDescription")}</span>
+            <span>{t("invoiceForm.lineQty")}</span>
+            <span>{t("invoiceForm.lineUnitPrice")}</span>
+            <span className="text-right">{t("invoiceForm.lineTotal")}</span>
             <span />
           </div>
 
@@ -264,11 +266,11 @@ export function InvoiceForm({
               >
                 <div>
                   <span className="mb-1 block text-xs font-medium text-slate-500 sm:hidden">
-                    Description
+                    {t("invoiceForm.lineDescription")}
                   </span>
                   <Input
                     value={line.description}
-                    placeholder="Prestation, produit…"
+                    placeholder={t("invoiceForm.descriptionPlaceholder")}
                     onChange={(e) =>
                       updateLine(line.key, { description: e.target.value })
                     }
@@ -277,7 +279,7 @@ export function InvoiceForm({
                 </div>
                 <div>
                   <span className="mb-1 block text-xs font-medium text-slate-500 sm:hidden">
-                    Quantité
+                    {t("invoiceForm.lineQty")}
                   </span>
                   <Input
                     type="number"
@@ -292,7 +294,7 @@ export function InvoiceForm({
                 </div>
                 <div>
                   <span className="mb-1 block text-xs font-medium text-slate-500 sm:hidden">
-                    Prix unitaire
+                    {t("invoiceForm.lineUnitPrice")}
                   </span>
                   <Input
                     type="number"
@@ -308,7 +310,7 @@ export function InvoiceForm({
                 </div>
                 <div className="flex items-center justify-between sm:h-10 sm:justify-end">
                   <span className="text-xs font-medium text-slate-500 sm:hidden">
-                    Total
+                    {t("invoiceForm.lineTotal")}
                   </span>
                   <span className="text-sm font-semibold tabular-nums text-slate-900">
                     {formatFCFA(lineTotal(num(line.quantity), num(line.unitPrice)))}
@@ -319,7 +321,7 @@ export function InvoiceForm({
                     type="button"
                     onClick={() => removeLine(line.key)}
                     disabled={lines.length === 1}
-                    aria-label="Supprimer la ligne"
+                    aria-label={t("invoiceForm.removeLine")}
                     className="grid h-9 w-9 place-items-center rounded-lg text-slate-400 transition hover:bg-rose-50 hover:text-rose-600 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-slate-400"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -333,14 +335,14 @@ export function InvoiceForm({
         <div className="border-t border-slate-100 p-5 sm:p-6">
           <dl className="ml-auto w-full max-w-xs space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-slate-500">Sous-total</dt>
+              <dt className="text-slate-500">{t("invoices.subtotal")}</dt>
               <dd className="font-medium tabular-nums text-slate-900">
                 {formatFCFA(totals.subtotal)}
               </dd>
             </div>
             <div className="flex justify-between">
               <dt className="text-slate-500">
-                TVA ({company.defaultTvaRate} %)
+                {t("invoices.tva", { rate: company.defaultTvaRate })}
               </dt>
               <dd className="font-medium tabular-nums text-slate-900">
                 {formatFCFA(totals.tvaAmount)}
@@ -348,7 +350,7 @@ export function InvoiceForm({
             </div>
             <div className="flex justify-between border-t border-slate-100 pt-2">
               <dt className="text-base font-semibold text-slate-900">
-                Total TTC
+                {t("invoices.totalTTC")}
               </dt>
               <dd className="text-base font-bold tabular-nums text-slate-900">
                 {formatFCFA(totals.total)}
@@ -361,8 +363,8 @@ export function InvoiceForm({
       <Card>
         <CardBody>
           <Textarea
-            label="Notes (optionnel)"
-            placeholder="Conditions de paiement, mention légale…"
+            label={t("invoiceForm.notes")}
+            placeholder={t("invoiceForm.notesPlaceholder")}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />
@@ -374,7 +376,7 @@ export function InvoiceForm({
           variant="ghost"
           href={mode === "edit" && invoiceId ? `/invoices/${invoiceId}` : "/invoices"}
         >
-          Annuler
+          {t("common.cancel")}
         </Button>
 
         {mode === "create" ? (
@@ -384,13 +386,13 @@ export function InvoiceForm({
               loading={submitting === "brouillon"}
               onClick={() => handleCreate("brouillon")}
             >
-              Sauvegarder comme brouillon
+              {t("invoiceForm.saveDraft")}
             </Button>
             <Button
               loading={submitting === "envoyee"}
               onClick={() => handleCreate("envoyee")}
             >
-              Envoyer la facture
+              {t("invoiceForm.sendInvoice")}
             </Button>
           </>
         ) : existing?.status === "brouillon" ? (
@@ -400,15 +402,15 @@ export function InvoiceForm({
               loading={submitting === "save"}
               onClick={() => handleSave(false)}
             >
-              Enregistrer
+              {t("invoiceForm.save")}
             </Button>
             <Button loading={submitting === "save"} onClick={() => handleSave(true)}>
-              Enregistrer et envoyer
+              {t("invoiceForm.saveAndSend")}
             </Button>
           </>
         ) : (
           <Button loading={submitting === "save"} onClick={() => handleSave(false)}>
-            Enregistrer les modifications
+            {t("invoiceForm.saveChanges")}
           </Button>
         )}
       </div>

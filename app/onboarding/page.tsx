@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { useToast } from "@/components/ui/toast";
+import { useT } from "@/components/providers/i18n-provider";
 import { createClient } from "@/lib/supabase/client";
 import type { Company } from "@/lib/data/types";
 
@@ -22,11 +23,15 @@ type CompanyForm = Pick<
   "name" | "city" | "country" | "currency" | "invoicePrefix"
 >;
 
-const STEPS = ["Bienvenue", "Votre entreprise", "C'est parti"] as const;
-
 export default function OnboardingPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const t = useT();
+  const STEPS = [
+    t("onboarding.stepWelcome"),
+    t("onboarding.stepCompany"),
+    t("onboarding.stepDone"),
+  ];
   const [step, setStep] = useState(0);
   const [uid, setUid] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -82,7 +87,7 @@ export default function OnboardingPage() {
       .eq("owner_id", uid);
     setSaving(false);
     if (error) {
-      toast({ variant: "error", title: "Enregistrement impossible" });
+      toast({ variant: "error", title: t("onboarding.saveFailed") });
       return;
     }
     router.push("/dashboard");
@@ -123,15 +128,14 @@ export default function OnboardingPage() {
             </span>
             <div>
               <h1 className="text-xl font-bold tracking-tight text-slate-900">
-                Bienvenue sur Facturi 👋
+                {t("onboarding.welcomeTitle")}
               </h1>
               <p className="mx-auto mt-1 max-w-sm text-sm text-slate-500">
-                En trois étapes, votre espace de facturation en francs
-                congolais est prêt. Configurons d&apos;abord votre entreprise.
+                {t("onboarding.welcomeBody")}
               </p>
             </div>
             <Button onClick={() => setStep(1)} className="w-full">
-              Commencer
+              {t("onboarding.start")}
               <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
@@ -145,40 +149,40 @@ export default function OnboardingPage() {
               </span>
               <div>
                 <h1 className="text-base font-semibold text-slate-900">
-                  Votre entreprise
+                  {t("onboarding.companyTitle")}
                 </h1>
                 <p className="text-sm text-slate-500">
-                  Ces informations apparaîtront sur vos factures.
+                  {t("onboarding.companySubtitle")}
                 </p>
               </div>
             </div>
 
             <Input
-              label="Nom commercial"
+              label={t("onboarding.tradeName")}
               required
               value={form.name}
               onChange={(e) => set("name", e.target.value)}
-              placeholder="Ex. Atelier Baobab"
+              placeholder={t("onboarding.tradeNamePlaceholder")}
             />
             <div className="grid gap-4 sm:grid-cols-2">
               <Input
-                label="Ville"
+                label={t("onboarding.city")}
                 value={form.city}
                 onChange={(e) => set("city", e.target.value)}
               />
               <Input
-                label="Pays"
+                label={t("onboarding.country")}
                 value={form.country}
                 onChange={(e) => set("country", e.target.value)}
               />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <Select
-                label="Devise"
+                label={t("onboarding.currency")}
                 options={[
-                  { value: "CDF", label: "Franc congolais — CDF (RDC)" },
-                  { value: "XOF", label: "Franc CFA — XOF (UEMOA)" },
-                  { value: "XAF", label: "Franc CFA — XAF (CEMAC)" },
+                  { value: "CDF", label: t("settings.currencyCDF") },
+                  { value: "XOF", label: t("settings.currencyXOF") },
+                  { value: "XAF", label: t("settings.currencyXAF") },
                 ]}
                 value={form.currency}
                 onChange={(e) =>
@@ -186,10 +190,10 @@ export default function OnboardingPage() {
                 }
               />
               <Input
-                label="Préfixe de numérotation"
+                label={t("onboarding.prefix")}
                 value={form.invoicePrefix}
                 onChange={(e) => set("invoicePrefix", e.target.value)}
-                hint="Ex. FAC → FAC-2026-0001"
+                hint={t("onboarding.prefixHint")}
               />
             </div>
 
@@ -199,21 +203,21 @@ export default function OnboardingPage() {
                 onClick={() => void finish(false)}
                 className="text-sm font-medium text-slate-500 hover:text-slate-700"
               >
-                Passer cette étape
+                {t("onboarding.skip")}
               </button>
               <Button
                 onClick={() => {
                   if (!form.name.trim()) {
                     toast({
                       variant: "error",
-                      title: "Le nom de l'entreprise est requis.",
+                      title: t("onboarding.nameRequired"),
                     });
                     return;
                   }
                   setStep(2);
                 }}
               >
-                Continuer
+                {t("onboarding.continue")}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
@@ -227,12 +231,10 @@ export default function OnboardingPage() {
             </span>
             <div>
               <h1 className="text-xl font-bold tracking-tight text-slate-900">
-                Tout est prêt
+                {t("onboarding.doneTitle")}
               </h1>
               <p className="mx-auto mt-1 max-w-sm text-sm text-slate-500">
-                Prochaines étapes conseillées : ajoutez votre premier client,
-                puis créez votre première facture. Un guide vous attend sur le
-                tableau de bord.
+                {t("onboarding.doneBody")}
               </p>
             </div>
             <div className="space-y-2">
@@ -241,7 +243,7 @@ export default function OnboardingPage() {
                 loading={saving}
                 className="w-full"
               >
-                Aller au tableau de bord
+                {t("onboarding.goDashboard")}
                 <ArrowRight className="h-4 w-4" />
               </Button>
               <button
@@ -249,7 +251,7 @@ export default function OnboardingPage() {
                 onClick={() => setStep(1)}
                 className="text-sm font-medium text-slate-500 hover:text-slate-700"
               >
-                Revenir en arrière
+                {t("onboarding.goBack")}
               </button>
             </div>
           </div>
