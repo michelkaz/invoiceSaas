@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Building2, ImagePlus } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,21 +9,52 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { ImageUpload } from "@/components/ui/image-upload";
 import { useData } from "@/components/providers/data-provider";
 import { useToast } from "@/components/ui/toast";
 import { REPLAY_TOUR_KEY } from "@/components/tutorial/dashboard-tour";
+import { createClient } from "@/lib/supabase/client";
 import type { Company } from "@/lib/data/types";
 
 export function SettingsView() {
   const router = useRouter();
-  const { company, user, updateCompany, resetDemoData, setTutorialSeen, deleteAccount } =
-    useData();
+  const {
+    company,
+    user,
+    updateCompany,
+    resetDemoData,
+    setTutorialSeen,
+    deleteAccount,
+    refresh,
+  } = useData();
   const { toast } = useToast();
 
   const [form, setForm] = useState<Company>(company);
   const [resetOpen, setResetOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  const saveLogo = (url: string | null) => {
+    setForm((f) => ({ ...f, logoUrl: url ?? undefined }));
+    updateCompany({ ...form, logoUrl: url ?? undefined });
+    toast({ variant: "success", title: url ? "Logo enregistré" : "Logo retiré" });
+  };
+
+  const saveAvatar = async (url: string | null) => {
+    const supabase = createClient();
+    const { error } = await supabase.auth.updateUser({
+      data: { avatar_url: url },
+    });
+    if (error) {
+      toast({ variant: "error", title: "Enregistrement de la photo impossible" });
+      return;
+    }
+    await refresh();
+    toast({
+      variant: "success",
+      title: url ? "Photo de profil enregistrée" : "Photo retirée",
+    });
+  };
 
   const replayTutorial = () => {
     setTutorialSeen(false);
@@ -97,22 +127,31 @@ export function SettingsView() {
             containerClassName="sm:col-span-2"
           />
           <div className="sm:col-span-2">
-            <p className="mb-1.5 block text-sm font-medium text-slate-700">Logo</p>
-            <div className="flex items-center gap-4 rounded-xl border border-dashed border-slate-300 p-4">
-              <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-slate-100 text-slate-400">
-                <Building2 className="h-6 w-6" />
-              </span>
-              <div className="min-w-0">
-                <Button variant="outline" size="sm" disabled>
-                  <ImagePlus className="h-4 w-4" />
-                  Téléverser un logo
-                </Button>
-                <p className="mt-1 text-xs text-slate-400">
-                  Disponible après la connexion du stockage (Supabase).
-                </p>
-              </div>
-            </div>
+            <ImageUpload
+              label="Logo de l'entreprise"
+              kind="logo"
+              shape="square"
+              value={form.logoUrl}
+              onChange={saveLogo}
+              hint="Apparaît en en-tête de vos factures et de leur PDF."
+            />
           </div>
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardHeader
+          title="Votre profil"
+          description="Photo affichée dans l'application (elle n'apparaît pas sur les factures)."
+        />
+        <CardBody>
+          <ImageUpload
+            label="Photo de profil"
+            kind="avatar"
+            shape="circle"
+            value={user?.avatarUrl ?? null}
+            onChange={saveAvatar}
+          />
         </CardBody>
       </Card>
 

@@ -55,6 +55,7 @@ export interface SessionUser {
   email: string;
   name: string;
   emailVerified: boolean;
+  avatarUrl?: string;
 }
 
 interface DataState {
@@ -106,7 +107,14 @@ function toSessionUser(u: User): SessionUser {
     (typeof meta.full_name === "string" && meta.full_name) ||
     (typeof meta.name === "string" && meta.name) ||
     (email ? email.split("@")[0] : "Utilisateur");
-  return { id: u.id, email, name, emailVerified: Boolean(u.email_confirmed_at) };
+  return {
+    id: u.id,
+    email,
+    name,
+    emailVerified: Boolean(u.email_confirmed_at),
+    avatarUrl:
+      typeof meta.avatar_url === "string" ? meta.avatar_url : undefined,
+  };
 }
 
 function computeNextNumber(invoices: Invoice[], company: Company): string {
@@ -270,14 +278,20 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       const su = toSessionUser(session.user);
-      if (su.id !== userRef.current?.id) {
+      const prev = userRef.current;
+      if (su.id !== prev?.id) {
         setUser(su);
         fetchAll(su.id)
           .then((d) => {
             if (!cancelled) setState(d);
           })
           .catch(() => {});
-      } else if (su.emailVerified !== userRef.current?.emailVerified) {
+      } else if (
+        su.emailVerified !== prev?.emailVerified ||
+        su.avatarUrl !== prev?.avatarUrl ||
+        su.name !== prev?.name
+      ) {
+        // ex. USER_UPDATED après changement de photo de profil
         setUser(su);
       }
     });

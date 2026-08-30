@@ -38,6 +38,7 @@ export function rowToCompany(r: CompanyRow): Company {
     invoicePrefix: r.invoice_prefix,
     paymentTermsDays: r.payment_terms_days,
     bankDetails: r.bank_details ?? undefined,
+    logoUrl: r.logo_url ?? undefined,
   };
 }
 
@@ -107,6 +108,7 @@ export function companyToRow(
     invoice_prefix: c.invoicePrefix,
     payment_terms_days: c.paymentTermsDays,
     bank_details: c.bankDetails ?? null,
+    logo_url: c.logoUrl ?? null,
   };
 }
 

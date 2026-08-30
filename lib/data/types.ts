@@ -54,6 +54,8 @@ export interface Company {
   invoicePrefix: string;
   paymentTermsDays: number;
   bankDetails?: string;
+  /** URL publique du logo (Supabase Storage, bucket « assets »). */
+  logoUrl?: string;
 }
 
 /** Facture enrichie de son client — pratique pour les listes. */

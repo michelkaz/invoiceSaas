@@ -117,50 +117,61 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
         <InvoicePdfActions invoice={invoice} company={company} client={client} />
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
+        <div className="h-1.5 bg-gradient-to-r from-brand-500 to-brand-700" />
         <CardBody className="space-y-8">
-          <div className="flex flex-col gap-6 sm:flex-row sm:justify-between">
-            <div className="space-y-0.5 text-sm text-slate-600">
-              <p className="text-base font-semibold text-slate-900">
-                {company.name}
-              </p>
-              <p>{company.address}</p>
-              <p>
-                {company.city}, {company.country}
-              </p>
-              <p>{company.phone}</p>
-              <p>{company.email}</p>
-              {(company.rccm || company.nif || company.idNat) && (
-                <p className="text-slate-500">
-                  {[
-                    company.rccm && `RCCM : ${company.rccm}`,
-                    company.nif && `NIF : ${company.nif}`,
-                    company.idNat && `ID NAT : ${company.idNat}`,
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </p>
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+            <div className="space-y-3">
+              {company.logoUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={company.logoUrl}
+                  alt={company.name}
+                  className="h-12 w-auto max-w-[180px] object-contain"
+                />
               )}
+              <div className="space-y-0.5 text-sm text-slate-600">
+                <p className="text-base font-semibold text-slate-900">
+                  {company.name}
+                </p>
+                {company.address && <p>{company.address}</p>}
+                <p>
+                  {[company.city, company.country].filter(Boolean).join(", ")}
+                </p>
+                {company.phone && <p>{company.phone}</p>}
+                {company.email && <p>{company.email}</p>}
+              </div>
             </div>
-            <div className="space-y-1 text-sm sm:text-right">
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+
+            <div className="w-full shrink-0 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm sm:w-64">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-brand-600">
                 Facture
               </p>
-              <p className="text-lg font-bold text-slate-900">{invoice.number}</p>
-              <div className="sm:flex sm:justify-end">
+              <p className="mt-0.5 text-lg font-bold tracking-tight text-slate-900">
+                {invoice.number}
+              </p>
+              <div className="mt-2">
                 <StatusBadge status={invoice.status} />
               </div>
-              <p className="pt-1 text-slate-600">
-                Émission : {formatDate(invoice.issueDate)}
-              </p>
-              <p className="text-slate-600">
-                Échéance : {formatDate(invoice.dueDate)}
-              </p>
+              <dl className="mt-3 space-y-1 border-t border-slate-200 pt-3 text-slate-600">
+                <div className="flex justify-between">
+                  <dt>Émission</dt>
+                  <dd className="tabular-nums text-slate-900">
+                    {formatDate(invoice.issueDate)}
+                  </dd>
+                </div>
+                <div className="flex justify-between">
+                  <dt>Échéance</dt>
+                  <dd className="tabular-nums text-slate-900">
+                    {formatDate(invoice.dueDate)}
+                  </dd>
+                </div>
+              </dl>
             </div>
           </div>
 
-          <div className="border-t border-slate-100 pt-6">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">
               Facturé à
             </p>
             <div className="mt-2 space-y-0.5 text-sm text-slate-600">
@@ -198,30 +209,34 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
             </TBody>
           </Table>
 
-          <dl className="ml-auto w-full max-w-xs space-y-2 text-sm">
-            <div className="flex justify-between">
-              <dt className="text-slate-500">Sous-total</dt>
-              <dd className="font-medium tabular-nums text-slate-900">
-                {formatFCFA(invoice.subtotal)}
-              </dd>
-            </div>
-            <div className="flex justify-between">
-              <dt className="text-slate-500">TVA ({invoice.tvaRate} %)</dt>
-              <dd className="font-medium tabular-nums text-slate-900">
-                {formatFCFA(invoice.tvaAmount)}
-              </dd>
-            </div>
-            <div className="flex justify-between border-t border-slate-100 pt-2">
-              <dt className="text-base font-semibold text-slate-900">Total TTC</dt>
-              <dd className="text-base font-bold tabular-nums text-slate-900">
+          <div className="flex flex-col items-end gap-3">
+            <dl className="w-full max-w-xs space-y-2 text-sm">
+              <div className="flex justify-between">
+                <dt className="text-slate-500">Sous-total</dt>
+                <dd className="font-medium tabular-nums text-slate-900">
+                  {formatFCFA(invoice.subtotal)}
+                </dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-slate-500">TVA ({invoice.tvaRate} %)</dt>
+                <dd className="font-medium tabular-nums text-slate-900">
+                  {formatFCFA(invoice.tvaAmount)}
+                </dd>
+              </div>
+            </dl>
+            <div className="flex w-full max-w-xs items-center justify-between rounded-xl bg-brand-50 px-4 py-3">
+              <span className="text-sm font-semibold text-brand-900">
+                Total TTC
+              </span>
+              <span className="text-lg font-bold tabular-nums text-brand-700">
                 {formatFCFA(invoice.total)}
-              </dd>
+              </span>
             </div>
-          </dl>
+          </div>
 
           {invoice.notes && (
             <div className="border-t border-slate-100 pt-6">
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">
                 Notes
               </p>
               <p className="mt-2 whitespace-pre-line text-sm text-slate-600">
@@ -230,11 +245,28 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
             </div>
           )}
 
-          {company.bankDetails && (
-            <p className="border-t border-slate-100 pt-6 text-xs text-slate-400">
-              Règlement par virement — {company.bankDetails}
-            </p>
-          )}
+          <div className="space-y-1 border-t border-slate-100 pt-6 text-xs text-slate-500">
+            {(company.rccm || company.nif || company.idNat) && (
+              <p>
+                {[
+                  company.rccm && `RCCM : ${company.rccm}`,
+                  company.nif && `NIF : ${company.nif}`,
+                  company.idNat && `ID NAT : ${company.idNat}`,
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+              </p>
+            )}
+            {company.bankDetails && (
+              <p>Règlement par virement — {company.bankDetails}</p>
+            )}
+            {company.paymentTermsDays ? (
+              <p>
+                Conditions de paiement : {company.paymentTermsDays} jours à
+                réception.
+              </p>
+            ) : null}
+          </div>
         </CardBody>
       </Card>
 

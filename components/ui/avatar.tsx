@@ -32,13 +32,30 @@ const SIZES = {
 
 export function Avatar({
   name,
+  src,
   size = "md",
   className,
 }: {
   name: string;
+  /** Photo optionnelle ; à défaut, initiales colorées. */
+  src?: string | null;
   size?: keyof typeof SIZES;
   className?: string;
 }) {
+  if (src) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={src}
+        alt={name}
+        className={cn(
+          "shrink-0 rounded-full object-cover",
+          SIZES[size],
+          className,
+        )}
+      />
+    );
+  }
   return (
     <span
       className={cn(

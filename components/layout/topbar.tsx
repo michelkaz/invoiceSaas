@@ -73,7 +73,7 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
             triggerClassName="flex items-center gap-2 rounded-lg p-1 hover:bg-slate-100"
             trigger={
               <>
-                <Avatar name={name} size="sm" />
+                <Avatar name={name} src={user?.avatarUrl} size="sm" />
                 <span className="leading-tight text-left">
                   <span className="block text-sm font-semibold text-slate-900">
                     {name}

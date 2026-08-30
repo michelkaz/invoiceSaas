@@ -21,6 +21,7 @@ export interface CompanyRow {
   invoice_prefix: string;
   payment_terms_days: number;
   bank_details: string | null;
+  logo_url: string | null;
   onboarding_completed: boolean;
   tutorial_seen: boolean;
 }

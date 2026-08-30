@@ -1,5 +1,6 @@
 import {
   Document,
+  Image,
   Page,
   StyleSheet,
   Text,
@@ -12,46 +13,69 @@ import { lineTotal } from "@/lib/invoice-calc";
 import { STATUS_LABEL } from "@/lib/invoice-status";
 
 const BRAND = "#7c3aed";
+const BRAND_DARK = "#5b21b6";
+const BRAND_TINT = "#f5f3ff";
 const INK = "#0f172a";
 const MUTED = "#64748b";
 const LINE = "#e2e8f0";
+const PANEL = "#f8fafc";
 
 const s = StyleSheet.create({
   page: {
-    paddingVertical: 40,
-    paddingHorizontal: 44,
+    paddingTop: 0,
+    paddingBottom: 56,
+    paddingHorizontal: 0,
     fontSize: 9,
     color: INK,
     fontFamily: "Helvetica",
     lineHeight: 1.5,
   },
+  accent: { height: 6, backgroundColor: BRAND },
+  body: { paddingHorizontal: 44, paddingTop: 32 },
+
   header: { flexDirection: "row", justifyContent: "space-between" },
+  logo: { height: 40, marginBottom: 8, objectFit: "contain" },
   companyName: { fontSize: 13, fontFamily: "Helvetica-Bold" },
   muted: { color: MUTED },
-  right: { textAlign: "right" },
-  docLabel: {
-    fontSize: 8,
-    letterSpacing: 1,
-    color: MUTED,
-    fontFamily: "Helvetica-Bold",
+
+  metaBox: {
+    width: 190,
+    borderWidth: 1,
+    borderColor: LINE,
+    borderRadius: 6,
+    backgroundColor: PANEL,
+    padding: 12,
   },
-  docNumber: { fontSize: 15, fontFamily: "Helvetica-Bold", marginTop: 2 },
-  statusPill: {
-    marginTop: 4,
-    alignSelf: "flex-end",
+  metaLabel: {
+    fontSize: 8,
+    letterSpacing: 1.5,
     color: BRAND,
     fontFamily: "Helvetica-Bold",
+  },
+  metaNumber: { fontSize: 14, fontFamily: "Helvetica-Bold", marginTop: 2 },
+  metaStatus: {
+    marginTop: 6,
+    color: BRAND_DARK,
+    fontFamily: "Helvetica-Bold",
     fontSize: 8,
   },
+  metaRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 3,
+  },
+  metaDivider: { borderTopWidth: 1, borderColor: LINE, marginTop: 8, paddingTop: 6 },
+
   section: { marginTop: 26 },
   blockLabel: {
     fontSize: 8,
-    letterSpacing: 1,
+    letterSpacing: 1.5,
     color: MUTED,
     fontFamily: "Helvetica-Bold",
     marginBottom: 4,
   },
   strong: { fontFamily: "Helvetica-Bold", fontSize: 10 },
+
   tableHead: {
     flexDirection: "row",
     borderBottomWidth: 1,
@@ -70,30 +94,31 @@ const s = StyleSheet.create({
   cUnit: { width: 90, textAlign: "right" },
   cTotal: { width: 90, textAlign: "right" },
   th: { fontFamily: "Helvetica-Bold", fontSize: 8, color: MUTED },
-  totals: { marginTop: 14, marginLeft: "auto", width: 220 },
+
+  totals: { marginTop: 16, marginLeft: "auto", width: 230 },
   totalRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: 3,
   },
-  grandRow: {
+  grandBox: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 4,
-    paddingTop: 6,
-    borderTopWidth: 1,
-    borderColor: LINE,
+    alignItems: "center",
+    marginTop: 8,
+    backgroundColor: BRAND_TINT,
+    borderRadius: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
   },
-  grand: { fontFamily: "Helvetica-Bold", fontSize: 12 },
-  notes: {
-    marginTop: 26,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderColor: LINE,
-  },
+  grandLabel: { fontFamily: "Helvetica-Bold", fontSize: 10, color: BRAND_DARK },
+  grandValue: { fontFamily: "Helvetica-Bold", fontSize: 12, color: BRAND },
+
+  notes: { marginTop: 26, paddingTop: 12, borderTopWidth: 1, borderColor: LINE },
+
   footer: {
     position: "absolute",
-    bottom: 30,
+    bottom: 28,
     left: 44,
     right: 44,
     fontSize: 8,
@@ -113,101 +138,130 @@ export function InvoiceDocument({
   company: Company;
   client?: Client;
 }) {
+  const legal = [
+    company.rccm && `RCCM : ${company.rccm}`,
+    company.nif && `NIF : ${company.nif}`,
+    company.idNat && `ID NAT : ${company.idNat}`,
+  ]
+    .filter(Boolean)
+    .join("   ·   ");
+
   return (
     <Document
       title={`Facture ${invoice.number}`}
       author={company.name || "Facturi"}
     >
       <Page size="A4" style={s.page}>
-        <View style={s.header}>
-          <View style={{ maxWidth: 260 }}>
-            <Text style={s.companyName}>{company.name || "Votre entreprise"}</Text>
-            {company.legalName ? <Text style={s.muted}>{company.legalName}</Text> : null}
-            {company.address ? <Text style={s.muted}>{company.address}</Text> : null}
-            <Text style={s.muted}>
-              {[company.city, company.country].filter(Boolean).join(", ")}
-            </Text>
-            {company.phone ? <Text style={s.muted}>{company.phone}</Text> : null}
-            {company.email ? <Text style={s.muted}>{company.email}</Text> : null}
-            {company.rccm ? (
-              <Text style={s.muted}>RCCM : {company.rccm}</Text>
+        <View style={s.accent} fixed />
+
+        <View style={s.body}>
+          <View style={s.header}>
+            <View style={{ maxWidth: 260 }}>
+              {company.logoUrl ? (
+                // react-pdf <Image> n'est pas un <img> HTML (pas de prop alt)
+                // eslint-disable-next-line jsx-a11y/alt-text
+                <Image src={company.logoUrl} style={s.logo} />
+              ) : null}
+              <Text style={s.companyName}>
+                {company.name || "Votre entreprise"}
+              </Text>
+              {company.legalName ? (
+                <Text style={s.muted}>{company.legalName}</Text>
+              ) : null}
+              {company.address ? (
+                <Text style={s.muted}>{company.address}</Text>
+              ) : null}
+              <Text style={s.muted}>
+                {[company.city, company.country].filter(Boolean).join(", ")}
+              </Text>
+              {company.phone ? (
+                <Text style={s.muted}>{company.phone}</Text>
+              ) : null}
+              {company.email ? (
+                <Text style={s.muted}>{company.email}</Text>
+              ) : null}
+            </View>
+
+            <View style={s.metaBox}>
+              <Text style={s.metaLabel}>FACTURE</Text>
+              <Text style={s.metaNumber}>{invoice.number}</Text>
+              <Text style={s.metaStatus}>{STATUS_LABEL[invoice.status]}</Text>
+              <View style={s.metaDivider}>
+                <View style={s.metaRow}>
+                  <Text style={s.muted}>Émission</Text>
+                  <Text>{formatDate(invoice.issueDate)}</Text>
+                </View>
+                <View style={s.metaRow}>
+                  <Text style={s.muted}>Échéance</Text>
+                  <Text>{formatDate(invoice.dueDate)}</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+
+          <View style={s.section}>
+            <Text style={s.blockLabel}>FACTURÉ À</Text>
+            <Text style={s.strong}>{client?.name ?? "Client supprimé"}</Text>
+            {client?.address ? (
+              <Text style={s.muted}>{client.address}</Text>
             ) : null}
-            {company.nif ? <Text style={s.muted}>NIF : {company.nif}</Text> : null}
-            {company.idNat ? (
-              <Text style={s.muted}>ID NAT : {company.idNat}</Text>
-            ) : null}
+            {client?.phone ? <Text style={s.muted}>{client.phone}</Text> : null}
+            {client?.email ? <Text style={s.muted}>{client.email}</Text> : null}
           </View>
-          <View style={s.right}>
-            <Text style={s.docLabel}>FACTURE</Text>
-            <Text style={s.docNumber}>{invoice.number}</Text>
-            <Text style={s.statusPill}>{STATUS_LABEL[invoice.status]}</Text>
-            <Text style={[s.muted, { marginTop: 6 }]}>
-              Émission : {formatDate(invoice.issueDate)}
+
+          <View style={s.tableHead}>
+            <Text style={[s.cDesc, s.th]}>Description</Text>
+            <Text style={[s.cQty, s.th]}>Qté</Text>
+            <Text style={[s.cUnit, s.th]}>Prix unitaire</Text>
+            <Text style={[s.cTotal, s.th]}>Total</Text>
+          </View>
+          {invoice.items.map((it) => (
+            <View style={s.row} key={it.id} wrap={false}>
+              <Text style={s.cDesc}>{it.description}</Text>
+              <Text style={s.cQty}>{it.quantity}</Text>
+              <Text style={s.cUnit}>{formatFCFA(it.unitPrice)}</Text>
+              <Text style={s.cTotal}>
+                {formatFCFA(lineTotal(it.quantity, it.unitPrice))}
+              </Text>
+            </View>
+          ))}
+
+          <View style={s.totals}>
+            <View style={s.totalRow}>
+              <Text style={s.muted}>Sous-total</Text>
+              <Text>{formatFCFA(invoice.subtotal)}</Text>
+            </View>
+            <View style={s.totalRow}>
+              <Text style={s.muted}>TVA ({invoice.tvaRate} %)</Text>
+              <Text>{formatFCFA(invoice.tvaAmount)}</Text>
+            </View>
+            <View style={s.grandBox}>
+              <Text style={s.grandLabel}>Total TTC</Text>
+              <Text style={s.grandValue}>{formatFCFA(invoice.total)}</Text>
+            </View>
+          </View>
+
+          {invoice.notes ? (
+            <View style={s.notes}>
+              <Text style={s.blockLabel}>NOTES</Text>
+              <Text style={s.muted}>{invoice.notes}</Text>
+            </View>
+          ) : null}
+        </View>
+
+        <View style={s.footer} fixed>
+          {legal ? <Text>{legal}</Text> : null}
+          {company.bankDetails ? (
+            <Text style={{ marginTop: 2 }}>
+              Règlement par virement — {company.bankDetails}
             </Text>
-            <Text style={s.muted}>Échéance : {formatDate(invoice.dueDate)}</Text>
-          </View>
-        </View>
-
-        <View style={s.section}>
-          <Text style={s.blockLabel}>FACTURÉ À</Text>
-          <Text style={s.strong}>{client?.name ?? "Client supprimé"}</Text>
-          {client?.address ? <Text style={s.muted}>{client.address}</Text> : null}
-          {client?.phone ? <Text style={s.muted}>{client.phone}</Text> : null}
-          {client?.email ? <Text style={s.muted}>{client.email}</Text> : null}
-        </View>
-
-        <View style={s.tableHead}>
-          <Text style={[s.cDesc, s.th]}>Description</Text>
-          <Text style={[s.cQty, s.th]}>Qté</Text>
-          <Text style={[s.cUnit, s.th]}>Prix unitaire</Text>
-          <Text style={[s.cTotal, s.th]}>Total</Text>
-        </View>
-        {invoice.items.map((it) => (
-          <View style={s.row} key={it.id} wrap={false}>
-            <Text style={s.cDesc}>{it.description}</Text>
-            <Text style={s.cQty}>{it.quantity}</Text>
-            <Text style={s.cUnit}>{formatFCFA(it.unitPrice)}</Text>
-            <Text style={s.cTotal}>
-              {formatFCFA(lineTotal(it.quantity, it.unitPrice))}
-            </Text>
-          </View>
-        ))}
-
-        <View style={s.totals}>
-          <View style={s.totalRow}>
-            <Text style={s.muted}>Sous-total</Text>
-            <Text>{formatFCFA(invoice.subtotal)}</Text>
-          </View>
-          <View style={s.totalRow}>
-            <Text style={s.muted}>TVA ({invoice.tvaRate} %)</Text>
-            <Text>{formatFCFA(invoice.tvaAmount)}</Text>
-          </View>
-          <View style={s.grandRow}>
-            <Text style={s.grand}>Total TTC</Text>
-            <Text style={s.grand}>{formatFCFA(invoice.total)}</Text>
-          </View>
-        </View>
-
-        {invoice.notes ? (
-          <View style={s.notes}>
-            <Text style={s.blockLabel}>NOTES</Text>
-            <Text style={s.muted}>{invoice.notes}</Text>
-          </View>
-        ) : null}
-
-        {company.paymentTermsDays ? (
-          <View style={{ marginTop: 16 }}>
-            <Text style={s.muted}>
+          ) : null}
+          {company.paymentTermsDays ? (
+            <Text style={{ marginTop: 2 }}>
               Conditions de paiement : {company.paymentTermsDays} jours à réception.
             </Text>
-          </View>
-        ) : null}
-
-        {company.bankDetails ? (
-          <Text style={s.footer}>
-            Règlement par virement — {company.bankDetails}
-          </Text>
-        ) : null}
+          ) : null}
+        </View>
       </Page>
     </Document>
   );
