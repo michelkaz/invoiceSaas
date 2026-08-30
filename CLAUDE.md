@@ -9,8 +9,13 @@ activité depuis un tableau de bord.
 **Stack :** Next.js 14 (App Router) · React 18 · TypeScript strict · Tailwind CSS ·
 déploiement **Vercel**. Base de données **Supabase** (branchée : Auth + Postgres +
 RLS multi-tenant — voir §11).
-**Langue de l'UI et des commentaires : français.** **Devise : franc congolais
-(CDF), affiché « FC ».** **TVA par défaut : 16 %.**
+**Commentaires de code : français.** **UI : bilingue FR (défaut) / EN** — i18n
+maison dans `lib/i18n/` (dictionnaires `fr.ts` / `en.ts`, `makeTranslator`),
+`components/providers/i18n-provider.tsx` (`useT()` / `useI18n()`), locale en
+cookie `facturi_locale`, `getServerLocale()` / `getServerT()` côté serveur.
+**Tout texte visible passe par `t("namespace.key")`** — ne jamais coder un
+libellé en dur. `<LanguageSwitcher>` (topbar, landing, pages d'auth).
+**Devise : franc congolais (CDF), affiché « FC ».** **TVA par défaut : 16 %.**
 
 ---
 
@@ -144,9 +149,12 @@ components/
   invoices/
     status-badge.tsx            <StatusBadge status> (alias <InvoiceStatusBadge>) — pastille + libellé par statut
     password-input.tsx          <PasswordInput> — champ mot de passe + bascule afficher/masquer (Eye/EyeOff)
+    image-upload.tsx            <ImageUpload> — upload Supabase Storage (bucket « assets »), logo entreprise + photo de profil
+    language-switcher.tsx       <LanguageSwitcher> — bascule FR / EN (cookie + reload)
     invoice-form.tsx            "use client" — création + édition (417 lignes : état + validation + vue)
     invoices-view.tsx           "use client" — liste + filtres + recherche + actions
-    invoice-detail.tsx          "use client" — rendu document + changement de statut + suppression
+    invoice-detail.tsx          "use client" — rendu document (template « moderne épuré » : bandeau violet, logo, bloc facture encadré, Total TTC en encart) + statut + suppression + <InvoicePdfActions>
+    invoice-pdf-actions.tsx     "use client" — Prévisualiser / Télécharger / Imprimer / Envoyer (PDF via @react-pdf, chargé à la demande)
   clients/
     clients-view.tsx            "use client" — liste + recherche + actions
     client-form-modal.tsx       "use client" — formulaire ajout / édition dans une Modal
