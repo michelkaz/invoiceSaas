@@ -1,28 +1,31 @@
 import type { TourStep } from "@/components/tutorial/tutorial-provider";
+import type { Translate } from "@/lib/i18n";
 
 /** Parcours de découverte affiché une fois, après l'onboarding. */
-export const dashboardTourSteps: TourStep[] = [
-  {
-    selector: '[data-tour="stats"]',
-    title: "Votre activité en un coup d'œil",
-    body: "Factures émises, montant facturé, encaissé et en attente — tout est résumé ici, en francs congolais.",
-  },
-  {
-    selector: '[data-tour="nav"]',
-    title: "La navigation",
-    body: "Accédez à vos clients, vos factures et vos paramètres depuis ce menu.",
-  },
-  {
-    selector: '[data-tour="create-invoice"]',
-    title: "Créer une facture",
-    body: "Ce bouton vous emmène directement au formulaire de création d'une nouvelle facture.",
-  },
-  {
-    selector: '[data-tour="recent"]',
-    title: "Vos dernières factures",
-    body: "Retrouvez ici vos factures récentes et leur statut. Cliquez sur une ligne pour l'ouvrir.",
-  },
-];
+export function buildDashboardTour(t: Translate): TourStep[] {
+  return [
+    {
+      selector: '[data-tour="stats"]',
+      title: t("tour.statsTitle"),
+      body: t("tour.statsBody"),
+    },
+    {
+      selector: '[data-tour="nav"]',
+      title: t("tour.navTitle"),
+      body: t("tour.navBody"),
+    },
+    {
+      selector: '[data-tour="create-invoice"]',
+      title: t("tour.createTitle"),
+      body: t("tour.createBody"),
+    },
+    {
+      selector: '[data-tour="recent"]',
+      title: t("tour.recentTitle"),
+      body: t("tour.recentBody"),
+    },
+  ];
+}
 
 /** Clé localStorage : demande de relancer le tutoriel depuis les Paramètres. */
 export const REPLAY_TOUR_KEY = "facturi:replay-tour";

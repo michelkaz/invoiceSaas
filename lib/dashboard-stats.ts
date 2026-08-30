@@ -36,6 +36,7 @@ export function getMonthlySeries(
   aggregate: (monthInvoices: Invoice[]) => number,
   months = 8,
   reference = new Date(),
+  monthNames?: readonly string[],
 ): MonthlyPoint[] {
   const points: MonthlyPoint[] = [];
   for (let offset = months - 1; offset >= 0; offset--) {
@@ -47,7 +48,10 @@ export function getMonthlySeries(
         issued.getMonth() === d.getMonth()
       );
     });
-    points.push({ label: monthLabel(d.getMonth()), value: aggregate(monthInvoices) });
+    points.push({
+      label: monthLabel(d.getMonth(), monthNames),
+      value: aggregate(monthInvoices),
+    });
   }
   return points;
 }
@@ -59,12 +63,14 @@ export function getMonthlyRevenue(
   invoices: Invoice[],
   months = 8,
   reference = new Date(),
+  monthNames?: readonly string[],
 ): MonthlyPoint[] {
   return getMonthlySeries(
     invoices,
     (list) => sumTotals(list.filter((i) => i.status !== "brouillon")),
     months,
     reference,
+    monthNames,
   );
 }
 
@@ -83,17 +89,9 @@ export function getStatSeries(invoices: Invoice[], months = 6, reference = new D
 
 export interface StatusSlice {
   status: InvoiceStatus;
-  label: string;
   count: number;
   amount: number;
 }
-
-const STATUS_LABELS: Record<InvoiceStatus, string> = {
-  payee: "Payées",
-  envoyee: "Envoyées",
-  brouillon: "Brouillons",
-  en_retard: "En retard",
-};
 
 export function getStatusBreakdown(invoices: Invoice[]): StatusSlice[] {
   const order: InvoiceStatus[] = ["payee", "envoyee", "en_retard", "brouillon"];
@@ -101,7 +99,6 @@ export function getStatusBreakdown(invoices: Invoice[]): StatusSlice[] {
     const matching = invoices.filter((i) => i.status === status);
     return {
       status,
-      label: STATUS_LABELS[status],
       count: matching.length,
       amount: matching.reduce((sum, i) => sum + i.total, 0),
     };

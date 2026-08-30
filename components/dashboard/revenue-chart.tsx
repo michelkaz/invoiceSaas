@@ -1,5 +1,8 @@
+"use client";
+
 import type { MonthlyPoint } from "@/lib/dashboard-stats";
 import { formatCompactFCFA, formatFCFA } from "@/lib/money";
+import { useT } from "@/components/providers/i18n-provider";
 
 /** Arrondit vers le haut à 1–2 chiffres significatifs (axe lisible). */
 function niceCeil(value: number): number {
@@ -17,6 +20,7 @@ const PLOT_H = VB_H - PAD.top - PAD.bottom;
 const RATIOS = [1, 0.75, 0.5, 0.25, 0];
 
 export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
+  const t = useT();
   const max = niceCeil(Math.max(...data.map((d) => d.value), 1));
   const total = data.reduce((sum, d) => sum + d.value, 0);
   const slot = PLOT_W / data.length;
@@ -27,17 +31,17 @@ export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-base font-semibold text-slate-900">
-            Revenus facturés
+            {t("dashboard.revenueTitle")}
           </h2>
           <p className="mt-0.5 text-sm text-slate-500">
-            {data.length} derniers mois
+            {t("dashboard.lastMonths", { count: data.length })}
           </p>
         </div>
         <div className="text-right">
           <p className="whitespace-nowrap text-lg font-bold text-slate-900">
             {formatFCFA(total)}
           </p>
-          <p className="text-xs text-slate-400">Total période</p>
+          <p className="text-xs text-slate-500">{t("dashboard.revenueTotal")}</p>
         </div>
       </div>
 

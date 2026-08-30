@@ -6,10 +6,12 @@ import { MailCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { authErrorMessage } from "@/lib/auth/errors";
+import { useT } from "@/components/providers/i18n-provider";
 
 export function VerifyEmailView() {
   const router = useRouter();
   const params = useSearchParams();
+  const t = useT();
   const [email, setEmail] = useState(params.get("email") ?? "");
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +44,7 @@ export function VerifyEmailView() {
       router.replace("/dashboard");
       router.refresh();
     } else {
-      setStatus("Adresse pas encore confirmée. Cliquez sur le lien reçu par email.");
+      setStatus(t("verify.pending"));
     }
   };
 
@@ -61,10 +63,10 @@ export function VerifyEmailView() {
     });
     setResending(false);
     if (err) {
-      setError(authErrorMessage(err));
+      setError(authErrorMessage(err, t));
       return;
     }
-    setStatus("Email de confirmation renvoyé. Vérifiez votre boîte mail (et vos spams).");
+    setStatus(t("verify.resent"));
   };
 
   const signOut = async () => {
@@ -80,16 +82,12 @@ export function VerifyEmailView() {
       </span>
       <div>
         <h1 className="text-xl font-bold tracking-tight text-slate-900">
-          Vérifiez votre email
+          {t("verify.title")}
         </h1>
         <p className="mt-1 text-sm text-slate-500">
-          Nous avons envoyé un lien de confirmation
-          {email ? (
-            <>
-              {" "}à <strong className="text-slate-700">{email}</strong>
-            </>
-          ) : null}
-          . Cliquez dessus pour activer votre compte.
+          {email
+            ? t("verify.body", { email })
+            : t("verify.bodyNoEmail")}
         </p>
       </div>
 
@@ -106,10 +104,10 @@ export function VerifyEmailView() {
 
       <div className="space-y-2">
         <Button onClick={check} loading={checking} className="w-full">
-          J&apos;ai confirmé mon email
+          {t("verify.confirmed")}
         </Button>
         <Button onClick={resend} loading={resending} variant="outline" className="w-full">
-          Renvoyer l&apos;email
+          {t("verify.resend")}
         </Button>
       </div>
 
@@ -118,7 +116,7 @@ export function VerifyEmailView() {
         onClick={signOut}
         className="text-sm font-medium text-slate-500 hover:text-slate-700"
       >
-        Se déconnecter
+        {t("verify.signOut")}
       </button>
     </div>
   );

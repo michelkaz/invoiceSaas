@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Check, Circle, X } from "lucide-react";
 import { Card, CardBody } from "@/components/ui/card";
 import { useData } from "@/components/providers/data-provider";
+import { useT } from "@/components/providers/i18n-provider";
 
 interface Item {
   label: string;
@@ -12,6 +13,7 @@ interface Item {
 }
 
 export function OnboardingChecklist() {
+  const t = useT();
   const { company, clients, invoices, onboardingCompleted, completeOnboarding } =
     useData();
 
@@ -19,17 +21,17 @@ export function OnboardingChecklist() {
 
   const items: Item[] = [
     {
-      label: "Renseigner les informations de votre entreprise",
+      label: t("checklist.itemCompany"),
       href: "/settings",
       done: Boolean(company.name),
     },
     {
-      label: "Ajouter votre premier client",
+      label: t("checklist.itemClient"),
       href: "/clients",
       done: clients.length > 0,
     },
     {
-      label: "Créer votre première facture",
+      label: t("checklist.itemInvoice"),
       href: "/invoices/new",
       done: invoices.length > 0,
     },
@@ -42,16 +44,16 @@ export function OnboardingChecklist() {
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-base font-semibold text-slate-900">
-              Prise en main ({doneCount}/{items.length})
+              {t("checklist.title", { done: doneCount, total: items.length })}
             </p>
             <p className="mt-0.5 text-sm text-slate-500">
-              Quelques étapes pour démarrer votre facturation.
+              {t("checklist.subtitle")}
             </p>
           </div>
           <button
             type="button"
             onClick={completeOnboarding}
-            aria-label="Masquer le guide de prise en main"
+            aria-label={t("checklist.hide")}
             className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-slate-400 hover:bg-white hover:text-slate-600"
           >
             <X className="h-4 w-4" />
@@ -92,7 +94,7 @@ export function OnboardingChecklist() {
             onClick={completeOnboarding}
             className="text-sm font-semibold text-brand-600 hover:text-brand-700"
           >
-            Terminer la prise en main
+            {t("checklist.finish")}
           </button>
         )}
       </CardBody>

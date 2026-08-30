@@ -10,7 +10,8 @@ import type { Client, Company, Invoice } from "@/lib/data/types";
 import { formatFCFA } from "@/lib/money";
 import { formatDate } from "@/lib/format";
 import { lineTotal } from "@/lib/invoice-calc";
-import { STATUS_LABEL } from "@/lib/invoice-status";
+import { getDictionary, makeTranslator, type Locale } from "@/lib/i18n";
+import { defaultLocale } from "@/lib/i18n/config";
 
 const BRAND = "#7c3aed";
 const BRAND_DARK = "#5b21b6";
@@ -32,12 +33,10 @@ const s = StyleSheet.create({
   },
   accent: { height: 6, backgroundColor: BRAND },
   body: { paddingHorizontal: 44, paddingTop: 32 },
-
   header: { flexDirection: "row", justifyContent: "space-between" },
   logo: { height: 40, marginBottom: 8, objectFit: "contain" },
   companyName: { fontSize: 13, fontFamily: "Helvetica-Bold" },
   muted: { color: MUTED },
-
   metaBox: {
     width: 190,
     borderWidth: 1,
@@ -65,7 +64,6 @@ const s = StyleSheet.create({
     marginTop: 3,
   },
   metaDivider: { borderTopWidth: 1, borderColor: LINE, marginTop: 8, paddingTop: 6 },
-
   section: { marginTop: 26 },
   blockLabel: {
     fontSize: 8,
@@ -75,7 +73,6 @@ const s = StyleSheet.create({
     marginBottom: 4,
   },
   strong: { fontFamily: "Helvetica-Bold", fontSize: 10 },
-
   tableHead: {
     flexDirection: "row",
     borderBottomWidth: 1,
@@ -94,7 +91,6 @@ const s = StyleSheet.create({
   cUnit: { width: 90, textAlign: "right" },
   cTotal: { width: 90, textAlign: "right" },
   th: { fontFamily: "Helvetica-Bold", fontSize: 8, color: MUTED },
-
   totals: { marginTop: 16, marginLeft: "auto", width: 230 },
   totalRow: {
     flexDirection: "row",
@@ -113,9 +109,7 @@ const s = StyleSheet.create({
   },
   grandLabel: { fontFamily: "Helvetica-Bold", fontSize: 10, color: BRAND_DARK },
   grandValue: { fontFamily: "Helvetica-Bold", fontSize: 12, color: BRAND },
-
   notes: { marginTop: 26, paddingTop: 12, borderTopWidth: 1, borderColor: LINE },
-
   footer: {
     position: "absolute",
     bottom: 28,
@@ -133,11 +127,15 @@ export function InvoiceDocument({
   invoice,
   company,
   client,
+  locale = defaultLocale,
 }: {
   invoice: Invoice;
   company: Company;
   client?: Client;
+  locale?: Locale;
 }) {
+  const t = makeTranslator(getDictionary(locale));
+
   const legal = [
     company.rccm && `RCCM : ${company.rccm}`,
     company.nif && `NIF : ${company.nif}`,
@@ -148,7 +146,7 @@ export function InvoiceDocument({
 
   return (
     <Document
-      title={`Facture ${invoice.number}`}
+      title={`${t("pdf.invoice")} ${invoice.number}`}
       author={company.name || "Facturi"}
     >
       <Page size="A4" style={s.page}>
@@ -163,7 +161,7 @@ export function InvoiceDocument({
                 <Image src={company.logoUrl} style={s.logo} />
               ) : null}
               <Text style={s.companyName}>
-                {company.name || "Votre entreprise"}
+                {company.name || t("pdf.yourCompany")}
               </Text>
               {company.legalName ? (
                 <Text style={s.muted}>{company.legalName}</Text>
@@ -183,16 +181,16 @@ export function InvoiceDocument({
             </View>
 
             <View style={s.metaBox}>
-              <Text style={s.metaLabel}>FACTURE</Text>
+              <Text style={s.metaLabel}>{t("pdf.invoice")}</Text>
               <Text style={s.metaNumber}>{invoice.number}</Text>
-              <Text style={s.metaStatus}>{STATUS_LABEL[invoice.status]}</Text>
+              <Text style={s.metaStatus}>{t(`status.${invoice.status}`)}</Text>
               <View style={s.metaDivider}>
                 <View style={s.metaRow}>
-                  <Text style={s.muted}>Émission</Text>
+                  <Text style={s.muted}>{t("pdf.emission")}</Text>
                   <Text>{formatDate(invoice.issueDate)}</Text>
                 </View>
                 <View style={s.metaRow}>
-                  <Text style={s.muted}>Échéance</Text>
+                  <Text style={s.muted}>{t("pdf.echeance")}</Text>
                   <Text>{formatDate(invoice.dueDate)}</Text>
                 </View>
               </View>
@@ -200,8 +198,10 @@ export function InvoiceDocument({
           </View>
 
           <View style={s.section}>
-            <Text style={s.blockLabel}>FACTURÉ À</Text>
-            <Text style={s.strong}>{client?.name ?? "Client supprimé"}</Text>
+            <Text style={s.blockLabel}>{t("pdf.billedTo")}</Text>
+            <Text style={s.strong}>
+              {client?.name ?? t("pdf.clientDeleted")}
+            </Text>
             {client?.address ? (
               <Text style={s.muted}>{client.address}</Text>
             ) : null}
@@ -210,10 +210,10 @@ export function InvoiceDocument({
           </View>
 
           <View style={s.tableHead}>
-            <Text style={[s.cDesc, s.th]}>Description</Text>
-            <Text style={[s.cQty, s.th]}>Qté</Text>
-            <Text style={[s.cUnit, s.th]}>Prix unitaire</Text>
-            <Text style={[s.cTotal, s.th]}>Total</Text>
+            <Text style={[s.cDesc, s.th]}>{t("pdf.description")}</Text>
+            <Text style={[s.cQty, s.th]}>{t("pdf.qty")}</Text>
+            <Text style={[s.cUnit, s.th]}>{t("pdf.unitPrice")}</Text>
+            <Text style={[s.cTotal, s.th]}>{t("pdf.total")}</Text>
           </View>
           {invoice.items.map((it) => (
             <View style={s.row} key={it.id} wrap={false}>
@@ -228,22 +228,24 @@ export function InvoiceDocument({
 
           <View style={s.totals}>
             <View style={s.totalRow}>
-              <Text style={s.muted}>Sous-total</Text>
+              <Text style={s.muted}>{t("pdf.subtotal")}</Text>
               <Text>{formatFCFA(invoice.subtotal)}</Text>
             </View>
             <View style={s.totalRow}>
-              <Text style={s.muted}>TVA ({invoice.tvaRate} %)</Text>
+              <Text style={s.muted}>
+                {t("pdf.tva", { rate: invoice.tvaRate })}
+              </Text>
               <Text>{formatFCFA(invoice.tvaAmount)}</Text>
             </View>
             <View style={s.grandBox}>
-              <Text style={s.grandLabel}>Total TTC</Text>
+              <Text style={s.grandLabel}>{t("pdf.totalTTC")}</Text>
               <Text style={s.grandValue}>{formatFCFA(invoice.total)}</Text>
             </View>
           </View>
 
           {invoice.notes ? (
             <View style={s.notes}>
-              <Text style={s.blockLabel}>NOTES</Text>
+              <Text style={s.blockLabel}>{t("pdf.notes")}</Text>
               <Text style={s.muted}>{invoice.notes}</Text>
             </View>
           ) : null}
@@ -253,12 +255,12 @@ export function InvoiceDocument({
           {legal ? <Text>{legal}</Text> : null}
           {company.bankDetails ? (
             <Text style={{ marginTop: 2 }}>
-              Règlement par virement — {company.bankDetails}
+              {t("pdf.bankTransfer", { details: company.bankDetails })}
             </Text>
           ) : null}
           {company.paymentTermsDays ? (
             <Text style={{ marginTop: 2 }}>
-              Conditions de paiement : {company.paymentTermsDays} jours à réception.
+              {t("pdf.paymentTerms", { days: company.paymentTermsDays })}
             </Text>
           ) : null}
         </View>

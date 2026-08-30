@@ -4,10 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useT } from "@/components/providers/i18n-provider";
 import { createClient } from "@/lib/supabase/client";
 import { authErrorMessage } from "@/lib/auth/errors";
 
 export function ForgotPasswordForm() {
+  const t = useT();
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [sent, setSent] = useState(false);
@@ -17,7 +19,7 @@ export function ForgotPasswordForm() {
     e.preventDefault();
     setError(null);
     if (!email.trim()) {
-      setError("Renseignez votre adresse email.");
+      setError(t("auth.enterEmail"));
       return;
     }
     setLoading(true);
@@ -27,7 +29,7 @@ export function ForgotPasswordForm() {
     });
     setLoading(false);
     if (err) {
-      setError(authErrorMessage(err));
+      setError(authErrorMessage(err, t));
       return;
     }
     setSent(true);
@@ -37,11 +39,10 @@ export function ForgotPasswordForm() {
     return (
       <div className="space-y-4">
         <p className="rounded-xl bg-emerald-50 px-3.5 py-2.5 text-sm text-emerald-700">
-          Si un compte est associé à <strong>{email.trim()}</strong>, un email de
-          réinitialisation vient d&apos;être envoyé. Pensez à vérifier vos spams.
+          {t("auth.resetSent", { email: email.trim() })}
         </p>
         <Button href="/login" variant="outline" className="w-full">
-          Retour à la connexion
+          {t("auth.backToLogin")}
         </Button>
       </div>
     );
@@ -50,7 +51,7 @@ export function ForgotPasswordForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Input
-        label="Email"
+        label={t("auth.email")}
         type="email"
         autoComplete="email"
         required
@@ -63,11 +64,11 @@ export function ForgotPasswordForm() {
         </p>
       )}
       <Button type="submit" loading={loading} className="w-full">
-        Envoyer le lien de réinitialisation
+        {t("auth.sendResetLink")}
       </Button>
       <p className="text-center text-sm text-slate-500">
         <Link href="/login" className="font-semibold text-brand-600 hover:text-brand-700">
-          Retour à la connexion
+          {t("auth.backToLogin")}
         </Link>
       </p>
     </form>

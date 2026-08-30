@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { X, Sparkles } from "lucide-react";
 import { navSections } from "@/components/layout/nav";
+import { useT } from "@/components/providers/i18n-provider";
 import { cn } from "@/lib/utils";
 
 function Logo() {
@@ -21,13 +22,14 @@ function Logo() {
 
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
   const pathname = usePathname();
+  const t = useT();
 
   return (
     <nav data-tour="nav" className="flex-1 space-y-6 px-3 py-4">
       {navSections.map((section) => (
-        <div key={section.title}>
+        <div key={section.titleKey}>
           <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-            {section.title}
+            {t(section.titleKey)}
           </p>
           <ul className="space-y-1">
             {section.items.map((item) => {
@@ -55,7 +57,7 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
                           : "text-slate-400 group-hover:text-slate-600",
                       )}
                     />
-                    {item.label}
+                    {t(item.labelKey)}
                   </Link>
                 </li>
               );
@@ -68,15 +70,16 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
 }
 
 function UpgradeCard() {
+  const t = useT();
   return (
     <div className="mx-3 mb-4 rounded-2xl bg-gradient-to-br from-brand-600 to-brand-800 p-4 text-white">
       <Sparkles className="h-5 w-5" />
-      <p className="mt-2 text-sm font-semibold">Passez à Facturi Pro</p>
+      <p className="mt-2 text-sm font-semibold">{t("nav.proTitle")}</p>
       <p className="mt-1 text-xs text-white/80">
-        Factures illimitées, relances automatiques et export comptable.
+        {t("nav.proBody")}
       </p>
       <button className="mt-3 w-full rounded-lg bg-white/15 px-3 py-2 text-xs font-semibold backdrop-blur transition hover:bg-white/25">
-        Découvrir
+        {t("nav.proCta")}
       </button>
     </div>
   );
@@ -103,6 +106,7 @@ export function Sidebar({
   open: boolean;
   onClose: () => void;
 }) {
+  const t = useT();
   return (
     <>
       {/* Desktop */}
@@ -121,7 +125,7 @@ export function Sidebar({
           <aside className="absolute inset-y-0 left-0 w-72 max-w-[85vw] bg-white shadow-pop animate-slide-in">
             <button
               onClick={onClose}
-              aria-label="Fermer le menu"
+              aria-label={t("topbar.closeMenu")}
               className="absolute right-3 top-4 grid h-9 w-9 place-items-center rounded-lg text-slate-500 hover:bg-slate-100"
             >
               <X className="h-5 w-5" />

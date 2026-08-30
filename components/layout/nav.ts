@@ -8,30 +8,31 @@ import {
 } from "lucide-react";
 
 export interface NavItem {
-  label: string;
+  /** Clé i18n du libellé (résolue dans la sidebar). */
+  labelKey: string;
   href: string;
   icon: LucideIcon;
 }
 
 export interface NavSection {
-  title: string;
+  titleKey: string;
   items: NavItem[];
 }
 
 export const navSections: NavSection[] = [
   {
-    title: "Menu",
+    titleKey: "nav.sectionMain",
     items: [
-      { label: "Tableau de bord", href: "/dashboard", icon: LayoutDashboard },
-      { label: "Factures", href: "/invoices", icon: FileText },
-      { label: "Clients", href: "/clients", icon: Users },
+      { labelKey: "nav.dashboard", href: "/dashboard", icon: LayoutDashboard },
+      { labelKey: "nav.invoices", href: "/invoices", icon: FileText },
+      { labelKey: "nav.clients", href: "/clients", icon: Users },
     ],
   },
   {
-    title: "Configuration",
+    titleKey: "nav.sectionConfig",
     items: [
-      { label: "Paramètres", href: "/settings", icon: Settings },
-      { label: "Aide & support", href: "/help", icon: LifeBuoy },
+      { labelKey: "nav.settings", href: "/settings", icon: Settings },
+      { labelKey: "nav.help", href: "/help", icon: LifeBuoy },
     ],
   },
 ];

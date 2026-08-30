@@ -12,6 +12,7 @@ import {
 } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/components/providers/i18n-provider";
 
 export interface TourStep {
   /** Sélecteur CSS de l'élément à mettre en évidence (ex. `[data-tour="nav"]`). */
@@ -39,6 +40,7 @@ interface Rect {
 }
 
 export function TutorialProvider({ children }: { children: React.ReactNode }) {
+  const t = useT();
   const [steps, setSteps] = useState<TourStep[]>([]);
   const [index, setIndex] = useState(0);
   const [rect, setRect] = useState<Rect | null>(null);
@@ -140,7 +142,7 @@ export function TutorialProvider({ children }: { children: React.ReactNode }) {
           {/* Clic hors infobulle = fin */}
           <button
             type="button"
-            aria-label="Fermer le tutoriel"
+            aria-label={t("tour.close")}
             className="absolute inset-0 h-full w-full cursor-default"
             onClick={finish}
           />
@@ -154,7 +156,7 @@ export function TutorialProvider({ children }: { children: React.ReactNode }) {
               <button
                 type="button"
                 onClick={finish}
-                aria-label="Fermer"
+                aria-label={t("common.close")}
                 className="grid h-6 w-6 shrink-0 place-items-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600"
               >
                 <X className="h-3.5 w-3.5" />
@@ -164,7 +166,7 @@ export function TutorialProvider({ children }: { children: React.ReactNode }) {
 
             <div className="mt-4 flex items-center justify-between">
               <span className="text-xs text-slate-400">
-                {index + 1} / {steps.length}
+                {t("tour.step", { current: index + 1, total: steps.length })}
               </span>
               <div className="flex gap-2">
                 {index > 0 && (
@@ -174,7 +176,7 @@ export function TutorialProvider({ children }: { children: React.ReactNode }) {
                     size="sm"
                     onClick={() => setIndex((i) => i - 1)}
                   >
-                    Précédent
+                    {t("tour.prev")}
                   </Button>
                 )}
                 {index < steps.length - 1 ? (
@@ -183,11 +185,11 @@ export function TutorialProvider({ children }: { children: React.ReactNode }) {
                     size="sm"
                     onClick={() => setIndex((i) => i + 1)}
                   >
-                    Suivant
+                    {t("tour.next")}
                   </Button>
                 ) : (
                   <Button type="button" size="sm" onClick={finish}>
-                    Terminer
+                    {t("tour.finish")}
                   </Button>
                 )}
               </div>

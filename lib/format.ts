@@ -17,15 +17,21 @@ export function formatDate(input: string | Date): string {
   return `${dd}/${mm}/${d.getFullYear()}`;
 }
 
-/** "2026-01-15" -> "15 janv. 2026" */
-export function formatDateLong(input: string | Date): string {
+/** "2026-01-15" -> "15 janv. 2026" (mois localisables). */
+export function formatDateLong(
+  input: string | Date,
+  months: readonly string[] = MONTHS_SHORT,
+): string {
   const d = toDate(input);
-  return `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]} ${d.getFullYear()}`;
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-/** Libellé court d'un mois (0 = janvier). */
-export function monthLabel(monthIndex: number): string {
-  return MONTHS_SHORT[((monthIndex % 12) + 12) % 12];
+/** Libellé court d'un mois (0 = janvier). `months` permet la localisation. */
+export function monthLabel(
+  monthIndex: number,
+  months: readonly string[] = MONTHS_SHORT,
+): string {
+  return months[((monthIndex % 12) + 12) % 12];
 }
 
 function isoOf(d: Date): string {

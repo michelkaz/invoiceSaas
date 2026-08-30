@@ -1,11 +1,14 @@
 import type { Invoice } from "@/lib/data/types";
 import { formatFCFA } from "@/lib/money";
 import { formatDate } from "@/lib/format";
+import { getDictionary, makeTranslator, type Locale } from "@/lib/i18n";
+import { defaultLocale } from "@/lib/i18n/config";
 
 interface InvoiceEmailParams {
   invoice: Invoice;
   companyName: string;
   message?: string;
+  locale?: Locale;
 }
 
 /** Email HTML au branding Facturi accompagnant l'envoi d'une facture. */
@@ -13,10 +16,12 @@ export function invoiceEmailHtml({
   invoice,
   companyName,
   message,
+  locale = defaultLocale,
 }: InvoiceEmailParams): string {
+  const t = makeTranslator(getDictionary(locale));
   const intro = message
     ? escapeHtml(message).replace(/\n/g, "<br>")
-    : `Veuillez trouver ci-joint la facture <strong>${invoice.number}</strong>.`;
+    : t("email.defaultIntro", { number: invoice.number });
 
   return `<div style="margin:0;padding:24px;background:#f8fafc;font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#0f172a">
   <div style="max-width:520px;margin:0 auto;background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;overflow:hidden">
@@ -25,17 +30,17 @@ export function invoiceEmailHtml({
       <span style="font-size:15px;font-weight:700;margin-left:8px;vertical-align:middle">${escapeHtml(companyName || "Facturi")}</span>
     </div>
     <div style="padding:28px">
-      <h1 style="margin:0 0 12px;font-size:17px;font-weight:700">Facture ${escapeHtml(invoice.number)}</h1>
+      <h1 style="margin:0 0 12px;font-size:17px;font-weight:700">${escapeHtml(t("email.heading", { number: invoice.number }))}</h1>
       <p style="margin:0 0 20px;font-size:14px;line-height:1.6;color:#475569">${intro}</p>
       <table style="width:100%;font-size:13px;color:#475569;border-collapse:collapse">
-        <tr><td style="padding:4px 0">Montant total</td><td style="padding:4px 0;text-align:right;font-weight:700;color:#0f172a">${formatFCFA(invoice.total)}</td></tr>
-        <tr><td style="padding:4px 0">Date d'émission</td><td style="padding:4px 0;text-align:right">${formatDate(invoice.issueDate)}</td></tr>
-        <tr><td style="padding:4px 0">Échéance</td><td style="padding:4px 0;text-align:right">${formatDate(invoice.dueDate)}</td></tr>
+        <tr><td style="padding:4px 0">${escapeHtml(t("email.amountTotal"))}</td><td style="padding:4px 0;text-align:right;font-weight:700;color:#0f172a">${formatFCFA(invoice.total)}</td></tr>
+        <tr><td style="padding:4px 0">${escapeHtml(t("email.issueDate"))}</td><td style="padding:4px 0;text-align:right">${formatDate(invoice.issueDate)}</td></tr>
+        <tr><td style="padding:4px 0">${escapeHtml(t("email.dueDate"))}</td><td style="padding:4px 0;text-align:right">${formatDate(invoice.dueDate)}</td></tr>
       </table>
-      <p style="margin:22px 0 0;font-size:12px;color:#94a3b8">Le détail complet figure dans le PDF joint à cet email.</p>
+      <p style="margin:22px 0 0;font-size:12px;color:#94a3b8">${escapeHtml(t("email.pdfNote"))}</p>
     </div>
   </div>
-  <p style="max-width:520px;margin:16px auto 0;font-size:11px;color:#94a3b8;text-align:center">Envoyé avec Facturi</p>
+  <p style="max-width:520px;margin:16px auto 0;font-size:11px;color:#94a3b8;text-align:center">${escapeHtml(t("email.sentWith"))}</p>
 </div>`;
 }
 

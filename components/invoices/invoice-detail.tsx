@@ -17,15 +17,13 @@ import { useToast } from "@/components/ui/toast";
 import { formatDate } from "@/lib/format";
 import { formatFCFA } from "@/lib/money";
 import { lineTotal } from "@/lib/invoice-calc";
-import {
-  INVOICE_STATUSES,
-  STATUS_ACTION_LABEL,
-  STATUS_LABEL,
-} from "@/lib/invoice-status";
+import { INVOICE_STATUSES, statusActionKey } from "@/lib/invoice-status";
+import { useT } from "@/components/providers/i18n-provider";
 
 export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
   const router = useRouter();
   const { toast } = useToast();
+  const t = useT();
   const { hydrated, getInvoice, getClient, company, setInvoiceStatus, deleteInvoice } =
     useData();
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -51,9 +49,9 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
       <Card>
         <EmptyState
           icon={FileWarning}
-          title="Facture introuvable"
-          description="Cette facture n'existe pas ou a été supprimée."
-          action={<Button href="/invoices">Retour aux factures</Button>}
+          title={t("invoices.notFoundTitle")}
+          description={t("invoices.notFoundDesc")}
+          action={<Button href="/invoices">{t("invoices.backToList")}</Button>}
         />
       </Card>
     );
@@ -64,13 +62,13 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
   const statusItems: DropdownItem[] = INVOICE_STATUSES.filter(
     (s) => s !== invoice.status,
   ).map((s) => ({
-    label: STATUS_ACTION_LABEL[s],
+    label: t(statusActionKey(s)),
     onClick: () => {
       setInvoiceStatus(invoice.id, s);
       toast({
         variant: "success",
-        title: "Statut mis à jour",
-        description: `${invoice.number} · ${STATUS_LABEL[s]}`,
+        title: t("invoices.statusUpdated"),
+        description: `${invoice.number} · ${t(`status.${s}`)}`,
       });
     },
   }));
@@ -79,11 +77,11 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
     <div className="space-y-6">
       <PageHeader
         backHref="/invoices"
-        backLabel="Toutes les factures"
+        backLabel={t("invoices.allInvoices")}
         title={invoice.number}
         description={
           <span className="inline-flex items-center gap-2">
-            {client?.name ?? "Client supprimé"}
+            {client?.name ?? t("invoices.clientDeleted")}
             <span className="text-slate-300">•</span>
             <StatusBadge status={invoice.status} />
           </span>
@@ -96,18 +94,18 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
               triggerClassName="inline-flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
               trigger={
                 <>
-                  Changer le statut
+                  {t("invoices.changeStatus")}
                   <ChevronDown className="h-4 w-4 text-slate-400" />
                 </>
               }
             />
             <Button variant="outline" href={`/invoices/${invoice.id}/edit`}>
               <Pencil className="h-4 w-4" />
-              Modifier
+              {t("common.edit")}
             </Button>
             <Button variant="ghost" onClick={() => setConfirmOpen(true)}>
               <Trash2 className="h-4 w-4" />
-              Supprimer
+              {t("common.delete")}
             </Button>
           </>
         }
@@ -145,7 +143,7 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
 
             <div className="w-full shrink-0 rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm sm:w-64">
               <p className="text-[11px] font-semibold uppercase tracking-widest text-brand-600">
-                Facture
+                {t("invoices.invoiceLabel")}
               </p>
               <p className="mt-0.5 text-lg font-bold tracking-tight text-slate-900">
                 {invoice.number}
@@ -155,13 +153,13 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
               </div>
               <dl className="mt-3 space-y-1 border-t border-slate-200 pt-3 text-slate-600">
                 <div className="flex justify-between">
-                  <dt>Émission</dt>
+                  <dt>{t("invoices.emission")}</dt>
                   <dd className="tabular-nums text-slate-900">
                     {formatDate(invoice.issueDate)}
                   </dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt>Échéance</dt>
+                  <dt>{t("invoices.echeance")}</dt>
                   <dd className="tabular-nums text-slate-900">
                     {formatDate(invoice.dueDate)}
                   </dd>
@@ -172,11 +170,11 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
 
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">
-              Facturé à
+              {t("invoices.billedTo")}
             </p>
             <div className="mt-2 space-y-0.5 text-sm text-slate-600">
               <p className="text-base font-semibold text-slate-900">
-                {client?.name ?? "Client supprimé"}
+                {client?.name ?? t("invoices.clientDeleted")}
               </p>
               {client?.address && <p>{client.address}</p>}
               {client?.phone && <p>{client.phone}</p>}
@@ -186,10 +184,10 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
 
           <Table minWidth={480}>
             <THead>
-              <TH>Description</TH>
-              <TH className="text-right">Qté</TH>
-              <TH className="text-right">Prix unitaire</TH>
-              <TH className="text-right">Total</TH>
+              <TH>{t("invoiceForm.lineDescription")}</TH>
+              <TH className="text-right">{t("invoiceForm.lineQty")}</TH>
+              <TH className="text-right">{t("invoiceForm.lineUnitPrice")}</TH>
+              <TH className="text-right">{t("invoiceForm.lineTotal")}</TH>
             </THead>
             <TBody>
               {invoice.items.map((item) => (
@@ -212,13 +210,13 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
           <div className="flex flex-col items-end gap-3">
             <dl className="w-full max-w-xs space-y-2 text-sm">
               <div className="flex justify-between">
-                <dt className="text-slate-500">Sous-total</dt>
+                <dt className="text-slate-500">{t("invoices.subtotal")}</dt>
                 <dd className="font-medium tabular-nums text-slate-900">
                   {formatFCFA(invoice.subtotal)}
                 </dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-slate-500">TVA ({invoice.tvaRate} %)</dt>
+                <dt className="text-slate-500">{t("invoices.tva", { rate: invoice.tvaRate })}</dt>
                 <dd className="font-medium tabular-nums text-slate-900">
                   {formatFCFA(invoice.tvaAmount)}
                 </dd>
@@ -226,7 +224,7 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
             </dl>
             <div className="flex w-full max-w-xs items-center justify-between rounded-xl bg-brand-50 px-4 py-3">
               <span className="text-sm font-semibold text-brand-900">
-                Total TTC
+                {t("invoices.totalTTC")}
               </span>
               <span className="text-lg font-bold tabular-nums text-brand-700">
                 {formatFCFA(invoice.total)}
@@ -237,7 +235,7 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
           {invoice.notes && (
             <div className="border-t border-slate-100 pt-6">
               <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400">
-                Notes
+                {t("invoices.notes")}
               </p>
               <p className="mt-2 whitespace-pre-line text-sm text-slate-600">
                 {invoice.notes}
@@ -258,12 +256,11 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
               </p>
             )}
             {company.bankDetails && (
-              <p>Règlement par virement — {company.bankDetails}</p>
+              <p>{t("invoices.bankTransfer", { details: company.bankDetails })}</p>
             )}
             {company.paymentTermsDays ? (
               <p>
-                Conditions de paiement : {company.paymentTermsDays} jours à
-                réception.
+                {t("invoices.paymentTerms", { days: company.paymentTermsDays })}
               </p>
             ) : null}
           </div>
@@ -277,19 +274,14 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
           deleteInvoice(invoice.id);
           toast({
             variant: "success",
-            title: "Facture supprimée",
+            title: t("invoices.invoiceDeleted"),
             description: invoice.number,
           });
           router.push("/invoices");
         }}
-        title="Supprimer la facture"
-        message={
-          <>
-            La facture <strong>{invoice.number}</strong> sera définitivement
-            supprimée. Cette action est irréversible.
-          </>
-        }
-        confirmLabel="Supprimer"
+        title={t("invoices.confirmDeleteTitle")}
+        message={t("invoices.confirmDeleteMsg", { number: invoice.number })}
+        confirmLabel={t("common.delete")}
       />
     </div>
   );

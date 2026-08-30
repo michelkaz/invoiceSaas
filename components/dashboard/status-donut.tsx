@@ -1,6 +1,9 @@
+"use client";
+
 import type { StatusSlice } from "@/lib/dashboard-stats";
 import type { InvoiceStatus } from "@/lib/data/types";
 import { formatFCFA } from "@/lib/money";
+import { useT } from "@/components/providers/i18n-provider";
 
 const COLORS: Record<InvoiceStatus, string> = {
   payee: "#10b981", // emerald-500
@@ -10,17 +13,20 @@ const COLORS: Record<InvoiceStatus, string> = {
 };
 
 export function StatusDonut({ data }: { data: StatusSlice[] }) {
+  const t = useT();
   const total = data.reduce((sum, slice) => sum + slice.count, 0);
   let offset = 0;
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card sm:p-6">
       <h2 className="text-base font-semibold text-slate-900">
-        Répartition des factures
+        {t("dashboard.statusTitle")}
       </h2>
-      <p className="mt-0.5 text-sm text-slate-500">Par statut</p>
+      <p className="mt-0.5 text-sm text-slate-500">
+        {t("dashboard.statusSubtitle")}
+      </p>
 
-      <div className="mt-6 flex flex-col items-center gap-6 sm:flex-row">
+      <div className="mt-6 flex flex-col items-center gap-6 xl:flex-row">
         <div className="relative h-36 w-36 shrink-0">
           <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90">
             <circle
@@ -58,7 +64,7 @@ export function StatusDonut({ data }: { data: StatusSlice[] }) {
           <div className="absolute inset-0 grid place-items-center">
             <div className="text-center">
               <p className="text-2xl font-bold text-slate-900">{total}</p>
-              <p className="text-xs text-slate-400">factures</p>
+              <p className="text-xs text-slate-500">{t("nav.invoices")}</p>
             </div>
           </div>
         </div>
@@ -67,17 +73,17 @@ export function StatusDonut({ data }: { data: StatusSlice[] }) {
           {data.map((slice) => (
             <li
               key={slice.status}
-              className="flex items-center justify-between gap-3"
+              className="flex min-w-0 items-center justify-between gap-3"
             >
-              <span className="flex items-center gap-2 whitespace-nowrap text-sm text-slate-600">
+              <span className="flex min-w-0 flex-1 items-center gap-2 text-sm text-slate-600">
                 <span
                   className="h-2.5 w-2.5 shrink-0 rounded-full"
                   style={{ backgroundColor: COLORS[slice.status] }}
                 />
-                {slice.label}
-                <span className="text-slate-400">({slice.count})</span>
+                <span className="truncate">{t(`status.${slice.status}`)}</span>
+                <span className="shrink-0 text-slate-400">({slice.count})</span>
               </span>
-              <span className="whitespace-nowrap text-sm font-semibold tabular-nums text-slate-900">
+              <span className="shrink-0 whitespace-nowrap text-sm font-semibold tabular-nums text-slate-900">
                 {formatFCFA(slice.amount)}
               </span>
             </li>

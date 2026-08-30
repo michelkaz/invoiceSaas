@@ -27,13 +27,10 @@ import { Avatar } from "@/components/ui/avatar";
 import { StatusBadge } from "@/components/invoices/status-badge";
 import { useData } from "@/components/providers/data-provider";
 import { useToast } from "@/components/ui/toast";
+import { useT } from "@/components/providers/i18n-provider";
+import { INVOICE_STATUSES, statusActionKey } from "@/lib/invoice-status";
 import { formatDate } from "@/lib/format";
 import { formatFCFA } from "@/lib/money";
-import {
-  INVOICE_STATUSES,
-  STATUS_ACTION_LABEL,
-  STATUS_LABEL,
-} from "@/lib/invoice-status";
 import type { InvoiceStatus } from "@/lib/data/types";
 
 type Filter = "tous" | InvoiceStatus;
@@ -48,6 +45,7 @@ const STATUS_ICON: Record<InvoiceStatus, typeof Send> = {
 export function InvoicesView() {
   const router = useRouter();
   const { toast } = useToast();
+  const t = useT();
   const { hydrated, invoices, getClient, setInvoiceStatus, deleteInvoice } =
     useData();
 
@@ -90,33 +88,37 @@ export function InvoicesView() {
   if (!hydrated) return <ListSkeleton />;
 
   const tabs = [
-    { id: "tous" as const, label: "Tous", count: counts.tous },
-    { id: "brouillon" as const, label: "Brouillon", count: counts.brouillon },
-    { id: "envoyee" as const, label: "Envoyée", count: counts.envoyee },
-    { id: "payee" as const, label: "Payée", count: counts.payee },
-    { id: "en_retard" as const, label: "En retard", count: counts.en_retard },
+    { id: "tous" as const, label: t("invoices.filterAll"), count: counts.tous },
+    { id: "brouillon" as const, label: t("invoices.filterDraft"), count: counts.brouillon },
+    { id: "envoyee" as const, label: t("invoices.filterSent"), count: counts.envoyee },
+    { id: "payee" as const, label: t("invoices.filterPaid"), count: counts.payee },
+    { id: "en_retard" as const, label: t("invoices.filterOverdue"), count: counts.en_retard },
   ];
 
-  const buildActions = (invId: string, invNumber: string, status: InvoiceStatus): DropdownItem[] => {
+  const buildActions = (
+    invId: string,
+    invNumber: string,
+    status: InvoiceStatus,
+  ): DropdownItem[] => {
     const others = INVOICE_STATUSES.filter((s) => s !== status);
     return [
-      { label: "Voir le détail", icon: Eye, onClick: () => router.push(`/invoices/${invId}`) },
-      { label: "Modifier", icon: Pencil, onClick: () => router.push(`/invoices/${invId}/edit`) },
+      { label: t("invoices.actionView"), icon: Eye, onClick: () => router.push(`/invoices/${invId}`) },
+      { label: t("invoices.actionEdit"), icon: Pencil, onClick: () => router.push(`/invoices/${invId}/edit`) },
       ...others.map((s, i) => ({
-        label: STATUS_ACTION_LABEL[s],
+        label: t(statusActionKey(s)),
         icon: STATUS_ICON[s],
         separatorBefore: i === 0,
         onClick: () => {
           setInvoiceStatus(invId, s);
           toast({
             variant: "success",
-            title: "Statut mis à jour",
-            description: `${invNumber} · ${STATUS_LABEL[s]}`,
+            title: t("invoices.statusUpdated"),
+            description: `${invNumber} · ${t(`status.${s}`)}`,
           });
         },
       })),
       {
-        label: "Supprimer",
+        label: t("invoices.actionDelete"),
         icon: Trash2,
         danger: true,
         separatorBefore: true,
@@ -125,15 +127,20 @@ export function InvoicesView() {
     ];
   };
 
+  const filtered = query.trim() !== "" || filter !== "tous";
+
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Factures"
-        description={`${invoices.length} facture${invoices.length > 1 ? "s" : ""} au total`}
+        title={t("invoices.title")}
+        description={t(
+          invoices.length > 1 ? "invoices.countMany" : "invoices.countOne",
+          { count: invoices.length },
+        )}
         actions={
           <Button href="/invoices/new">
             <Plus className="h-4 w-4" />
-            Créer une facture
+            {t("invoices.create")}
           </Button>
         }
       />
@@ -144,7 +151,7 @@ export function InvoicesView() {
           <SearchInput
             value={query}
             onChange={setQuery}
-            placeholder="Rechercher un client, un numéro…"
+            placeholder={t("invoices.search")}
             className="lg:w-80"
           />
         </div>
@@ -153,22 +160,20 @@ export function InvoicesView() {
           <EmptyState
             icon={FileText}
             title={
-              !hydrated
-                ? "Chargement…"
-                : query || filter !== "tous"
-                  ? "Aucune facture ne correspond"
-                  : "Aucune facture pour l'instant"
+              filtered
+                ? t("invoices.emptyFilteredTitle")
+                : t("invoices.emptyTitle")
             }
             description={
-              query || filter !== "tous"
-                ? "Modifiez vos filtres ou votre recherche."
-                : "Créez votre première facture pour la voir apparaître ici."
+              filtered
+                ? t("invoices.emptyFilteredDesc")
+                : t("invoices.emptyDesc")
             }
             action={
-              !query && filter === "tous" ? (
+              !filtered ? (
                 <Button href="/invoices/new">
                   <Plus className="h-4 w-4" />
-                  Créer une facture
+                  {t("invoices.create")}
                 </Button>
               ) : undefined
             }
@@ -176,12 +181,12 @@ export function InvoicesView() {
         ) : (
           <Table minWidth={760}>
             <THead>
-              <TH>Facture</TH>
-              <TH>Client</TH>
-              <TH>Émission</TH>
-              <TH>Échéance</TH>
-              <TH className="text-right">Montant</TH>
-              <TH>Statut</TH>
+              <TH>{t("invoices.colInvoice")}</TH>
+              <TH>{t("invoices.colClient")}</TH>
+              <TH>{t("invoices.colIssue")}</TH>
+              <TH>{t("invoices.colDue")}</TH>
+              <TH className="text-right">{t("invoices.colAmount")}</TH>
+              <TH>{t("invoices.colStatus")}</TH>
               <TH />
             </THead>
             <TBody>
@@ -195,7 +200,7 @@ export function InvoicesView() {
                         <Avatar name={client?.name ?? "?"} size="sm" />
                         <div className="min-w-0">
                           <p className="truncate font-medium text-slate-900">
-                            {client?.name ?? "Client supprimé"}
+                            {client?.name ?? t("invoices.clientDeleted")}
                           </p>
                           <p className="truncate text-xs text-slate-400">
                             {client?.email}
@@ -234,18 +239,17 @@ export function InvoicesView() {
         onConfirm={() => {
           if (toDelete) {
             deleteInvoice(toDelete.id);
-            toast({ variant: "success", title: "Facture supprimée", description: toDelete.number });
+            toast({
+              variant: "success",
+              title: t("invoices.invoiceDeleted"),
+              description: toDelete.number,
+            });
           }
           setToDelete(null);
         }}
-        title="Supprimer la facture"
-        message={
-          <>
-            La facture <strong>{toDelete?.number}</strong> sera définitivement
-            supprimée. Cette action est irréversible.
-          </>
-        }
-        confirmLabel="Supprimer"
+        title={t("invoices.confirmDeleteTitle")}
+        message={t("invoices.confirmDeleteMsg", { number: toDelete?.number ?? "" })}
+        confirmLabel={t("common.delete")}
       />
     </div>
   );

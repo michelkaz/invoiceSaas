@@ -22,6 +22,7 @@ import {
   InvoiceMockup,
 } from "@/components/marketing/landing-mockups";
 import { createClient } from "@/lib/supabase/server";
+import { getServerT } from "@/lib/i18n/server";
 
 export default async function LandingPage() {
   const supabase = createClient();
@@ -29,6 +30,8 @@ export default async function LandingPage() {
     data: { user },
   } = await supabase.auth.getUser();
   if (user?.email_confirmed_at) redirect("/dashboard");
+
+  const t = getServerT();
 
   return (
     <div className="bg-white">
@@ -41,28 +44,25 @@ export default async function LandingPage() {
             <div>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600">
                 <Receipt className="h-3.5 w-3.5 text-brand-600" />
-                Pensé pour les entrepreneurs congolais · Kinshasa, RDC
+                {t("landing.heroBadge")}
               </span>
               <h1 className="mt-5 text-4xl font-bold leading-[1.1] tracking-tight text-slate-900 sm:text-5xl">
-                La gestion de votre entreprise, simplement.
+                {t("landing.heroTitle")}
               </h1>
               <p className="mt-4 max-w-xl text-lg text-slate-600">
-                Créez vos factures, suivez vos paiements et gardez une vue claire
-                sur votre activité, depuis une seule plateforme pensée pour les
-                entreprises en RDC.
+                {t("landing.heroSubtitle")}
               </p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Button href="/signup" size="lg">
-                  Commencer gratuitement
+                  {t("landing.heroCtaPrimary")}
                   <ArrowRight className="h-4 w-4" />
                 </Button>
                 <Button href="#fonctionnalites" size="lg" variant="outline">
-                  Découvrir la plateforme
+                  {t("landing.heroCtaSecondary")}
                 </Button>
               </div>
               <p className="mt-4 text-xs text-slate-500">
-                Sans carte bancaire · Vos données restent privées · Résiliez à
-                tout moment
+                {t("landing.heroReassurance")}
               </p>
             </div>
             <div className="lg:pl-8">
@@ -74,41 +74,27 @@ export default async function LandingPage() {
         {/* ── Problèmes ────────────────────────────────────────── */}
         <Section>
           <SectionHead
-            title="La gestion quotidienne vous prend trop de temps ?"
-            subtitle="Les entrepreneurs de Kinshasa nous décrivent souvent les mêmes difficultés."
+            title={t("landing.problemsTitle")}
+            subtitle={t("landing.problemsSubtitle")}
           />
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {[
-              {
-                icon: FileSpreadsheet,
-                t: "Trop de fichiers Excel",
-                d: "Vos informations sont dispersées entre plusieurs fichiers et plusieurs téléphones.",
-              },
-              {
-                icon: PenLine,
-                t: "Factures faites à la main",
-                d: "Créer une facture propre prend plus de temps qu'il ne devrait.",
-              },
-              {
-                icon: Search,
-                t: "Paiements difficiles à suivre",
-                d: "Vous ne savez pas toujours quelles factures ont déjà été réglées.",
-              },
-              {
-                icon: LayoutDashboard,
-                t: "Manque de visibilité",
-                d: "Difficile de savoir où en est réellement votre activité ce mois-ci.",
-              },
-            ].map(({ icon: Icon, t, d }) => (
+              { icon: FileSpreadsheet, t: "landing.problem1T", d: "landing.problem1D" },
+              { icon: PenLine, t: "landing.problem2T", d: "landing.problem2D" },
+              { icon: Search, t: "landing.problem3T", d: "landing.problem3D" },
+              { icon: LayoutDashboard, t: "landing.problem4T", d: "landing.problem4D" },
+            ].map(({ icon: Icon, t: tk, d: dk }) => (
               <div
-                key={t}
+                key={tk}
                 className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card"
               >
                 <span className="grid h-10 w-10 place-items-center rounded-xl bg-slate-100 text-slate-500">
                   <Icon className="h-5 w-5" />
                 </span>
-                <p className="mt-4 text-sm font-semibold text-slate-900">{t}</p>
-                <p className="mt-1 text-sm text-slate-500">{d}</p>
+                <p className="mt-4 text-sm font-semibold text-slate-900">
+                  {t(tk)}
+                </p>
+                <p className="mt-1 text-sm text-slate-500">{t(dk)}</p>
               </div>
             ))}
           </div>
@@ -118,27 +104,29 @@ export default async function LandingPage() {
         <section id="fonctionnalites" className="scroll-mt-20 bg-slate-50">
           <Section>
             <SectionHead
-              title="Tout ce dont vous avez besoin, au même endroit."
-              subtitle="Une plateforme simple, sans logiciel à installer."
+              title={t("landing.featuresTitle")}
+              subtitle={t("landing.featuresSubtitle")}
             />
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {[
-                { icon: Users, t: "Clients", d: "Centralisez toutes les informations de vos clients." },
-                { icon: FileText, t: "Factures", d: "Créez des factures professionnelles en quelques clics." },
-                { icon: Wallet, t: "Paiements", d: "Suivez les règlements et les factures en retard." },
-                { icon: LayoutDashboard, t: "Tableau de bord", d: "Visualisez votre activité en un coup d'œil, en FC." },
-                { icon: FileDown, t: "Factures PDF", d: "Téléchargez des factures prêtes à être envoyées." },
-                { icon: Smartphone, t: "Mobile", d: "Gérez votre activité depuis votre smartphone." },
-              ].map(({ icon: Icon, t, d }) => (
+                { icon: Users, t: "landing.feat1T", d: "landing.feat1D" },
+                { icon: FileText, t: "landing.feat2T", d: "landing.feat2D" },
+                { icon: Wallet, t: "landing.feat3T", d: "landing.feat3D" },
+                { icon: LayoutDashboard, t: "landing.feat4T", d: "landing.feat4D" },
+                { icon: FileDown, t: "landing.feat5T", d: "landing.feat5D" },
+                { icon: Smartphone, t: "landing.feat6T", d: "landing.feat6D" },
+              ].map(({ icon: Icon, t: tk, d: dk }) => (
                 <div
-                  key={t}
+                  key={tk}
                   className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card"
                 >
                   <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand-50 text-brand-600">
                     <Icon className="h-5 w-5" />
                   </span>
-                  <p className="mt-4 text-sm font-semibold text-slate-900">{t}</p>
-                  <p className="mt-1 text-sm text-slate-500">{d}</p>
+                  <p className="mt-4 text-sm font-semibold text-slate-900">
+                    {t(tk)}
+                  </p>
+                  <p className="mt-1 text-sm text-slate-500">{t(dk)}</p>
                 </div>
               ))}
             </div>
@@ -148,24 +136,26 @@ export default async function LandingPage() {
         {/* ── Comment ça marche ────────────────────────────────── */}
         <Section>
           <SectionHead
-            title="De l'inscription à la première facture en quelques minutes."
-            subtitle="Un parcours simple, pensé pour aller vite."
+            title={t("landing.howTitle")}
+            subtitle={t("landing.howSubtitle")}
           />
           <ol className="grid gap-5 md:grid-cols-3 lg:grid-cols-5">
             {[
-              ["01", "Créez votre compte", "Inscrivez-vous en quelques minutes."],
-              ["02", "Ajoutez votre entreprise", "Renseignez vos informations : RCCM, NIF, ID NAT."],
-              ["03", "Ajoutez vos clients", "Centralisez vos clients en un endroit."],
-              ["04", "Créez votre facture", "Choisissez un client, ajoutez vos lignes."],
-              ["05", "Envoyez et suivez", "Partagez la facture et suivez son statut."],
-            ].map(([n, t, d]) => (
+              ["01", "landing.how1T", "landing.how1D"],
+              ["02", "landing.how2T", "landing.how2D"],
+              ["03", "landing.how3T", "landing.how3D"],
+              ["04", "landing.how4T", "landing.how4D"],
+              ["05", "landing.how5T", "landing.how5D"],
+            ].map(([n, tk, dk]) => (
               <li
                 key={n}
                 className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card"
               >
                 <span className="text-sm font-bold text-brand-600">{n}</span>
-                <p className="mt-2 text-sm font-semibold text-slate-900">{t}</p>
-                <p className="mt-1 text-sm text-slate-500">{d}</p>
+                <p className="mt-2 text-sm font-semibold text-slate-900">
+                  {t(tk)}
+                </p>
+                <p className="mt-1 text-sm text-slate-500">{t(dk)}</p>
               </li>
             ))}
           </ol>
@@ -177,34 +167,31 @@ export default async function LandingPage() {
             <div className="grid items-center gap-12 lg:grid-cols-2">
               <div>
                 <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-                  Des factures professionnelles, prêtes à envoyer.
+                  {t("landing.pdfTitle")}
                 </h2>
-                <p className="mt-3 text-slate-600">
-                  Chaque facture reprend l&apos;identité de votre entreprise et
-                  vos mentions légales (RCCM, NIF, ID NAT). Générez le PDF en un
-                  clic, téléchargez-le ou envoyez-le à votre client.
-                </p>
+                <p className="mt-3 text-slate-600">{t("landing.pdfBody")}</p>
                 <ul className="mt-6 space-y-3">
-                  {[
-                    "Génération PDF instantanée",
-                    "Montants en francs congolais, TVA 16 %",
-                    "Suivi du statut : brouillon, envoyée, payée, en retard",
-                  ].map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-sm text-slate-700">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" />
-                      {f}
-                    </li>
-                  ))}
+                  {["landing.pdfFeat1", "landing.pdfFeat2", "landing.pdfFeat3"].map(
+                    (f) => (
+                      <li
+                        key={f}
+                        className="flex items-start gap-2.5 text-sm text-slate-700"
+                      >
+                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" />
+                        {t(f)}
+                      </li>
+                    ),
+                  )}
                 </ul>
                 <div className="mt-7 flex items-center gap-4 text-xs font-semibold text-slate-500">
                   <span className="inline-flex items-center gap-1.5">
-                    <Eye className="h-4 w-4" /> Prévisualiser
+                    <Eye className="h-4 w-4" /> {t("landing.pdfActionPreview")}
                   </span>
                   <span className="inline-flex items-center gap-1.5">
-                    <FileDown className="h-4 w-4" /> Télécharger
+                    <FileDown className="h-4 w-4" /> {t("landing.pdfActionDownload")}
                   </span>
                   <span className="inline-flex items-center gap-1.5">
-                    <ArrowRight className="h-4 w-4" /> Envoyer
+                    <ArrowRight className="h-4 w-4" /> {t("landing.pdfActionSend")}
                   </span>
                 </div>
               </div>
@@ -218,19 +205,19 @@ export default async function LandingPage() {
           <div className="grid items-center gap-12 lg:grid-cols-2">
             <div className="order-2 lg:order-1">
               <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
-                <p className="text-sm text-slate-500">Paiements du mois</p>
+                <p className="text-sm text-slate-500">{t("landing.payMonth")}</p>
                 <p className="mt-1 text-3xl font-bold tracking-tight tabular-nums text-slate-900">
                   1 850 000 FC
                 </p>
                 <div className="mt-5 space-y-3">
                   {[
-                    ["Mobile Money", "850 000 FC", "w-[46%]"],
-                    ["Virement bancaire", "650 000 FC", "w-[35%]"],
-                    ["Espèces", "350 000 FC", "w-[19%]"],
-                  ].map(([label, amount, w]) => (
-                    <div key={label}>
+                    ["landing.payMobileMoney", "850 000 FC", "w-[46%]"],
+                    ["landing.payTransfer", "650 000 FC", "w-[35%]"],
+                    ["landing.payCash", "350 000 FC", "w-[19%]"],
+                  ].map(([labelKey, amount, w]) => (
+                    <div key={labelKey}>
                       <div className="flex justify-between text-xs">
-                        <span className="text-slate-600">{label}</span>
+                        <span className="text-slate-600">{t(labelKey)}</span>
                         <span className="font-medium tabular-nums text-slate-900">
                           {amount}
                         </span>
@@ -245,17 +232,11 @@ export default async function LandingPage() {
             </div>
             <div className="order-1 lg:order-2">
               <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-                Sachez toujours qui a payé.
+                {t("landing.payTitle")}
               </h2>
-              <p className="mt-3 text-slate-600">
-                Enregistrez vos encaissements et visualisez d&apos;où vient
-                l&apos;argent. Les exemples de moyens de paiement (Mobile Money,
-                M-Pesa, Airtel Money, Orange Money, virement, espèces) illustrent
-                les usages courants en RDC.
-              </p>
+              <p className="mt-3 text-slate-600">{t("landing.payBody")}</p>
               <p className="mt-3 text-xs text-slate-500">
-                Les intégrations de paiement automatiques ne sont pas encore
-                disponibles — le suivi se fait manuellement pour l&apos;instant.
+                {t("landing.payDisclaimer")}
               </p>
             </div>
           </div>
@@ -265,26 +246,26 @@ export default async function LandingPage() {
         <section className="bg-slate-50">
           <Section>
             <SectionHead
-              title="Pensé pour les entreprises congolaises."
-              subtitle="Une plateforme simple et moderne, avec les besoins des entrepreneurs de la RDC au cœur du produit."
+              title={t("landing.rdcTitle")}
+              subtitle={t("landing.rdcSubtitle")}
             />
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               {[
-                "Montants en francs congolais (FC)",
-                "TVA 16 % appliquée automatiquement",
-                "Mentions RCCM, NIF, ID NAT sur les factures",
-                "Dates au format jour/mois/année",
-                "Suivi des paiements Mobile Money & virement",
-                "Utilisable depuis le mobile",
-                "Clients et factures centralisés",
-                "Espace privé, isolé par compte",
+                "landing.rdc1",
+                "landing.rdc2",
+                "landing.rdc3",
+                "landing.rdc4",
+                "landing.rdc5",
+                "landing.rdc6",
+                "landing.rdc7",
+                "landing.rdc8",
               ].map((f) => (
                 <div
                   key={f}
                   className="flex items-start gap-2.5 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-700 shadow-card"
                 >
                   <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" />
-                  {f}
+                  {t(f)}
                 </div>
               ))}
             </div>
@@ -295,30 +276,30 @@ export default async function LandingPage() {
         <section id="tarifs" className="scroll-mt-20">
           <Section>
             <SectionHead
-              title="Une tarification simple, en francs congolais."
-              subtitle="Commencez gratuitement, changez d'offre quand vous voulez."
+              title={t("landing.pricingTitle")}
+              subtitle={t("landing.pricingSubtitle")}
             />
             <div className="grid gap-5 md:grid-cols-3">
               {[
                 {
-                  name: "Gratuit",
+                  name: "landing.planFreeName",
                   price: "0 FC",
-                  desc: "Pour démarrer votre activité.",
-                  feats: ["Jusqu'à 5 factures / mois", "Clients illimités", "Factures PDF"],
+                  desc: "landing.planFreeDesc",
+                  feats: ["landing.planFreeF1", "landing.planFreeF2", "landing.planFreeF3"],
                   highlight: false,
                 },
                 {
-                  name: "Pro",
+                  name: "landing.planProName",
                   price: "15 000 FC",
-                  desc: "Pour les entrepreneurs et petites entreprises.",
-                  feats: ["Factures illimitées", "Suivi des paiements", "Envoi par email"],
+                  desc: "landing.planProDesc",
+                  feats: ["landing.planProF1", "landing.planProF2", "landing.planProF3"],
                   highlight: true,
                 },
                 {
-                  name: "Business",
+                  name: "landing.planBizName",
                   price: "35 000 FC",
-                  desc: "Pour les entreprises en croissance.",
-                  feats: ["Tout le plan Pro", "Plusieurs utilisateurs", "Support prioritaire"],
+                  desc: "landing.planBizDesc",
+                  feats: ["landing.planBizF1", "landing.planBizF2", "landing.planBizF3"],
                   highlight: false,
                 },
               ].map((p) => (
@@ -332,20 +313,28 @@ export default async function LandingPage() {
                 >
                   {p.highlight && (
                     <span className="mb-3 inline-flex w-fit rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700">
-                      Le plus choisi
+                      {t("landing.planMostChosen")}
                     </span>
                   )}
-                  <p className="text-sm font-semibold text-slate-900">{p.name}</p>
+                  <p className="text-sm font-semibold text-slate-900">
+                    {t(p.name)}
+                  </p>
                   <p className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
                     {p.price}
-                    <span className="text-sm font-medium text-slate-500"> / mois</span>
+                    <span className="text-sm font-medium text-slate-500">
+                      {" "}
+                      {t("landing.planPerMonth")}
+                    </span>
                   </p>
-                  <p className="mt-1 text-sm text-slate-500">{p.desc}</p>
+                  <p className="mt-1 text-sm text-slate-500">{t(p.desc)}</p>
                   <ul className="mt-5 flex-1 space-y-2.5">
                     {p.feats.map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-sm text-slate-700">
+                      <li
+                        key={f}
+                        className="flex items-start gap-2 text-sm text-slate-700"
+                      >
                         <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" />
-                        {f}
+                        {t(f)}
                       </li>
                     ))}
                   </ul>
@@ -354,14 +343,13 @@ export default async function LandingPage() {
                     variant={p.highlight ? "primary" : "outline"}
                     className="mt-6 w-full"
                   >
-                    Commencer
+                    {t("landing.planStart")}
                   </Button>
                 </div>
               ))}
             </div>
             <p className="mt-4 text-center text-xs text-slate-500">
-              Prix en francs congolais. Montants indicatifs, susceptibles
-              d&apos;évoluer.
+              {t("landing.pricingNote")}
             </p>
           </Section>
         </section>
@@ -370,37 +358,25 @@ export default async function LandingPage() {
         <section className="bg-slate-50">
           <Section>
             <SectionHead
-              title="Ils gèrent leur activité avec Facturi."
-              subtitle="Témoignages illustratifs d'entrepreneurs de Kinshasa."
+              title={t("landing.testimonialsTitle")}
+              subtitle={t("landing.testimonialsSubtitle")}
             />
             <div className="grid gap-5 md:grid-cols-3">
               {[
-                {
-                  q: "Avant, je faisais toutes mes factures à la main. Maintenant, j'en crée une en quelques secondes.",
-                  n: "Sarah",
-                  r: "Consultante, Kinshasa",
-                },
-                {
-                  q: "Suivre mes factures et mes paiements depuis le même endroit me fait gagner un temps fou.",
-                  n: "David",
-                  r: "Entrepreneur, Kinshasa",
-                },
-                {
-                  q: "Enfin un outil simple qui correspond vraiment aux besoins de mon entreprise.",
-                  n: "Kevin",
-                  r: "Fondateur de startup, Kinshasa",
-                },
-              ].map((t) => (
+                { q: "landing.testi1Q", n: "Sarah", r: "landing.testi1R" },
+                { q: "landing.testi2Q", n: "David", r: "landing.testi2R" },
+                { q: "landing.testi3Q", n: "Kevin", r: "landing.testi3R" },
+              ].map((ti) => (
                 <figure
-                  key={t.n}
+                  key={ti.n}
                   className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card"
                 >
                   <blockquote className="text-sm leading-relaxed text-slate-700">
-                    « {t.q} »
+                    « {t(ti.q)} »
                   </blockquote>
                   <figcaption className="mt-4 text-sm">
-                    <span className="font-semibold text-slate-900">{t.n}</span>
-                    <span className="text-slate-500"> — {t.r}</span>
+                    <span className="font-semibold text-slate-900">{ti.n}</span>
+                    <span className="text-slate-500"> — {t(ti.r)}</span>
                   </figcaption>
                 </figure>
               ))}
@@ -411,39 +387,24 @@ export default async function LandingPage() {
         {/* ── FAQ ──────────────────────────────────────────────── */}
         <section id="faq" className="scroll-mt-20">
           <Section>
-            <SectionHead title="Questions fréquentes" />
+            <SectionHead title={t("landing.faqTitle")} />
             <div className="mx-auto max-w-2xl divide-y divide-slate-100 rounded-2xl border border-slate-200 bg-white p-2 shadow-card">
               {[
-                {
-                  q: "Dans quelle devise sont les montants ?",
-                  a: "En francs congolais, au format « 250 000 FC ». La devise se règle dans les paramètres de votre entreprise.",
-                },
-                {
-                  q: "Mes données sont-elles en sécurité ?",
-                  a: "Oui. Chaque compte a son espace privé : vos clients et factures ne sont visibles que par vous.",
-                },
-                {
-                  q: "Puis-je l'utiliser depuis mon téléphone ?",
-                  a: "Oui, l'interface est pensée pour le mobile : vous pouvez créer et suivre vos factures depuis un smartphone.",
-                },
-                {
-                  q: "Comment migrer depuis Excel ?",
-                  a: "Vous ajoutez vos clients une première fois, puis vous créez vos factures directement dans Facturi. Vos anciens fichiers ne sont plus nécessaires.",
-                },
-                {
-                  q: "Y a-t-il un engagement ?",
-                  a: "Non. Vous commencez gratuitement et vous pouvez arrêter ou changer d'offre à tout moment.",
-                },
-              ].map((item) => (
-                <details key={item.q} className="group p-4">
+                ["landing.faq1Q", "landing.faq1A"],
+                ["landing.faq2Q", "landing.faq2A"],
+                ["landing.faq3Q", "landing.faq3A"],
+                ["landing.faq4Q", "landing.faq4A"],
+                ["landing.faq5Q", "landing.faq5A"],
+              ].map(([qk, ak]) => (
+                <details key={qk} className="group p-4">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-slate-900">
-                    {item.q}
+                    {t(qk)}
                     <span className="text-slate-400 transition-transform group-open:rotate-45">
                       +
                     </span>
                   </summary>
                   <p className="mt-2 text-sm leading-relaxed text-slate-600">
-                    {item.a}
+                    {t(ak)}
                   </p>
                 </details>
               ))}
@@ -455,18 +416,17 @@ export default async function LandingPage() {
         <section className="px-4 pb-16 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-[1200px] rounded-3xl bg-gradient-to-br from-brand-600 to-brand-800 px-6 py-14 text-center text-white sm:py-16">
             <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              Prêt à facturer sereinement ?
+              {t("landing.ctaTitle")}
             </h2>
             <p className="mx-auto mt-2 max-w-md text-sm text-white/80">
-              Créez votre compte gratuitement et envoyez votre première facture
-              aujourd&apos;hui.
+              {t("landing.ctaBody")}
             </p>
             <div className="mt-7">
               <Link
                 href="/signup"
                 className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-semibold text-brand-700 shadow-sm transition hover:bg-slate-50"
               >
-                Commencer gratuitement
+                {t("landing.ctaButton")}
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -488,28 +448,46 @@ export default async function LandingPage() {
                 </span>
               </div>
               <p className="mt-3 max-w-xs text-sm text-slate-500">
-                Une solution congolaise pensée pour simplifier la gestion des
-                entreprises.
+                {t("landing.footerTagline")}
               </p>
               <p className="mt-4 text-sm font-medium text-slate-700">
-                Kinshasa, RD Congo 🇨🇩
+                {t("landing.footerLocation")}
               </p>
               <p className="mt-1 text-sm text-slate-500">+243 XX XXX XX XX</p>
               <p className="text-sm text-slate-500">contact@votre-domaine.cd</p>
             </div>
 
             {[
-              { title: "Produit", links: ["Fonctionnalités", "Tarifs", "Facturation", "Paiements"] },
-              { title: "Entreprise", links: ["À propos", "Contact"] },
-              { title: "Ressources", links: ["FAQ", "Centre d'aide"] },
-              { title: "Légal", links: ["Conditions d'utilisation", "Confidentialité"] },
+              {
+                title: "landing.footerColProduct",
+                links: [
+                  "landing.footerFeatures",
+                  "landing.footerPricing",
+                  "landing.footerBilling",
+                  "landing.footerPayments",
+                ],
+              },
+              {
+                title: "landing.footerColCompany",
+                links: ["landing.footerAbout", "landing.footerContact"],
+              },
+              {
+                title: "landing.footerColResources",
+                links: ["landing.footerFaq", "landing.footerHelp"],
+              },
+              {
+                title: "landing.footerColLegal",
+                links: ["landing.footerTerms", "landing.footerPrivacy"],
+              },
             ].map((col) => (
               <div key={col.title}>
-                <p className="text-sm font-semibold text-slate-900">{col.title}</p>
+                <p className="text-sm font-semibold text-slate-900">
+                  {t(col.title)}
+                </p>
                 <ul className="mt-3 space-y-2">
                   {col.links.map((l) => (
                     <li key={l}>
-                      <span className="text-sm text-slate-500">{l}</span>
+                      <span className="text-sm text-slate-500">{t(l)}</span>
                     </li>
                   ))}
                 </ul>
@@ -518,7 +496,7 @@ export default async function LandingPage() {
           </div>
 
           <div className="mt-10 border-t border-slate-100 pt-6 text-xs text-slate-400">
-            © {new Date().getFullYear()} Facturi · Kinshasa, RDC
+            © {new Date().getFullYear()} {t("landing.footerCopyright")}
           </div>
         </div>
       </footer>

@@ -1,15 +1,15 @@
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
+import { getServerT } from "@/lib/i18n/server";
 
 export default function ResetPasswordPage() {
+  const t = getServerT();
   return (
     <div className="space-y-5">
       <div>
         <h1 className="text-xl font-bold tracking-tight text-slate-900">
-          Nouveau mot de passe
+          {t("auth.resetTitle")}
         </h1>
-        <p className="mt-1 text-sm text-slate-500">
-          Choisissez un nouveau mot de passe pour votre compte.
-        </p>
+        <p className="mt-1 text-sm text-slate-500">{t("auth.resetSubtitle")}</p>
       </div>
       <ResetPasswordForm />
     </div>

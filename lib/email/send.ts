@@ -1,5 +1,7 @@
 import type { Invoice } from "@/lib/data/types";
 import { invoiceEmailHtml } from "@/lib/email/templates";
+import { getDictionary, makeTranslator, type Locale } from "@/lib/i18n";
+import { defaultLocale } from "@/lib/i18n/config";
 
 export interface SendResult {
   ok: boolean;
@@ -12,6 +14,7 @@ interface SendInvoiceParams {
   invoice: Invoice;
   companyName: string;
   pdf: Buffer;
+  locale?: Locale;
 }
 
 /**
@@ -29,8 +32,11 @@ export async function sendInvoiceEmail(
       ok: false,
       error:
         "L'envoi d'email n'est pas encore configuré (ajoutez RESEND_API_KEY et EMAIL_FROM).",
+      // (message technique volontairement non traduit — destiné au dev/log)
     };
   }
+
+  const t = makeTranslator(getDictionary(params.locale ?? defaultLocale));
 
   try {
     const { Resend } = await import("resend");
@@ -38,11 +44,15 @@ export async function sendInvoiceEmail(
     const { error } = await resend.emails.send({
       from,
       to: params.to,
-      subject: `Facture ${params.invoice.number} — ${params.companyName || "Facturi"}`,
+      subject: t("email.subject", {
+        number: params.invoice.number,
+        company: params.companyName || "Facturi",
+      }),
       html: invoiceEmailHtml({
         invoice: params.invoice,
         companyName: params.companyName,
         message: params.message,
+        locale: params.locale,
       }),
       attachments: [
         {

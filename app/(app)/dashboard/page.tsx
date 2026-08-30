@@ -18,9 +18,10 @@ import { RecentInvoices } from "@/components/dashboard/recent-invoices";
 import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton";
 import { OnboardingChecklist } from "@/components/dashboard/onboarding-checklist";
 import { useData } from "@/components/providers/data-provider";
+import { useI18n } from "@/components/providers/i18n-provider";
 import { useTutorial } from "@/components/tutorial/tutorial-provider";
 import {
-  dashboardTourSteps,
+  buildDashboardTour,
   REPLAY_TOUR_KEY,
 } from "@/components/tutorial/dashboard-tour";
 import {
@@ -43,10 +44,14 @@ export default function DashboardPage() {
     setTutorialSeen,
   } = useData();
   const { start } = useTutorial();
+  const { t, dict } = useI18n();
   const tourStarted = useRef(false);
 
   const overview = useMemo(() => getOverview(invoices), [invoices]);
-  const monthly = useMemo(() => getMonthlyRevenue(invoices, 8), [invoices]);
+  const monthly = useMemo(
+    () => getMonthlyRevenue(invoices, 8, new Date(), dict.months),
+    [invoices, dict.months],
+  );
   const statusBreakdown = useMemo(
     () => getStatusBreakdown(invoices),
     [invoices],
@@ -82,9 +87,17 @@ export default function DashboardPage() {
     }
     if (replay || (onboardingCompleted && !tutorialSeen && hasData)) {
       tourStarted.current = true;
-      start(dashboardTourSteps, () => setTutorialSeen(true));
+      start(buildDashboardTour(t), () => setTutorialSeen(true));
     }
-  }, [hydrated, onboardingCompleted, tutorialSeen, hasData, start, setTutorialSeen]);
+  }, [
+    hydrated,
+    onboardingCompleted,
+    tutorialSeen,
+    hasData,
+    start,
+    setTutorialSeen,
+    t,
+  ]);
 
   if (!hydrated) return <DashboardSkeleton />;
 
@@ -95,10 +108,10 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            Tableau de bord
+            {t("dashboard.title")}
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Suivi de votre facturation et de votre trésorerie.
+            {t("dashboard.subtitle")}
           </p>
         </div>
       </div>
@@ -110,14 +123,16 @@ export default function DashboardPage() {
           <Card>
             <EmptyState
               icon={FilePlus2}
-              title="Aucune donnée pour le moment"
-              description="Ajoutez un client puis créez votre première facture : vos statistiques et vos graphiques apparaîtront ici."
+              title={t("dashboard.emptyTitle")}
+              description={t("dashboard.emptyDesc")}
               action={
                 <div className="flex flex-wrap justify-center gap-2">
                   <Button href="/clients" variant="outline">
-                    Ajouter un client
+                    {t("dashboard.emptyAddClient")}
                   </Button>
-                  <Button href="/invoices/new">Créer une facture</Button>
+                  <Button href="/invoices/new">
+                    {t("dashboard.emptyCreateInvoice")}
+                  </Button>
                 </div>
               }
             />
@@ -130,28 +145,28 @@ export default function DashboardPage() {
             className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"
           >
             <StatCard
-              label="Factures émises"
+              label={t("dashboard.statInvoices")}
               value={formatNumber(overview.totalCount)}
               icon={FileStack}
               accent="brand"
               series={series.count}
             />
             <StatCard
-              label="Montant facturé"
+              label={t("dashboard.statInvoiced")}
               value={formatFCFA(overview.invoicedAmount)}
               icon={Wallet}
               accent="brand"
               series={series.invoiced}
             />
             <StatCard
-              label="Montant payé"
+              label={t("dashboard.statPaid")}
               value={formatFCFA(overview.paidAmount)}
               icon={CheckCircle2}
               accent="emerald"
               series={series.paid}
             />
             <StatCard
-              label="Montant en attente"
+              label={t("dashboard.statPending")}
               value={formatFCFA(overview.pendingAmount)}
               icon={Clock}
               accent="amber"

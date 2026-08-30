@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Receipt } from "lucide-react";
+import { LanguageSwitcher } from "@/components/ui/language-switcher";
+import { getServerT } from "@/lib/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Facturi — Connexion",
-};
+export function generateMetadata(): Metadata {
+  return { title: `Facturi — ${getServerT()("auth.loginTitle")}` };
+}
 
 export default function AuthLayout({
   children,
@@ -23,6 +25,9 @@ export default function AuthLayout({
         </div>
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
           {children}
+        </div>
+        <div className="mt-4 flex justify-center">
+          <LanguageSwitcher />
         </div>
       </div>
     </main>

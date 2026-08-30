@@ -7,17 +7,13 @@ export const INVOICE_STATUSES: InvoiceStatus[] = [
   "en_retard",
 ];
 
-export const STATUS_LABEL: Record<InvoiceStatus, string> = {
-  brouillon: "Brouillon",
-  envoyee: "Envoyée",
-  payee: "Payée",
-  en_retard: "En retard",
-};
+/** Clé i18n du libellé d'un statut : `t(statusLabelKey(s))`. */
+export function statusLabelKey(status: InvoiceStatus): string {
+  return `status.${status}`;
+}
 
-/** Libellé d'action pour faire passer une facture dans ce statut. */
-export const STATUS_ACTION_LABEL: Record<InvoiceStatus, string> = {
-  brouillon: "Repasser en brouillon",
-  envoyee: "Marquer comme envoyée",
-  payee: "Marquer comme payée",
-  en_retard: "Marquer en retard",
-};
+/** Clé i18n du libellé d'action « passer au statut X » : `t(statusActionKey(s))`. */
+export function statusActionKey(status: InvoiceStatus): string {
+  const cap = status.charAt(0).toUpperCase() + status.slice(1);
+  return `status.action${cap}`;
+}

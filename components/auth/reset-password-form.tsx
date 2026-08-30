@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { PasswordInput } from "@/components/ui/password-input";
+import { useT } from "@/components/providers/i18n-provider";
 import { createClient } from "@/lib/supabase/client";
 import { authErrorMessage } from "@/lib/auth/errors";
 
 export function ResetPasswordForm() {
   const router = useRouter();
+  const t = useT();
   const [ready, setReady] = useState(false);
   const [invalid, setInvalid] = useState(false);
   const [password, setPassword] = useState("");
@@ -29,11 +31,11 @@ export function ResetPasswordForm() {
     e.preventDefault();
     setError(null);
     if (password.length < 8) {
-      setError("Le mot de passe doit contenir au moins 8 caractères.");
+      setError(t("auth.passwordTooShort"));
       return;
     }
     if (password !== confirm) {
-      setError("Les deux mots de passe ne correspondent pas.");
+      setError(t("auth.passwordMismatch"));
       return;
     }
     setLoading(true);
@@ -41,7 +43,7 @@ export function ResetPasswordForm() {
     const { error: err } = await supabase.auth.updateUser({ password });
     setLoading(false);
     if (err) {
-      setError(authErrorMessage(err));
+      setError(authErrorMessage(err, t));
       return;
     }
     setDone(true);
@@ -59,10 +61,10 @@ export function ResetPasswordForm() {
     return (
       <div className="space-y-4">
         <p className="rounded-xl bg-rose-50 px-3.5 py-2.5 text-sm text-rose-700">
-          Ce lien de réinitialisation est invalide ou a expiré.
+          {t("auth.resetInvalid")}
         </p>
         <Button href="/forgot-password" variant="outline" className="w-full">
-          Demander un nouveau lien
+          {t("auth.requestNewLink")}
         </Button>
       </div>
     );
@@ -71,7 +73,7 @@ export function ResetPasswordForm() {
   if (done) {
     return (
       <p className="rounded-xl bg-emerald-50 px-3.5 py-2.5 text-sm text-emerald-700">
-        Mot de passe mis à jour. Redirection en cours…
+        {t("auth.passwordUpdated")}
       </p>
     );
   }
@@ -79,15 +81,15 @@ export function ResetPasswordForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <PasswordInput
-        label="Nouveau mot de passe"
+        label={t("auth.newPassword")}
         autoComplete="new-password"
         required
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        hint="8 caractères minimum."
+        hint={t("auth.passwordHint")}
       />
       <PasswordInput
-        label="Confirmer le mot de passe"
+        label={t("auth.confirmPassword")}
         autoComplete="new-password"
         required
         value={confirm}
@@ -99,7 +101,7 @@ export function ResetPasswordForm() {
         </p>
       )}
       <Button type="submit" loading={loading} className="w-full">
-        Mettre à jour le mot de passe
+        {t("auth.updatePassword")}
       </Button>
     </form>
   );

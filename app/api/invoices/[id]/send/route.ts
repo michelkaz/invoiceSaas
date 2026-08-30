@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { rowToClient, rowToCompany, rowToInvoice } from "@/lib/data/serialize";
 import { sendInvoiceEmail } from "@/lib/email/send";
+import { getServerLocale } from "@/lib/i18n/server";
 
 export const runtime = "nodejs";
 
@@ -52,13 +53,15 @@ export async function POST(
     return NextResponse.json({ error: "Entreprise introuvable." }, { status: 400 });
   }
 
+  const locale = getServerLocale();
+
   // Génération du PDF côté serveur.
   let pdf: Buffer;
   try {
     const { renderToBuffer } = await import("@react-pdf/renderer");
     const { InvoiceDocument } = await import("@/lib/pdf/invoice-document");
     pdf = await renderToBuffer(
-      InvoiceDocument({ invoice, company, client }),
+      InvoiceDocument({ invoice, company, client, locale }),
     );
   } catch (e) {
     console.error(e);
@@ -74,6 +77,7 @@ export async function POST(
     invoice,
     companyName: company.name,
     pdf,
+    locale,
   });
 
   if (!result.ok) {

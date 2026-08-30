@@ -9,17 +9,12 @@ import { SegmentedTabs } from "@/components/ui/segmented-tabs";
 import { Table, THead, TH, TBody, TR, TD } from "@/components/ui/table";
 import { Avatar } from "@/components/ui/avatar";
 import { StatusBadge } from "@/components/invoices/status-badge";
+import { useT } from "@/components/providers/i18n-provider";
 import { formatDate } from "@/lib/format";
 import { formatFCFA } from "@/lib/money";
 import type { InvoiceWithClient } from "@/lib/data/types";
 
 type TabId = "all" | "paid" | "unpaid";
-
-const TABS = [
-  { id: "all" as const, label: "Toutes" },
-  { id: "paid" as const, label: "Payées" },
-  { id: "unpaid" as const, label: "Impayées" },
-];
 
 function matchesTab(invoice: InvoiceWithClient, tab: TabId): boolean {
   if (tab === "paid") return invoice.status === "payee";
@@ -36,7 +31,14 @@ export function RecentInvoices({
   limit?: number;
 }) {
   const router = useRouter();
+  const t = useT();
   const [tab, setTab] = useState<TabId>("all");
+
+  const tabs = [
+    { id: "all" as const, label: t("dashboard.recentAll") },
+    { id: "paid" as const, label: t("dashboard.recentPaid") },
+    { id: "unpaid" as const, label: t("dashboard.recentUnpaid") },
+  ];
 
   const rows = useMemo(
     () => invoices.filter((invoice) => matchesTab(invoice, tab)).slice(0, limit),
@@ -48,37 +50,37 @@ export function RecentInvoices({
       <div className="flex flex-col gap-4 border-b border-slate-100 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
         <div>
           <h2 className="text-base font-semibold text-slate-900">
-            Dernières factures
+            {t("dashboard.recentTitle")}
           </h2>
           <p className="mt-0.5 text-sm text-slate-500">
-            Vos factures les plus récentes
+            {t("dashboard.recentSubtitle")}
           </p>
         </div>
         <div className="flex items-center justify-between gap-4">
-          <SegmentedTabs tabs={TABS} value={tab} onChange={setTab} />
+          <SegmentedTabs tabs={tabs} value={tab} onChange={setTab} />
           <Link
             href="/invoices"
             className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-brand-600 hover:text-brand-700"
           >
-            Voir tout
+            {t("dashboard.recentSeeAll")}
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </div>
 
       {rows.length === 0 ? (
-        <p className="px-6 py-12 text-center text-sm text-slate-400">
-          Aucune facture dans cette catégorie.
+        <p className="px-6 py-12 text-center text-sm text-slate-500">
+          {t("dashboard.recentEmpty")}
         </p>
       ) : (
         <Table minWidth={660}>
           <THead>
-            <TH>Facture</TH>
-            <TH>Client</TH>
-            <TH>Émission</TH>
-            <TH>Échéance</TH>
-            <TH className="text-right">Montant</TH>
-            <TH>Statut</TH>
+            <TH>{t("invoices.colInvoice")}</TH>
+            <TH>{t("invoices.colClient")}</TH>
+            <TH>{t("invoices.colIssue")}</TH>
+            <TH>{t("invoices.colDue")}</TH>
+            <TH className="text-right">{t("invoices.colAmount")}</TH>
+            <TH>{t("invoices.colStatus")}</TH>
           </THead>
           <TBody>
             {rows.map((invoice) => (
@@ -92,7 +94,7 @@ export function RecentInvoices({
                     <Avatar name={invoice.client?.name ?? "?"} size="sm" />
                     <div className="min-w-0">
                       <p className="truncate font-medium text-slate-900">
-                        {invoice.client?.name ?? "Client supprimé"}
+                        {invoice.client?.name ?? t("invoices.clientDeleted")}
                       </p>
                       <p className="truncate text-xs text-slate-400">
                         {invoice.client?.email}
