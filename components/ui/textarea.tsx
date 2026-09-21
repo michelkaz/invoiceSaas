@@ -1,7 +1,7 @@
 "use client";
 
 import { useId } from "react";
-import { Field, controlClass } from "@/components/ui/field";
+import { Field, controlClass, fieldMessageId } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 
 interface TextareaProps
@@ -39,6 +39,8 @@ export function Textarea({
         id={fieldId}
         required={required}
         rows={rows}
+        aria-invalid={Boolean(error) || undefined}
+        aria-describedby={(error || hint) ? fieldMessageId(fieldId) : undefined}
         className={controlClass(Boolean(error), cn("px-3.5 py-2.5", className))}
         {...props}
       />

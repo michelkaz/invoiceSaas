@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 import { getServerT } from "@/lib/i18n/server";
+
+export function generateMetadata(): Metadata {
+  return { title: `Facturi — ${getServerT()("auth.forgotTitle")}` };
+}
 
 export default function ForgotPasswordPage() {
   const t = getServerT();

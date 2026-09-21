@@ -9,6 +9,7 @@ import { SegmentedTabs } from "@/components/ui/segmented-tabs";
 import { Table, THead, TH, TBody, TR, TD } from "@/components/ui/table";
 import { Avatar } from "@/components/ui/avatar";
 import { StatusBadge } from "@/components/invoices/status-badge";
+import { OverdueTag } from "@/components/invoices/overdue-tag";
 import { useT } from "@/components/providers/i18n-provider";
 import { formatDate } from "@/lib/format";
 import { formatFCFA } from "@/lib/money";
@@ -88,13 +89,31 @@ export function RecentInvoices({
                 key={invoice.id}
                 onClick={() => router.push(`/invoices/${invoice.id}`)}
               >
-                <TD className="font-semibold text-slate-900">{invoice.number}</TD>
+                <TD className="font-semibold text-slate-900">
+                  <Link
+                    href={`/invoices/${invoice.id}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="hover:text-brand-600 hover:underline"
+                  >
+                    {invoice.number}
+                  </Link>
+                </TD>
                 <TD>
                   <div className="flex items-center gap-3">
                     <Avatar name={invoice.client?.name ?? "?"} size="sm" />
                     <div className="min-w-0">
                       <p className="truncate font-medium text-slate-900">
-                        {invoice.client?.name ?? t("invoices.clientDeleted")}
+                        {invoice.client ? (
+                          <Link
+                            href={`/clients/${invoice.client.id}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="hover:text-brand-600 hover:underline"
+                          >
+                            {invoice.client.name}
+                          </Link>
+                        ) : (
+                          t("invoices.clientDeleted")
+                        )}
                       </p>
                       <p className="truncate text-xs text-slate-400">
                         {invoice.client?.email}
@@ -112,7 +131,10 @@ export function RecentInvoices({
                   {formatFCFA(invoice.total)}
                 </TD>
                 <TD>
-                  <StatusBadge status={invoice.status} />
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <StatusBadge status={invoice.status} />
+                    <OverdueTag status={invoice.status} dueDate={invoice.dueDate} />
+                  </div>
                 </TD>
               </TR>
             ))}

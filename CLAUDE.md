@@ -417,32 +417,34 @@ Chaque composant interactif prévoit : `default`, `hover`, `active`, `focus-visi
 Un audit + une contre-expertise ont été réalisés. **Ne pas ré-auditer ; suivre le
 plan ci-dessous.**
 
-### À corriger en priorité (Itérations 0–1 — « MUST FIX NOW »)
+### État de la dette listée précédemment (vérifiée à jour — 2026-09-21)
 
-| ID | Problème | Correctif |
+La plupart des points ci-dessous sont désormais **résolus**. Statut vérifié
+ligne par ligne plutôt que réaudité en bloc :
+
+| ID | Problème | État |
 |---|---|---|
-| BUILD-01 | `npm run typecheck` échoue sur checkout propre (`tsconfig` inclut `.next/types/**`) | Retirer cette entrée d'`include`. |
-| — | Aucun test | Ajouter Vitest + tests des `lib/*` purs ; 1 smoke Playwright ; 1 sonde de débordement responsive. |
-| A-01 | **Débordement horizontal à 1280 px** — légende du donut tronquée | `status-donut.tsx` : `min-w-0` sur `<li>`, libellé `truncate flex-1`, montant `shrink-0` ; empiler donut+légende sous `xl`. |
-| DS-01 | Couleurs/libellés de statut dupliqués (3-4 endroits, pluriel divergent) | Objet unique `INVOICE_STATUS_META { label, badgeClass, dotClass, hex }` dans `lib/invoice-status.ts` ; consommé par `status-badge`, `status-donut`, `dashboard-stats`. Supprimer les maps locales. |
-| DS-02 | `text-slate-400` utilisé pour du texte lisible (contraste 2,56:1, échec WCAG AA) | Remplacer par `text-slate-500`/`600` sur les nœuds de texte. Onglet inactif de `SegmentedTabs` → `text-slate-600`. |
-| A11Y-01 | Lignes de tableau cliquables non navigables au clavier | La cellule « numéro de facture » devient un `<Link>` (garder `onClick` souris). |
-| — | Puces de tendance factices sur les `StatCard` (`8 %`, `12 %`… codés en dur) | Retirer les props `trend`/`trendHint` et le rendu associé (garder la sparkline). |
+| BUILD-01 | `npm run typecheck` échoue sur checkout propre (`tsconfig` inclut `.next/types/**`) | **Pas vraiment corrigeable** : `next lint` réinjecte automatiquement cette entrée dans `tsconfig.json` dès qu'il ne l'y trouve pas (comportement natif de `next lint`, pas un oubli). Sur un checkout propre, lancer `npm run dev` (ou `build`) **une première fois** avant `npm run typecheck` — `.next/types` doit exister. Ne pas retirer l'entrée manuellement, elle revient au prochain `npm run lint`. |
+| — | Aucun test | **Toujours vrai.** Vitest + Playwright pas encore ajoutés. |
+| A-01 | Débordement horizontal à 1280 px (légende du donut) | **Résolu** (`min-w-0`/`truncate`/`shrink-0` déjà en place dans `status-donut.tsx`). |
+| DS-01 | Couleurs/libellés de statut dupliqués | **Partiellement résolu.** `lib/invoice-status.ts` centralise labels/icônes/transitions, mais `status-badge.tsx` (classes Tailwind) et `status-donut.tsx` (hex SVG) gardent chacun leur propre table de couleurs — nécessaire techniquement (Tailwind vs SVG `stroke`), mais toujours 2 sources à synchroniser à la main si une couleur de statut change. |
+| DS-02 | `text-slate-400` sur du texte lisible | **Partiellement résolu.** Corrigé sur le texte d'aide des formulaires (`Field`). Reste par endroits (emails secondaires dans les tableaux, labels de section en petites capitales) — bas risque, non traité par manque de temps de vérification visuelle. |
+| A11Y-01 | Lignes de tableau non navigables au clavier | **Résolu** : le numéro de facture est un `<Link>` dans `/invoices`, le tableau du dashboard et la fiche client ; le nom du client aussi. |
+| — | Puces de tendance factices | **Résolu** (retirées), puis **réintroduites en 2026-09-21 avec de vraies données** (`TrendBadge`, comparaison mois vs mois précédent réellement calculée dans `lib/dashboard-stats.ts`) — ce n'est plus la même dette. |
 
-### À faire ensuite (Itération 2 — accessibilité des primitives, **sans nouvelle abstraction**)
+### Itération 2 — accessibilité des primitives : **faite le 2026-09-21**
 
-- `Field`/`Input`/`Select`/`Textarea` : `aria-invalid` + `aria-describedby` + `id` sur le message d'erreur.
-- `Modal` : focus déplacé à l'ouverture + restitué à la fermeture + `aria-labelledby` (inline dans le `useEffect` existant — **pas** de hook `useFocusTrap`).
-- `DropdownMenu` : **retirer** `role="menu"`/`menuitem` (popover de boutons) + focus 1er item / retour au trigger.
-- Topbar : `aria-label` sur recherche/cloche ; recherche → `/invoices?q=` ou retrait ; menu user → `DropdownMenu` existant.
-- `globals.css` : `@media (prefers-reduced-motion: reduce)`.
-- Skip-link + `<main id="main">` ; `scope="col"` sur les `<th>` (dans `Table`).
-- Envelopper les 3 formulaires dans `<form onSubmit>` (Entrée pour soumettre).
-- Drawer mobile : Échap + focus vers le bouton fermer (inline, **pas** de composant `Sheet`).
+- ✅ `Field`/`Input`/`Select`/`Textarea` : `aria-invalid` + `aria-describedby`.
+- ✅ `Modal` : focus à l'ouverture/fermeture + `aria-labelledby`.
+- ✅ `DropdownMenu` : `role="menu"`/`menuitem` retirés, focus 1er item / retour trigger.
+- ✅ `globals.css` : `prefers-reduced-motion` déjà présent.
+- ✅ Skip-link + `<main id="main">` (`AppShell`) ; `scope="col"` sur les `<th>` (`Table`).
+- ✅ Les 3 formulaires (facture, client, entreprise) sont dans de vrais `<form onSubmit>` — attention en cas de nouvel ajout de bouton dans ces formulaires : tout bouton non-submit doit garder `type="button"` explicite (piège HTML sinon).
+- Reste à faire : Topbar — `aria-label` sur la recherche (déjà présent) ; drawer mobile Échap + focus (pas vérifié).
 
 ### À NE PAS faire maintenant (reporté à la migration Supabase, ou non justifié)
 
-- Toucher à `data-provider.tsx` / `localStorage` / créer un `lib/data/repository.ts` / versionner le schéma.
+- ~~Toucher à `data-provider.tsx` / `localStorage`~~ **Obsolète : la migration Supabase a eu lieu.** `data-provider.tsx` est maintenant le repository (Supabase + RLS), `supabase/migrations/*.sql` versionne le schéma. Ce fichier reste sensible (toute la couche données passe par lui) : le modifier avec précaution, mais l'interdiction totale ne s'applique plus.
 - Convertir le dashboard en RSC ; créer un `loading.tsx` pour le dashboard (ne résout rien tant qu'il n'y a pas de fetch serveur).
 - Créer une couche de **tokens Tailwind sémantiques** (`success/warning/…`), un dossier `lib/design/`, un composant `Sheet`, un hook `useFocusTrap`, un système de roving-tabindex.
 - Extraire `useInvoiceForm` de `invoice-form.tsx`.
@@ -517,22 +519,32 @@ npm run typecheck  # tsc --noEmit
 
 ## 14. État d'avancement / roadmap
 
-- [x] Scaffold Next.js 14 + Tailwind + tokens
-- [x] Shell (sidebar + topbar + drawer mobile) + navigation data-driven
-- [x] Design System : primitives génériques dans `components/ui/`
-- [x] Store local persistant (`data-provider.tsx`, `localStorage` `facturi:data:v1`)
-- [x] Dashboard (4 stats + graphe revenus + donut statuts + dernières factures)
-- [x] Factures : liste (filtres + recherche), création, détail, édition, changement de statut, suppression
-- [x] Clients : liste, ajout/édition (modal), suppression (bloquée si factures liées)
-- [x] Paramètres entreprise + Aide & support
-- [ ] **Itérations 0–1** : tests `lib/`, fix responsive 1280, source unique des statuts, contraste, lignes clavier, retrait des tendances factices (voir §11)
-- [ ] **Itération 2** : accessibilité des primitives (formulaires, modale, dropdown, `<form>`, reduced-motion, skip-link)
-- [ ] Supabase : schéma, RLS, remplacement de l'implémentation derrière `useData()`, conversion des pages en RSC
-- [ ] Authentification + middleware
-- [ ] Landing page
-- [ ] Export PDF de facture, pagination des listes, upload de logo
-- [ ] Passage E2E complet, revue sécurité, CI, déploiement Vercel
+*(Section corrigée le 2026-09-21 — elle décrivait encore un état pré-Supabase
+alors que la bascule a eu lieu depuis. Statut ci-dessous vérifié sur le code réel.)*
 
-**Rappel :** pas de base de données. Toutes les données vivent dans `localStorage`
-(clé `facturi:data:v1`), initialisées depuis `lib/data/mock.ts`. « Réinitialiser
-les données » (Paramètres) restaure le jeu de démo.
+- [x] Scaffold Next.js 14 + Tailwind + tokens
+- [x] Shell (sidebar + topbar + drawer mobile) + navigation data-driven (Dashboard, **Clients**, Factures, Paramètres, Aide)
+- [x] Design System : primitives génériques dans `components/ui/`
+- [x] **Supabase** : schéma + RLS multi-tenant (`supabase/migrations/`), `data-provider.tsx` = repository branché dessus (plus de `localStorage`)
+- [x] **Authentification** Supabase complète : inscription, connexion, vérification email, mot de passe oublié/reset, suppression de compte, middleware de session
+- [x] i18n FR (défaut) / EN sur toute l'app + la landing
+- [x] Dashboard : KPI trésorerie (CA facturé / Encaissé / À encaisser / En retard) avec tendance réelle, zone « À faire », graphique facturé vs encaissé (période sélectionnable), donut, dernières factures
+- [x] Factures : liste (filtres + recherche + `?status=`/`?q=`), création, détail, édition, statut (action principale + menu secondaire), indicateur « en retard depuis N jours », suppression
+- [x] Clients : liste, **fiche détail** (`/clients/[id]`, factures du client, raccourci nouvelle facture), ajout/édition (modal), suppression (bloquée si factures liées)
+- [x] Paramètres entreprise + profil (nom, photo) + Aide & support (tutoriel rejouable, ressources marquées "bientôt disponible")
+- [x] Export PDF de facture (`@react-pdf/renderer`), envoi par email (Resend, si configuré)
+- [x] Landing page publique + pages `/terms` et `/privacy` (modèles génériques, à faire relire par un juriste)
+- [x] Itération 2 accessibilité (voir §11) : formulaires en `<form>`, focus modale/dropdown, skip-link, `aria-invalid`/`aria-describedby`
+- [ ] Tests (Vitest / Playwright) — **toujours rien**, seule dette "MUST FIX" restante de la liste d'origine
+- [ ] Intégrations de paiement (Mobile Money…), relances automatiques, multi-utilisateurs par entreprise
+- [ ] CI GitHub Actions, Prettier, plugins ESLint supplémentaires
+
+### Backlog produit non engagé (évoqué le 2026-09-21, pas construit)
+
+Une proposition de refonte globale a suggéré d'ajouter des modules **Devis,
+Avoirs, Paiements (suivi dédié), Relances, Rapports**. Volontairement **pas**
+implémentés dans la foulée : ce sont de nouvelles fonctionnalités avec des
+règles métier à définir (numérotation d'un avoir ? conversion devis→facture ?
+canal des relances ?), pas des corrections du dashboard existant — les
+construire sans réponses à ces questions aurait produit des écrans à moitié
+finis. À cadrer avec l'utilisateur avant toute implémentation.

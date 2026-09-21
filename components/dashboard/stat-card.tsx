@@ -1,4 +1,4 @@
-import { type LucideIcon } from "lucide-react";
+import { type LucideIcon, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Accent = "brand" | "emerald" | "amber" | "rose";
@@ -49,6 +49,8 @@ export interface StatCardProps {
   icon: LucideIcon;
   accent?: Accent;
   series?: number[];
+  /** Contenu libre sous la valeur : badge de tendance, "N factures"… */
+  hint?: React.ReactNode;
 }
 
 export function StatCard({
@@ -57,6 +59,7 @@ export function StatCard({
   icon: Icon,
   accent = "brand",
   series,
+  hint,
 }: StatCardProps) {
   const colors = ACCENT[accent];
 
@@ -72,10 +75,37 @@ export function StatCard({
         {value}
       </p>
       <p className="mt-1 text-sm text-slate-500">{label}</p>
+      {hint && <div className="mt-1.5 text-xs">{hint}</div>}
 
       {series && series.length > 1 && (
         <Sparkline data={series} className={cn("mt-3", colors.spark)} />
       )}
     </div>
+  );
+}
+
+/** Badge "+12,4 %" / "-3,1 %" — vert si en hausse, rose si en baisse. */
+export function TrendBadge({
+  value,
+  suffix,
+}: {
+  value: number | null;
+  suffix?: string;
+}) {
+  if (value === null) return null;
+  const up = value >= 0;
+  const Icon = up ? ArrowUpRight : ArrowDownRight;
+  const formatted = Math.abs(value).toFixed(1).replace(".", ",");
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 font-semibold",
+        up ? "text-emerald-600" : "text-rose-600",
+      )}
+    >
+      <Icon className="h-3.5 w-3.5" />
+      {up ? "+" : "-"}
+      {formatted} %{suffix ? ` ${suffix}` : ""}
+    </span>
   );
 }

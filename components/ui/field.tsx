@@ -14,6 +14,11 @@ export function controlClass(hasError?: boolean, className?: string) {
   return cn(CONTROL_BASE, hasError ? CONTROL_ERROR : CONTROL_OK, className);
 }
 
+/** Id du message d'aide/erreur associé à un champ — partagé avec `aria-describedby`. */
+export function fieldMessageId(fieldId?: string): string | undefined {
+  return fieldId ? `${fieldId}-message` : undefined;
+}
+
 export function Field({
   label,
   htmlFor,
@@ -44,9 +49,13 @@ export function Field({
       )}
       {children}
       {error ? (
-        <p className="text-xs text-rose-600">{error}</p>
+        <p id={fieldMessageId(htmlFor)} className="text-xs text-rose-600">
+          {error}
+        </p>
       ) : hint ? (
-        <p className="text-xs text-slate-400">{hint}</p>
+        <p id={fieldMessageId(htmlFor)} className="text-xs text-slate-500">
+          {hint}
+        </p>
       ) : null}
     </div>
   );

@@ -12,6 +12,7 @@ export const fr = {
     confirm: "Confirmer",
     yes: "Oui",
     no: "Non",
+    skipToContent: "Aller au contenu",
   },
   lang: { switch: "Langue", fr: "Français", en: "English" },
   nav: {
@@ -30,7 +31,6 @@ export const fr = {
     greeting: "Bonjour, {name} 👋",
     subtitle: "Voici l'activité de votre entreprise aujourd'hui.",
     search: "Rechercher une facture, un client…",
-    notifications: "Notifications",
     createInvoice: "Créer une facture",
     accountMenu: "Menu du compte",
     settings: "Paramètres",
@@ -44,6 +44,10 @@ export const fr = {
     signupTitle: "Créer un compte",
     signupSubtitle:
       "Quelques secondes suffisent. Vos données de démonstration sont prêtes.",
+    fullName: "Nom complet",
+    fullNamePlaceholder: "Ex. Michel Kazadi",
+    fullNameOptionalHint: "Facultatif — utilisé pour vous saluer dans l'application.",
+    loggedOut: "Vous avez été déconnecté.",
     email: "Email",
     password: "Mot de passe",
     passwordHint: "8 caractères minimum.",
@@ -104,17 +108,38 @@ export const fr = {
   dashboard: {
     title: "Tableau de bord",
     subtitle: "Suivi de votre facturation et de votre trésorerie.",
-    statInvoices: "Factures émises",
-    statInvoiced: "Montant facturé",
-    statPaid: "Montant payé",
-    statPending: "Montant en attente",
+    statInvoiced: "CA facturé",
+    statPaid: "Encaissé",
+    statToReceive: "À encaisser",
+    statOverdue: "En retard",
+    vsPrevMonth: "vs mois précédent",
+    nInvoicesOne: "{count} facture",
+    nInvoicesMany: "{count} factures",
+    periodMonths: "{count} mois",
+    legendInvoiced: "Facturé",
+    legendCollected: "Encaissé",
+    actionsTitle: "À faire",
+    actionsSubtitle: "Ce qui mérite votre attention",
+    actionsAllClear: "Tout est à jour, aucune action requise.",
+    actionOverdueOne: "{count} facture en retard",
+    actionOverdueMany: "{count} factures en retard",
+    actionOverdueDesc: "Leur échéance est dépassée.",
+    actionOverdueCta: "Voir",
+    actionSentOne: "{count} facture envoyée à relancer",
+    actionSentMany: "{count} factures envoyées à relancer",
+    actionSentDesc: "En attente de paiement.",
+    actionSentCta: "Relancer",
+    actionDraftOne: "{count} brouillon",
+    actionDraftMany: "{count} brouillons",
+    actionDraftDesc: "Pas encore envoyés au client.",
+    actionDraftCta: "Voir",
     emptyTitle: "Aucune donnée pour le moment",
     emptyDesc:
       "Ajoutez un client puis créez votre première facture : vos statistiques et vos graphiques apparaîtront ici.",
     emptyAddClient: "Ajouter un client",
     emptyCreateInvoice: "Créer une facture",
     lastMonths: "{count} derniers mois",
-    revenueTitle: "Revenus facturés",
+    revenueTitle: "Évolution de la facturation",
     revenueTotal: "Total période",
     statusTitle: "Répartition des factures",
     statusSubtitle: "Par statut",
@@ -189,6 +214,8 @@ export const fr = {
     backToList: "Retour aux factures",
     allInvoices: "Toutes les factures",
     changeStatus: "Changer le statut",
+    overdueSinceOne: "En retard depuis {days} jour",
+    overdueSinceMany: "En retard depuis {days} jours",
     billedTo: "Facturé à",
     subtotal: "Sous-total",
     tva: "TVA ({rate} %)",
@@ -201,6 +228,12 @@ export const fr = {
     invoiceLabel: "Facture",
   },
   invoiceForm: {
+    createTitle: "Nouvelle facture",
+    createDesc:
+      "Renseignez le client, les lignes et la TVA. Le total est calculé automatiquement.",
+    editTitle: "Modifier la facture",
+    editDesc: "Les modifications sont enregistrées dans votre espace.",
+    editBackLabel: "Retour à la facture",
     infoTitle: "Informations",
     invoiceNo: "Facture n° {number}",
     client: "Client",
@@ -271,6 +304,10 @@ export const fr = {
     emptyFilteredDesc: "Essayez une autre recherche.",
     edit: "Modifier",
     delete: "Supprimer",
+    viewInvoices: "Voir les factures",
+    notFoundTitle: "Client introuvable",
+    notFoundDesc: "Ce client n'existe pas ou a été supprimé.",
+    backToClients: "Tous les clients",
     deleteBlockedTitle: "Suppression impossible",
     deleteBlockedOne: "{name} a {count} facture liée.",
     deleteBlockedMany: "{name} a {count} factures liées.",
@@ -296,6 +333,15 @@ export const fr = {
     clientAdded: "Client ajouté",
     clientUpdated: "Client modifié",
   },
+  clientDetail: {
+    newInvoice: "Nouvelle facture",
+    totalInvoiced: "Total facturé",
+    totalPaid: "Total payé",
+    memberSince: "Client depuis le {date}",
+    invoicesTitle: "Factures",
+    noInvoicesYet: "Aucune facture pour ce client.",
+    createFirstInvoice: "Créer une facture",
+  },
   settings: {
     title: "Paramètres",
     subtitle: "Ces informations apparaissent sur vos factures.",
@@ -307,7 +353,11 @@ export const fr = {
     billingDesc: "Valeurs appliquées par défaut aux nouvelles factures.",
     profileTitle: "Votre profil",
     profileDesc:
-      "Photo affichée dans l'application (elle n'apparaît pas sur les factures).",
+      "Photo et nom affichés dans l'application (n'apparaissent pas sur les factures).",
+    fullName: "Nom complet",
+    fullNamePlaceholder: "Votre prénom et nom",
+    fullNameSaved: "Nom enregistré",
+    fullNameFailed: "Enregistrement du nom impossible",
     helpTitle: "Aide & découverte",
     helpDesc: "Revoir la visite guidée du tableau de bord.",
     dangerTitle: "Zone de danger",
@@ -340,7 +390,7 @@ export const fr = {
     replayTutorial: "Revoir le tutoriel",
     demoDataName: "Données de démonstration",
     demoDataDesc:
-      "Remplace vos données actuelles par un jeu d'exemple (8 clients, 14 factures).",
+      "Remplace vos données actuelles par un jeu d'exemple (32 clients, 54 factures).",
     loadDemo: "Charger les données de démo",
     deleteAccount: "Supprimer mon compte",
     savedToast: "Paramètres enregistrés",
@@ -408,6 +458,11 @@ export const fr = {
     phone: "Téléphone",
     phoneHours: "Lun–Ven, 8h–17h (Kinshasa)",
     chatSoon: "Chat en direct (bientôt)",
+    testDataNotice:
+      "Ces coordonnées sont des informations de test, fournies à titre d'exemple.",
+    tutorialTitle: "Visite guidée",
+    tutorialDesc: "Revoir la présentation interactive du tableau de bord.",
+    comingSoon: "Bientôt disponible",
     resourcesTitle: "Ressources",
     res1: "Guide de démarrage rapide",
     res2: "Bien remplir une facture",
@@ -661,6 +716,54 @@ export const fr = {
     mockDate: "Date : 30/08/2026",
     mockService: "Développement de site web",
     mockTotal: "Total",
+  },
+  legal: {
+    templateNotice:
+      "Ce document est un modèle générique fourni à titre indicatif. Il doit être relu et adapté par un professionnel du droit avant toute mise en production.",
+    lastUpdated: "Dernière mise à jour : {date}",
+    termsTitle: "Conditions d'utilisation",
+    termsIntro:
+      "Les présentes conditions régissent l'accès et l'utilisation de Facturi par les entrepreneurs, indépendants et entreprises de RD Congo.",
+    terms1T: "1. Objet du service",
+    terms1D:
+      "Facturi est un outil de facturation en ligne permettant de créer des factures, suivre des clients et consulter des statistiques d'activité, en francs congolais.",
+    terms2T: "2. Compte utilisateur",
+    terms2D:
+      "L'utilisateur est responsable de la confidentialité de ses identifiants et de l'exactitude des informations renseignées (entreprise, RCCM, NIF, ID NAT).",
+    terms3T: "3. Utilisation autorisée",
+    terms3D:
+      "Le service est réservé à un usage professionnel licite. Toute tentative d'accès non autorisé, d'extraction massive de données ou d'usage frauduleux est interdite.",
+    terms4T: "4. Propriété des données",
+    terms4D:
+      "Les clients, factures et paramètres saisis appartiennent à l'utilisateur. Facturi ne revend ni ne partage ces données avec des tiers à des fins commerciales.",
+    terms5T: "5. Résiliation",
+    terms5D:
+      "L'utilisateur peut supprimer son compte à tout moment depuis les Paramètres ; cette action efface définitivement ses données.",
+    terms6T: "6. Limitation de responsabilité",
+    terms6D:
+      "Le service est fourni « en l'état ». Facturi ne saurait être tenu responsable des pertes financières liées à une mauvaise utilisation de l'outil.",
+    privacyTitle: "Politique de confidentialité",
+    privacyIntro:
+      "Cette politique décrit les données personnelles traitées par Facturi et la manière dont elles sont utilisées et protégées.",
+    privacy1T: "1. Données collectées",
+    privacy1D:
+      "Adresse email et mot de passe (authentification), informations d'entreprise, clients et factures que vous saisissez vous-même.",
+    privacy2T: "2. Finalité du traitement",
+    privacy2D:
+      "Ces données servent exclusivement à fournir le service de facturation : gestion de compte, génération de documents, statistiques d'activité.",
+    privacy3T: "3. Conservation",
+    privacy3D:
+      "Les données sont conservées tant que le compte est actif. Elles sont définitivement supprimées lors de la suppression du compte.",
+    privacy4T: "4. Partage avec des tiers",
+    privacy4D:
+      "Aucune donnée n'est vendue. Un sous-traitant technique (hébergement, envoi d'email) peut y accéder pour les seuls besoins du service.",
+    privacy5T: "5. Sécurité",
+    privacy5D:
+      "L'accès aux données est isolé par compte (chaque utilisateur ne voit que ses propres clients et factures) et protégé par mot de passe.",
+    privacy6T: "6. Vos droits",
+    privacy6D:
+      "Vous pouvez consulter, corriger ou supprimer vos données à tout moment depuis l'application, ou en nous contactant.",
+    contactCta: "Une question ? Contactez-nous",
   },
 };
 

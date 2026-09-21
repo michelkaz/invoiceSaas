@@ -20,9 +20,9 @@ export function LandingHeader() {
   }, []);
 
   const links = [
-    { href: "#fonctionnalites", label: t("landing.navFeatures") },
-    { href: "#tarifs", label: t("landing.navPricing") },
-    { href: "#faq", label: t("landing.navFaq") },
+    { href: "/#fonctionnalites", label: t("landing.navFeatures") },
+    { href: "/#tarifs", label: t("landing.navPricing") },
+    { href: "/#faq", label: t("landing.navFaq") },
   ];
 
   return (

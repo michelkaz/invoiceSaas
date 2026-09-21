@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 import { getServerT } from "@/lib/i18n/server";
+
+export function generateMetadata(): Metadata {
+  return { title: `Facturi — ${getServerT()("auth.resetTitle")}` };
+}
 
 export default function ResetPasswordPage() {
   const t = getServerT();

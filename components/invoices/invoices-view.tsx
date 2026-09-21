@@ -1,18 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import {
-  Eye,
-  Pencil,
-  Trash2,
-  Plus,
-  FileText,
-  Send,
-  CheckCircle2,
-  Clock,
-  FileEdit,
-} from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { Eye, Pencil, Trash2, Plus, FileText } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,32 +16,39 @@ import { DropdownMenu, type DropdownItem } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Avatar } from "@/components/ui/avatar";
 import { StatusBadge } from "@/components/invoices/status-badge";
+import { OverdueTag } from "@/components/invoices/overdue-tag";
 import { useData } from "@/components/providers/data-provider";
 import { useToast } from "@/components/ui/toast";
 import { useT } from "@/components/providers/i18n-provider";
-import { INVOICE_STATUSES, statusActionKey } from "@/lib/invoice-status";
+import {
+  INVOICE_STATUSES,
+  PRIMARY_NEXT_STATUS,
+  STATUS_ICON,
+  statusActionKey,
+} from "@/lib/invoice-status";
 import { formatDate } from "@/lib/format";
 import { formatFCFA } from "@/lib/money";
 import type { InvoiceStatus } from "@/lib/data/types";
 
 type Filter = "tous" | InvoiceStatus;
 
-const STATUS_ICON: Record<InvoiceStatus, typeof Send> = {
-  brouillon: FileEdit,
-  envoyee: Send,
-  payee: CheckCircle2,
-  en_retard: Clock,
-};
+function isFilter(value: string | null): value is Filter {
+  return value === "tous" || (INVOICE_STATUSES as string[]).includes(value ?? "");
+}
 
 export function InvoicesView() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const t = useT();
   const { hydrated, invoices, getClient, setInvoiceStatus, deleteInvoice } =
     useData();
 
-  const [filter, setFilter] = useState<Filter>("tous");
-  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<Filter>(() => {
+    const status = searchParams.get("status");
+    return isFilter(status) ? status : "tous";
+  });
+  const [query, setQuery] = useState(() => searchParams.get("q") ?? "");
   const [toDelete, setToDelete] = useState<{ id: string; number: string } | null>(
     null,
   );
@@ -95,12 +93,22 @@ export function InvoicesView() {
     { id: "en_retard" as const, label: t("invoices.filterOverdue"), count: counts.en_retard },
   ];
 
+  const markStatus = (invId: string, invNumber: string, s: InvoiceStatus) => {
+    setInvoiceStatus(invId, s);
+    toast({
+      variant: "success",
+      title: t("invoices.statusUpdated"),
+      description: `${invNumber} · ${t(`status.${s}`)}`,
+    });
+  };
+
   const buildActions = (
     invId: string,
     invNumber: string,
     status: InvoiceStatus,
   ): DropdownItem[] => {
-    const others = INVOICE_STATUSES.filter((s) => s !== status);
+    const primary = PRIMARY_NEXT_STATUS[status];
+    const others = INVOICE_STATUSES.filter((s) => s !== status && s !== primary);
     return [
       { label: t("invoices.actionView"), icon: Eye, onClick: () => router.push(`/invoices/${invId}`) },
       { label: t("invoices.actionEdit"), icon: Pencil, onClick: () => router.push(`/invoices/${invId}/edit`) },
@@ -108,14 +116,7 @@ export function InvoicesView() {
         label: t(statusActionKey(s)),
         icon: STATUS_ICON[s],
         separatorBefore: i === 0,
-        onClick: () => {
-          setInvoiceStatus(invId, s);
-          toast({
-            variant: "success",
-            title: t("invoices.statusUpdated"),
-            description: `${invNumber} · ${t(`status.${s}`)}`,
-          });
-        },
+        onClick: () => markStatus(invId, invNumber, s),
       })),
       {
         label: t("invoices.actionDelete"),
@@ -194,13 +195,31 @@ export function InvoicesView() {
                 const client = getClient(inv.clientId);
                 return (
                   <TR key={inv.id} onClick={() => router.push(`/invoices/${inv.id}`)}>
-                    <TD className="font-semibold text-slate-900">{inv.number}</TD>
+                    <TD className="font-semibold text-slate-900">
+                      <Link
+                        href={`/invoices/${inv.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="hover:text-brand-600 hover:underline"
+                      >
+                        {inv.number}
+                      </Link>
+                    </TD>
                     <TD>
                       <div className="flex items-center gap-3">
                         <Avatar name={client?.name ?? "?"} size="sm" />
                         <div className="min-w-0">
                           <p className="truncate font-medium text-slate-900">
-                            {client?.name ?? t("invoices.clientDeleted")}
+                            {client ? (
+                              <Link
+                                href={`/clients/${client.id}`}
+                                onClick={(e) => e.stopPropagation()}
+                                className="hover:text-brand-600 hover:underline"
+                              >
+                                {client.name}
+                              </Link>
+                            ) : (
+                              t("invoices.clientDeleted")
+                            )}
                           </p>
                           <p className="truncate text-xs text-slate-400">
                             {client?.email}
@@ -218,10 +237,31 @@ export function InvoicesView() {
                       {formatFCFA(inv.total)}
                     </TD>
                     <TD>
-                      <StatusBadge status={inv.status} />
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <StatusBadge status={inv.status} />
+                        <OverdueTag status={inv.status} dueDate={inv.dueDate} />
+                      </div>
                     </TD>
                     <TD className="text-right">
-                      <div onClick={(e) => e.stopPropagation()}>
+                      <div
+                        className="flex items-center justify-end gap-1"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {PRIMARY_NEXT_STATUS[inv.status] && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              markStatus(
+                                inv.id,
+                                inv.number,
+                                PRIMARY_NEXT_STATUS[inv.status] as InvoiceStatus,
+                              )
+                            }
+                          >
+                            {t(statusActionKey(PRIMARY_NEXT_STATUS[inv.status] as InvoiceStatus))}
+                          </Button>
+                        )}
                         <DropdownMenu items={buildActions(inv.id, inv.number, inv.status)} />
                       </div>
                     </TD>

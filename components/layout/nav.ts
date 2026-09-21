@@ -24,8 +24,8 @@ export const navSections: NavSection[] = [
     titleKey: "nav.sectionMain",
     items: [
       { labelKey: "nav.dashboard", href: "/dashboard", icon: LayoutDashboard },
-      { labelKey: "nav.invoices", href: "/invoices", icon: FileText },
       { labelKey: "nav.clients", href: "/clients", icon: Users },
+      { labelKey: "nav.invoices", href: "/invoices", icon: FileText },
     ],
   },
   {

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { Mail, Phone, MessageCircle, BookOpen, ChevronDown } from "lucide-react";
+import { Mail, Phone, MessageCircle, BookOpen, ChevronDown, FlaskConical } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ReplayTourButton } from "@/components/help/replay-tour-button";
 import { getServerT } from "@/lib/i18n/server";
 
 export function generateMetadata(): Metadata {
@@ -50,6 +51,10 @@ export default function HelpPage() {
           <Card>
             <CardHeader title={t("help.contactTitle")} />
             <CardBody className="space-y-4 text-sm">
+              <div className="flex items-start gap-2 rounded-xl bg-amber-50 px-3 py-2.5 text-xs text-amber-800">
+                <FlaskConical className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                {t("help.testDataNotice")}
+              </div>
               <div className="flex items-start gap-3">
                 <Mail className="mt-0.5 h-4 w-4 text-slate-400" />
                 <div>
@@ -78,17 +83,31 @@ export default function HelpPage() {
           </Card>
 
           <Card>
+            <CardHeader
+              title={t("help.tutorialTitle")}
+              description={t("help.tutorialDesc")}
+            />
+            <CardBody>
+              <ReplayTourButton />
+            </CardBody>
+          </Card>
+
+          <Card>
             <CardHeader title={t("help.resourcesTitle")} />
-            <CardBody className="space-y-2 text-sm">
+            <CardBody className="space-y-1 text-sm">
               {resources.map((key) => (
-                <a
+                <div
                   key={key}
-                  href="#"
-                  className="flex items-center gap-2.5 rounded-lg px-2 py-2 text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
+                  className="flex items-center justify-between gap-2.5 rounded-lg px-2 py-2 text-slate-400"
                 >
-                  <BookOpen className="h-4 w-4 text-slate-400" />
-                  {t(key)}
-                </a>
+                  <span className="flex items-center gap-2.5">
+                    <BookOpen className="h-4 w-4 text-slate-300" />
+                    {t(key)}
+                  </span>
+                  <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-500">
+                    {t("help.comingSoon")}
+                  </span>
+                </div>
               ))}
             </CardBody>
           </Card>

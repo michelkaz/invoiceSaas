@@ -1,7 +1,7 @@
 "use client";
 
 import { useId } from "react";
-import { Field, controlClass } from "@/components/ui/field";
+import { Field, controlClass, fieldMessageId } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 
 interface InputProps
@@ -41,6 +41,8 @@ export function Input({
         <input
           id={fieldId}
           required={required}
+          aria-invalid={Boolean(error) || undefined}
+          aria-describedby={(error || hint) ? fieldMessageId(fieldId) : undefined}
           className={controlClass(
             Boolean(error),
             cn("h-10 px-3.5", suffix && "pr-14", className),

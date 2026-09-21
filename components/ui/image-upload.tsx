@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { ImagePlus, Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
+import { useT } from "@/components/providers/i18n-provider";
 import { cn } from "@/lib/utils";
 
 const MAX_BYTES = 2 * 1024 * 1024; // 2 Mo
@@ -30,6 +31,7 @@ export function ImageUpload({
   label,
   hint,
 }: ImageUploadProps) {
+  const t = useT();
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,11 +41,11 @@ export function ImageUpload({
   const handleFile = async (file: File) => {
     setError(null);
     if (!ACCEPTED.includes(file.type)) {
-      setError("Formats acceptés : PNG, JPG, WebP, SVG.");
+      setError(t("upload.badFormat"));
       return;
     }
     if (file.size > MAX_BYTES) {
-      setError("Fichier trop lourd (2 Mo maximum).");
+      setError(t("upload.tooLarge"));
       return;
     }
 
@@ -54,7 +56,7 @@ export function ImageUpload({
     } = await supabase.auth.getUser();
     if (!user) {
       setBusy(false);
-      setError("Session expirée.");
+      setError(t("upload.sessionExpired"));
       return;
     }
 
@@ -66,7 +68,7 @@ export function ImageUpload({
 
     if (upErr) {
       setBusy(false);
-      setError("Échec de l'envoi. Réessayez.");
+      setError(t("upload.failed"));
       return;
     }
 
@@ -104,13 +106,19 @@ export function ImageUpload({
 
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" size="sm" onClick={pick} disabled={busy}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={pick}
+              disabled={busy}
+            >
               {busy ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <ImagePlus className="h-4 w-4" />
               )}
-              {value ? "Changer" : "Téléverser"}
+              {value ? t("upload.change") : t("upload.upload")}
             </Button>
             {value && !busy && (
               <button
@@ -119,12 +127,12 @@ export function ImageUpload({
                 className="inline-flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-rose-600"
               >
                 <X className="h-3.5 w-3.5" />
-                Retirer
+                {t("upload.remove")}
               </button>
             )}
           </div>
           <p className="mt-1 text-xs text-slate-500">
-            {error ?? hint ?? "PNG, JPG, WebP ou SVG — 2 Mo max."}
+            {error ?? hint ?? t("upload.hint")}
           </p>
         </div>
 

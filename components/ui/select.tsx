@@ -2,7 +2,7 @@
 
 import { useId } from "react";
 import { ChevronDown } from "lucide-react";
-import { Field, controlClass } from "@/components/ui/field";
+import { Field, controlClass, fieldMessageId } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 
 interface SelectOption {
@@ -48,6 +48,8 @@ export function Select({
         <select
           id={fieldId}
           required={required}
+          aria-invalid={Boolean(error) || undefined}
+          aria-describedby={(error || hint) ? fieldMessageId(fieldId) : undefined}
           className={controlClass(
             Boolean(error),
             cn("h-10 appearance-none px-3.5 pr-10", className),

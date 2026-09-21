@@ -90,6 +90,7 @@ interface DataContextValue extends DataState {
   deleteAccount: () => Promise<void>;
   signOut: () => Promise<void>;
   refresh: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 const DataContext = createContext<DataContextValue | null>(null);
@@ -509,15 +510,37 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     const uid = userRef.current?.id;
     if (!uid) return;
     try {
-      await supabase.from("invoices").delete().eq("owner_id", uid);
-      await supabase.from("clients").delete().eq("owner_id", uid);
-      await supabase
+      // Les identifiants du jeu de démo (mock.ts) sont des constantes fixes
+      // ("cli_01", "inv_01"…) partagées par tout le code applicatif. Comme la
+      // clé primaire de `clients`/`invoices` est globale (pas composée avec
+      // owner_id), les réutiliser tel quel provoque une collision dès qu'un
+      // second compte charge la démo (l'insert échoue silencieusement côté
+      // Supabase, qui ne lève pas d'exception JS) : on regénère donc des ids
+      // uniques à chaque chargement, tout en conservant les références
+      // client ↔ facture ↔ ligne cohérentes via ces deux tables de mapping.
+      const clientIdMap = new Map(seedClients.map((c) => [c.id, genId()]));
+      const freshInvoices: Invoice[] = seedInvoices.map((inv) => ({
+        ...inv,
+        id: genId(),
+        clientId: clientIdMap.get(inv.clientId)!,
+        items: inv.items.map((it) => ({ ...it, id: genId() })),
+      }));
+
+      const del1 = await supabase.from("invoices").delete().eq("owner_id", uid);
+      if (del1.error) return fail("errors.demoLoadFailed", del1.error);
+
+      const del2 = await supabase.from("clients").delete().eq("owner_id", uid);
+      if (del2.error) return fail("errors.demoLoadFailed", del2.error);
+
+      const companyRes = await supabase
         .from("companies")
         .update({ ...companyToRow(seedCompany), onboarding_completed: true })
         .eq("owner_id", uid);
-      await supabase.from("clients").insert(
+      if (companyRes.error) return fail("errors.demoLoadFailed", companyRes.error);
+
+      const clientsRes = await supabase.from("clients").insert(
         seedClients.map((c) => ({
-          id: c.id,
+          id: clientIdMap.get(c.id)!,
           owner_id: uid,
           name: c.name,
           email: c.email,
@@ -526,12 +549,18 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           created_at: c.createdAt,
         })),
       );
-      await supabase
+      if (clientsRes.error) return fail("errors.demoLoadFailed", clientsRes.error);
+
+      const invoicesRes = await supabase
         .from("invoices")
-        .insert(seedInvoices.map((inv) => invoiceToRow(inv, uid)));
-      await supabase
+        .insert(freshInvoices.map((inv) => invoiceToRow(inv, uid)));
+      if (invoicesRes.error) return fail("errors.demoLoadFailed", invoicesRes.error);
+
+      const itemsRes = await supabase
         .from("invoice_items")
-        .insert(seedInvoices.flatMap(invoiceItemsToRows));
+        .insert(freshInvoices.flatMap(invoiceItemsToRows));
+      if (itemsRes.error) return fail("errors.demoLoadFailed", itemsRes.error);
+
       setState(await fetchAll(uid));
     } catch (e) {
       fail("errors.demoLoadFailed", e);
@@ -554,12 +583,24 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
-    window.location.assign("/login");
+    window.location.assign("/login?loggedOut=1");
   }, [supabase]);
 
   const refresh = useCallback(async () => {
     await refetch();
   }, [refetch]);
+
+  /**
+   * Relit l'utilisateur Supabase et met à jour `user` immédiatement.
+   * `updateUser()` déclenche en principe un évènement `USER_UPDATED` repris
+   * par `onAuthStateChange` ci-dessus, mais on ne veut pas dépendre du délai
+   * (ni d'un éventuel raté) pour un changement que l'utilisateur vient de
+   * valider lui-même (nom, photo) : on le reflète tout de suite.
+   */
+  const refreshUser = useCallback(async () => {
+    const { data } = await supabase.auth.getUser();
+    if (data.user) setUser(toSessionUser(data.user));
+  }, [supabase]);
 
   const value = useMemo<DataContextValue>(
     () => ({
@@ -585,6 +626,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       deleteAccount,
       signOut,
       refresh,
+      refreshUser,
     }),
     [
       state,
@@ -609,6 +651,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       deleteAccount,
       signOut,
       refresh,
+      refreshUser,
     ],
   );
 

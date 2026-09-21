@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +26,7 @@ export function ClientFormModal({
   const { addClient, updateClient } = useData();
   const { toast } = useToast();
   const t = useT();
+  const formId = useId();
   const isEdit = Boolean(client);
 
   const [values, setValues] = useState(EMPTY);
@@ -49,7 +50,8 @@ export function ClientFormModal({
   const set = (key: keyof typeof EMPTY, value: string) =>
     setValues((v) => ({ ...v, [key]: value }));
 
-  const handleSubmit = () => {
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     const next: Record<string, string> = {};
     if (!values.name.trim()) next.name = t("clients.nameRequired");
     if (!values.email.trim()) next.email = t("clients.emailRequired");
@@ -84,16 +86,16 @@ export function ClientFormModal({
       }
       footer={
         <>
-          <Button variant="outline" onClick={onClose}>
+          <Button type="button" variant="outline" onClick={onClose}>
             {t("common.cancel")}
           </Button>
-          <Button onClick={handleSubmit}>
+          <Button type="submit" form={formId}>
             {isEdit ? t("clients.save") : t("clients.addClient")}
           </Button>
         </>
       }
     >
-      <div className="space-y-4">
+      <form id={formId} onSubmit={handleSubmit} className="space-y-4">
         <Input
           label={t("clients.name")}
           required
@@ -122,7 +124,7 @@ export function ClientFormModal({
           value={values.address}
           onChange={(e) => set("address", e.target.value)}
         />
-      </div>
+      </form>
     </Modal>
   );
 }

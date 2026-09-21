@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Plus, Trash2, FileWarning } from "lucide-react";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
@@ -41,6 +41,7 @@ export function InvoiceForm({
   invoiceId?: string;
 }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const t = useT();
   const {
@@ -58,7 +59,9 @@ export function InvoiceForm({
   const keySeq = useRef(0);
   const makeKey = () => `line_${keySeq.current++}`;
 
-  const [clientId, setClientId] = useState(existing?.clientId ?? "");
+  const [clientId, setClientId] = useState(
+    existing?.clientId ?? searchParams.get("clientId") ?? "",
+  );
   const [issueDate, setIssueDate] = useState(existing?.issueDate ?? todayISO());
   const [dueDate, setDueDate] = useState(
     existing?.dueDate ?? addDaysISO(todayISO(), company.paymentTermsDays),
@@ -189,8 +192,22 @@ export function InvoiceForm({
   const clientOptions = clients.map((c) => ({ value: c.id, label: c.name }));
   const gridCols = "sm:grid-cols-[minmax(0,1fr)_88px_170px_120px_40px]";
 
+  // Soumission par défaut (Entrée) : l'action principale du mode courant.
+  // Les actions secondaires (brouillon / enregistrer sans envoyer) restent
+  // des boutons type="button" avec leur propre gestionnaire, cf. plus bas.
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (mode === "create") {
+      handleCreate("envoyee");
+    } else if (existing?.status === "brouillon") {
+      handleSave(true);
+    } else {
+      handleSave(false);
+    }
+  };
+
   return (
-    <div className="space-y-5">
+    <form className="space-y-5" onSubmit={handleFormSubmit}>
       <Card>
         <CardHeader
           title={t("invoiceForm.infoTitle")}
@@ -240,7 +257,7 @@ export function InvoiceForm({
         <CardHeader
           title={t("invoiceForm.linesTitle")}
           action={
-            <Button variant="outline" size="sm" onClick={addLine}>
+            <Button type="button" variant="outline" size="sm" onClick={addLine}>
               <Plus className="h-4 w-4" />
               {t("invoiceForm.addLine")}
             </Button>
@@ -286,9 +303,13 @@ export function InvoiceForm({
                     min={0}
                     inputMode="decimal"
                     value={Number.isNaN(line.quantity) ? "" : line.quantity}
-                    onChange={(e) =>
-                      updateLine(line.key, { quantity: Number(e.target.value) })
-                    }
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      updateLine(line.key, {
+                        quantity: raw === "" ? NaN : Number(raw),
+                      });
+                    }}
                     error={le.quantity}
                   />
                 </div>
@@ -302,9 +323,13 @@ export function InvoiceForm({
                     inputMode="decimal"
                     suffix="FC"
                     value={Number.isNaN(line.unitPrice) ? "" : line.unitPrice}
-                    onChange={(e) =>
-                      updateLine(line.key, { unitPrice: Number(e.target.value) })
-                    }
+                    onFocus={(e) => e.target.select()}
+                    onChange={(e) => {
+                      const raw = e.target.value;
+                      updateLine(line.key, {
+                        unitPrice: raw === "" ? NaN : Number(raw),
+                      });
+                    }}
                     error={le.unitPrice}
                   />
                 </div>
@@ -382,38 +407,37 @@ export function InvoiceForm({
         {mode === "create" ? (
           <>
             <Button
+              type="button"
               variant="outline"
               loading={submitting === "brouillon"}
               onClick={() => handleCreate("brouillon")}
             >
               {t("invoiceForm.saveDraft")}
             </Button>
-            <Button
-              loading={submitting === "envoyee"}
-              onClick={() => handleCreate("envoyee")}
-            >
+            <Button type="submit" loading={submitting === "envoyee"}>
               {t("invoiceForm.sendInvoice")}
             </Button>
           </>
         ) : existing?.status === "brouillon" ? (
           <>
             <Button
+              type="button"
               variant="outline"
               loading={submitting === "save"}
               onClick={() => handleSave(false)}
             >
               {t("invoiceForm.save")}
             </Button>
-            <Button loading={submitting === "save"} onClick={() => handleSave(true)}>
+            <Button type="submit" loading={submitting === "save"}>
               {t("invoiceForm.saveAndSend")}
             </Button>
           </>
         ) : (
-          <Button loading={submitting === "save"} onClick={() => handleSave(false)}>
+          <Button type="submit" loading={submitting === "save"}>
             {t("invoiceForm.saveChanges")}
           </Button>
         )}
       </div>
-    </div>
+    </form>
   );
 }

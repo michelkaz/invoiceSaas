@@ -26,7 +26,7 @@ export function StatusDonut({ data }: { data: StatusSlice[] }) {
         {t("dashboard.statusSubtitle")}
       </p>
 
-      <div className="mt-6 flex flex-col items-center gap-6 xl:flex-row">
+      <div className="mt-6 flex flex-col items-center gap-8 sm:flex-row sm:items-center sm:gap-10">
         <div className="relative h-36 w-36 shrink-0">
           <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90">
             <circle
@@ -69,7 +69,7 @@ export function StatusDonut({ data }: { data: StatusSlice[] }) {
           </div>
         </div>
 
-        <ul className="w-full min-w-0 space-y-3">
+        <ul className="grid w-full min-w-0 flex-1 grid-cols-1 gap-x-10 gap-y-3 sm:grid-cols-2">
           {data.map((slice) => (
             <li
               key={slice.status}

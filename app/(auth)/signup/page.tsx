@@ -1,6 +1,11 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { AuthForm } from "@/components/auth/auth-form";
 import { getServerT } from "@/lib/i18n/server";
+
+export function generateMetadata(): Metadata {
+  return { title: `Facturi — ${getServerT()("auth.signupTitle")}` };
+}
 
 export default function SignupPage() {
   const t = getServerT();

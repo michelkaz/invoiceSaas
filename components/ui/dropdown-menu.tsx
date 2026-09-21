@@ -31,6 +31,7 @@ export function DropdownMenu({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -42,18 +43,25 @@ export function DropdownMenu({
     };
     document.addEventListener("mousedown", onClick);
     document.addEventListener("keydown", onKey);
+    // Popover de boutons (pas un menu ARIA complet à la flèche) : le focus
+    // va simplement au premier item à l'ouverture, et revient au
+    // déclencheur à la fermeture.
+    ref.current?.querySelector<HTMLButtonElement>("[data-dropdown-item]")?.focus();
+    const trigger = triggerRef.current;
     return () => {
       document.removeEventListener("mousedown", onClick);
       document.removeEventListener("keydown", onKey);
+      trigger?.focus();
     };
   }, [open]);
 
   return (
     <div ref={ref} className="relative inline-block">
       <button
+        ref={triggerRef}
         type="button"
         aria-label={label}
-        aria-haspopup="menu"
+        aria-haspopup="true"
         aria-expanded={open}
         onClick={(e) => {
           e.stopPropagation();
@@ -66,7 +74,6 @@ export function DropdownMenu({
 
       {open && (
         <div
-          role="menu"
           className={cn(
             "absolute z-50 mt-1 min-w-[180px] rounded-xl border border-slate-200 bg-white p-1 shadow-pop animate-fade-in",
             align === "right" ? "right-0" : "left-0",
@@ -81,7 +88,7 @@ export function DropdownMenu({
                 )}
                 <button
                   type="button"
-                  role="menuitem"
+                  data-dropdown-item
                   disabled={item.disabled}
                   onClick={(e) => {
                     e.stopPropagation();

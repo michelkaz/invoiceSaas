@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useId, useRef } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -28,6 +28,10 @@ export function Modal({
   children?: React.ReactNode;
   footer?: React.ReactNode;
 }) {
+  const titleId = useId();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const lastActiveRef = useRef<HTMLElement | null>(null);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -35,9 +39,19 @@ export function Modal({
     };
     document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
+
+    // Focus déplacé dans la modale à l'ouverture, restitué à la fermeture.
+    lastActiveRef.current = document.activeElement as HTMLElement | null;
+    const target =
+      dialogRef.current?.querySelector<HTMLElement>(
+        "button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])",
+      ) ?? dialogRef.current;
+    target?.focus();
+
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
+      lastActiveRef.current?.focus();
     };
   }, [open, onClose]);
 
@@ -51,8 +65,11 @@ export function Modal({
         aria-hidden
       />
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
         className={cn(
           "relative w-full rounded-t-2xl bg-white shadow-pop animate-fade-in sm:rounded-2xl",
           SIZES[size],
@@ -60,7 +77,9 @@ export function Modal({
       >
         <div className="flex items-start justify-between gap-4 border-b border-slate-100 p-5 sm:p-6">
           <div>
-            <h2 className="text-base font-semibold text-slate-900">{title}</h2>
+            <h2 id={titleId} className="text-base font-semibold text-slate-900">
+              {title}
+            </h2>
             {description && (
               <p className="mt-0.5 text-sm text-slate-500">{description}</p>
             )}

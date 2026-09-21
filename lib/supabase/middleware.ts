@@ -3,9 +3,10 @@ import { createServerClient } from "@supabase/ssr";
 
 /** Pages accessibles sans session. */
 const PUBLIC_PAGES = ["/login", "/signup", "/forgot-password", "/verify-email"];
-/** Préfixes toujours autorisés, quel que soit l'état de session
- *  (callbacks de confirmation + choix d'un nouveau mot de passe après lien email). */
-const ALWAYS_OPEN = ["/auth", "/reset-password"];
+/** Préfixes toujours autorisés, quel que soit l'état de session : callbacks
+ *  de confirmation, choix d'un nouveau mot de passe après lien email, et
+ *  pages légales (consultables aussi bien connecté que non connecté). */
+const ALWAYS_OPEN = ["/auth", "/reset-password", "/terms", "/privacy"];
 const VERIFY_PAGE = "/verify-email";
 
 const startsWithAny = (path: string, list: string[]) =>

@@ -39,7 +39,9 @@ export function TH({
   children?: React.ReactNode;
 }) {
   return (
-    <th className={cn("px-5 py-3.5 font-semibold", className)}>{children}</th>
+    <th scope="col" className={cn("px-5 py-3.5 font-semibold", className)}>
+      {children}
+    </th>
   );
 }
 

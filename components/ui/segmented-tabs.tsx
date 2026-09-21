@@ -2,13 +2,13 @@
 
 import { cn } from "@/lib/utils";
 
-export interface SegmentedTab<T extends string> {
+export interface SegmentedTab<T extends string | number> {
   id: T;
   label: string;
   count?: number;
 }
 
-export function SegmentedTabs<T extends string>({
+export function SegmentedTabs<T extends string | number>({
   tabs,
   value,
   onChange,

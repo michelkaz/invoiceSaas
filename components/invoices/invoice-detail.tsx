@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { ChevronDown, Pencil, Trash2, FileWarning } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardBody } from "@/components/ui/card";
@@ -11,14 +12,20 @@ import { DropdownMenu, type DropdownItem } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { StatusBadge } from "@/components/invoices/status-badge";
+import { OverdueTag } from "@/components/invoices/overdue-tag";
 import { InvoicePdfActions } from "@/components/invoices/invoice-pdf-actions";
 import { useData } from "@/components/providers/data-provider";
 import { useToast } from "@/components/ui/toast";
 import { formatDate } from "@/lib/format";
 import { formatFCFA } from "@/lib/money";
 import { lineTotal } from "@/lib/invoice-calc";
-import { INVOICE_STATUSES, statusActionKey } from "@/lib/invoice-status";
+import {
+  INVOICE_STATUSES,
+  PRIMARY_NEXT_STATUS,
+  statusActionKey,
+} from "@/lib/invoice-status";
 import { useT } from "@/components/providers/i18n-provider";
+import type { InvoiceStatus } from "@/lib/data/types";
 
 export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
   const router = useRouter();
@@ -58,19 +65,22 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
   }
 
   const client = getClient(invoice.clientId);
+  const primaryNext = PRIMARY_NEXT_STATUS[invoice.status];
+
+  const markStatus = (s: InvoiceStatus) => {
+    setInvoiceStatus(invoice.id, s);
+    toast({
+      variant: "success",
+      title: t("invoices.statusUpdated"),
+      description: `${invoice.number} · ${t(`status.${s}`)}`,
+    });
+  };
 
   const statusItems: DropdownItem[] = INVOICE_STATUSES.filter(
-    (s) => s !== invoice.status,
+    (s) => s !== invoice.status && s !== primaryNext,
   ).map((s) => ({
     label: t(statusActionKey(s)),
-    onClick: () => {
-      setInvoiceStatus(invoice.id, s);
-      toast({
-        variant: "success",
-        title: t("invoices.statusUpdated"),
-        description: `${invoice.number} · ${t(`status.${s}`)}`,
-      });
-    },
+    onClick: () => markStatus(s),
   }));
 
   return (
@@ -81,13 +91,28 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
         title={invoice.number}
         description={
           <span className="inline-flex items-center gap-2">
-            {client?.name ?? t("invoices.clientDeleted")}
+            {client ? (
+              <Link
+                href={`/clients/${client.id}`}
+                className="font-medium text-brand-600 hover:text-brand-700"
+              >
+                {client.name}
+              </Link>
+            ) : (
+              t("invoices.clientDeleted")
+            )}
             <span className="text-slate-300">•</span>
             <StatusBadge status={invoice.status} />
+            <OverdueTag status={invoice.status} dueDate={invoice.dueDate} />
           </span>
         }
         actions={
           <>
+            {primaryNext && (
+              <Button onClick={() => markStatus(primaryNext)}>
+                {t(statusActionKey(primaryNext))}
+              </Button>
+            )}
             <DropdownMenu
               align="right"
               items={statusItems}
@@ -148,8 +173,9 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
               <p className="mt-0.5 text-lg font-bold tracking-tight text-slate-900">
                 {invoice.number}
               </p>
-              <div className="mt-2">
+              <div className="mt-2 flex flex-wrap items-center gap-2">
                 <StatusBadge status={invoice.status} />
+                <OverdueTag status={invoice.status} dueDate={invoice.dueDate} />
               </div>
               <dl className="mt-3 space-y-1 border-t border-slate-200 pt-3 text-slate-600">
                 <div className="flex justify-between">
@@ -174,7 +200,16 @@ export function InvoiceDetail({ invoiceId }: { invoiceId: string }) {
             </p>
             <div className="mt-2 space-y-0.5 text-sm text-slate-600">
               <p className="text-base font-semibold text-slate-900">
-                {client?.name ?? t("invoices.clientDeleted")}
+                {client ? (
+                  <Link
+                    href={`/clients/${client.id}`}
+                    className="hover:text-brand-600 hover:underline"
+                  >
+                    {client.name}
+                  </Link>
+                ) : (
+                  t("invoices.clientDeleted")
+                )}
               </p>
               {client?.address && <p>{client.address}</p>}
               {client?.phone && <p>{client.phone}</p>}

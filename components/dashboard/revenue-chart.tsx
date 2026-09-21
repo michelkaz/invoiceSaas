@@ -1,6 +1,6 @@
 "use client";
 
-import type { MonthlyPoint } from "@/lib/dashboard-stats";
+import type { RevenuePoint } from "@/lib/dashboard-stats";
 import { formatCompactFCFA, formatFCFA } from "@/lib/money";
 import { useT } from "@/components/providers/i18n-provider";
 
@@ -19,16 +19,24 @@ const PLOT_W = VB_W - PAD.left - PAD.right;
 const PLOT_H = VB_H - PAD.top - PAD.bottom;
 const RATIOS = [1, 0.75, 0.5, 0.25, 0];
 
-export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
+export function RevenueChart({
+  data,
+  action,
+}: {
+  data: RevenuePoint[];
+  /** Sélecteur de période affiché à droite du titre. */
+  action?: React.ReactNode;
+}) {
   const t = useT();
-  const max = niceCeil(Math.max(...data.map((d) => d.value), 1));
-  const total = data.reduce((sum, d) => sum + d.value, 0);
+  const max = niceCeil(Math.max(...data.map((d) => Math.max(d.invoiced, d.collected)), 1));
+  const totalInvoiced = data.reduce((sum, d) => sum + d.invoiced, 0);
   const slot = PLOT_W / data.length;
-  const barWidth = Math.min(slot * 0.5, 40);
+  const groupWidth = Math.min(slot * 0.6, 46);
+  const barWidth = groupWidth / 2 - 2;
 
   return (
     <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card sm:p-6">
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h2 className="text-base font-semibold text-slate-900">
             {t("dashboard.revenueTitle")}
@@ -37,29 +45,36 @@ export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
             {t("dashboard.lastMonths", { count: data.length })}
           </p>
         </div>
-        <div className="text-right">
-          <p className="whitespace-nowrap text-lg font-bold text-slate-900">
-            {formatFCFA(total)}
-          </p>
-          <p className="text-xs text-slate-500">{t("dashboard.revenueTotal")}</p>
+        <div className="flex items-center gap-3">
+          {action}
+          <div className="text-right">
+            <p className="whitespace-nowrap text-lg font-bold text-slate-900">
+              {formatFCFA(totalInvoiced)}
+            </p>
+            <p className="text-xs text-slate-500">{t("dashboard.revenueTotal")}</p>
+          </div>
         </div>
+      </div>
+
+      <div className="mt-4 flex items-center gap-4 text-xs font-medium text-slate-600">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-brand-400" />
+          {t("dashboard.legendInvoiced")}
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
+          {t("dashboard.legendCollected")}
+        </span>
       </div>
 
       <svg
         viewBox={`0 0 ${VB_W} ${VB_H}`}
-        className="mt-6 h-auto w-full overflow-visible"
+        className="mt-4 h-auto w-full overflow-visible"
         role="img"
-        aria-label={`Revenus facturés par mois : ${data
-          .map((d) => `${d.label} ${formatFCFA(d.value)}`)
+        aria-label={`${t("dashboard.legendInvoiced")} / ${t("dashboard.legendCollected")} : ${data
+          .map((d) => `${d.label} ${formatFCFA(d.invoiced)} / ${formatFCFA(d.collected)}`)
           .join(", ")}`}
       >
-        <defs>
-          <linearGradient id="barFill" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#8b5cf6" />
-            <stop offset="100%" stopColor="#c4b5fd" />
-          </linearGradient>
-        </defs>
-
         {/* Grille + libellés Y */}
         {RATIOS.map((ratio) => {
           const y = PAD.top + PLOT_H * (1 - ratio);
@@ -86,22 +101,32 @@ export function RevenueChart({ data }: { data: MonthlyPoint[] }) {
           );
         })}
 
-        {/* Barres + libellés X */}
+        {/* Barres groupées (facturé + encaissé) + libellés X */}
         {data.map((point, index) => {
-          const barHeight = Math.max((point.value / max) * PLOT_H, 2);
-          const x = PAD.left + slot * index + (slot - barWidth) / 2;
-          const y = PAD.top + PLOT_H - barHeight;
+          const groupX = PAD.left + slot * index + (slot - groupWidth) / 2;
+          const invoicedHeight = Math.max((point.invoiced / max) * PLOT_H, 2);
+          const collectedHeight = Math.max((point.collected / max) * PLOT_H, 2);
           return (
             <g key={point.label}>
               <rect
-                x={x}
-                y={y}
+                x={groupX}
+                y={PAD.top + PLOT_H - invoicedHeight}
                 width={barWidth}
-                height={barHeight}
-                rx={5}
-                fill="url(#barFill)"
+                height={invoicedHeight}
+                rx={4}
+                fill="#a78bfa"
               >
-                <title>{`${point.label} — ${formatFCFA(point.value)}`}</title>
+                <title>{`${point.label} — ${t("dashboard.legendInvoiced")} : ${formatFCFA(point.invoiced)}`}</title>
+              </rect>
+              <rect
+                x={groupX + barWidth + 4}
+                y={PAD.top + PLOT_H - collectedHeight}
+                width={barWidth}
+                height={collectedHeight}
+                rx={4}
+                fill="#10b981"
+              >
+                <title>{`${point.label} — ${t("dashboard.legendCollected")} : ${formatFCFA(point.collected)}`}</title>
               </rect>
               <text
                 x={PAD.left + slot * (index + 0.5)}

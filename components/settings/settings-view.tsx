@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
@@ -26,15 +26,19 @@ export function SettingsView() {
     resetDemoData,
     setTutorialSeen,
     deleteAccount,
-    refresh,
+    refreshUser,
   } = useData();
   const { toast } = useToast();
   const t = useT();
+  const companyFormId = useId();
+  const nameFormId = useId();
 
   const [form, setForm] = useState<Company>(company);
   const [resetOpen, setResetOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [fullName, setFullName] = useState(user?.name ?? "");
+  const [savingName, setSavingName] = useState(false);
 
   const saveLogo = (url: string | null) => {
     setForm((f) => ({ ...f, logoUrl: url ?? undefined }));
@@ -51,7 +55,7 @@ export function SettingsView() {
       toast({ variant: "error", title: t("settings.photoFailed") });
       return;
     }
-    await refresh();
+    await refreshUser();
     toast({
       variant: "success",
       title: url ? t("settings.photoSaved") : t("settings.photoRemoved"),
@@ -72,10 +76,31 @@ export function SettingsView() {
     setForm(company);
   }, [company]);
 
+  useEffect(() => {
+    setFullName(user?.name ?? "");
+  }, [user?.name]);
+
+  const saveFullName = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const name = fullName.trim();
+    if (!name || name === user?.name) return;
+    setSavingName(true);
+    const supabase = createClient();
+    const { error } = await supabase.auth.updateUser({ data: { full_name: name } });
+    setSavingName(false);
+    if (error) {
+      toast({ variant: "error", title: t("settings.fullNameFailed") });
+      return;
+    }
+    await refreshUser();
+    toast({ variant: "success", title: t("settings.fullNameSaved") });
+  };
+
   const set = <K extends keyof Company>(key: K, value: Company[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
 
-  const handleSave = () => {
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
     if (!form.name.trim()) {
       toast({ variant: "error", title: t("settings.nameRequiredToast") });
       return;
@@ -94,59 +119,71 @@ export function SettingsView() {
       <PageHeader
         title={t("settings.title")}
         description={t("settings.subtitle")}
-        actions={<Button onClick={handleSave}>{t("settings.save")}</Button>}
+        actions={
+          <Button type="submit" form={companyFormId}>
+            {t("settings.save")}
+          </Button>
+        }
       />
 
-      <Card>
-        <CardHeader title={t("settings.identityTitle")} />
-        <CardBody className="grid gap-4 sm:grid-cols-2">
-          <Input
-            label={t("settings.tradeName")}
-            required
-            value={form.name}
-            onChange={(e) => set("name", e.target.value)}
-          />
-          <Input
-            label={t("settings.legalName")}
-            value={form.legalName}
-            onChange={(e) => set("legalName", e.target.value)}
-          />
-          <Input
-            label={t("settings.rccm")}
-            value={form.rccm}
-            onChange={(e) => set("rccm", e.target.value)}
-            placeholder="CD/KIN/RCCM/…"
-          />
-          <Input
-            label={t("settings.nif")}
-            value={form.nif}
-            onChange={(e) => set("nif", e.target.value)}
-          />
-          <Input
-            label={t("settings.idNat")}
-            value={form.idNat}
-            onChange={(e) => set("idNat", e.target.value)}
-            containerClassName="sm:col-span-2"
-          />
-          <div className="sm:col-span-2">
-            <ImageUpload
-              label={t("settings.logoLabel")}
-              kind="logo"
-              shape="square"
-              value={form.logoUrl}
-              onChange={saveLogo}
-              hint={t("settings.logoHint")}
+      {/*
+        Formulaire "entreprise" : le <form> encadre la carte Identité, mais
+        les champs des cartes Contact/Facturation plus bas lui sont aussi
+        rattachés via l'attribut HTML `form` (standard, pas besoin d'être
+        un descendant DOM) — un seul Entrée/Enregistrer pour les trois.
+      */}
+      <form id={companyFormId} onSubmit={handleSave}>
+        <Card>
+          <CardHeader title={t("settings.identityTitle")} />
+          <CardBody className="grid gap-4 sm:grid-cols-2">
+            <Input
+              label={t("settings.tradeName")}
+              required
+              value={form.name}
+              onChange={(e) => set("name", e.target.value)}
             />
-          </div>
-        </CardBody>
-      </Card>
+            <Input
+              label={t("settings.legalName")}
+              value={form.legalName}
+              onChange={(e) => set("legalName", e.target.value)}
+            />
+            <Input
+              label={t("settings.rccm")}
+              value={form.rccm}
+              onChange={(e) => set("rccm", e.target.value)}
+              placeholder="CD/KIN/RCCM/…"
+            />
+            <Input
+              label={t("settings.nif")}
+              value={form.nif}
+              onChange={(e) => set("nif", e.target.value)}
+            />
+            <Input
+              label={t("settings.idNat")}
+              value={form.idNat}
+              onChange={(e) => set("idNat", e.target.value)}
+              containerClassName="sm:col-span-2"
+            />
+            <div className="sm:col-span-2">
+              <ImageUpload
+                label={t("settings.logoLabel")}
+                kind="logo"
+                shape="square"
+                value={form.logoUrl}
+                onChange={saveLogo}
+                hint={t("settings.logoHint")}
+              />
+            </div>
+          </CardBody>
+        </Card>
+      </form>
 
       <Card>
         <CardHeader
           title={t("settings.profileTitle")}
           description={t("settings.profileDesc")}
         />
-        <CardBody>
+        <CardBody className="space-y-5">
           <ImageUpload
             label={t("settings.avatarLabel")}
             kind="avatar"
@@ -154,6 +191,28 @@ export function SettingsView() {
             value={user?.avatarUrl ?? null}
             onChange={saveAvatar}
           />
+          <form
+            id={nameFormId}
+            onSubmit={saveFullName}
+            className="flex flex-col gap-3 sm:flex-row sm:items-end"
+          >
+            <Input
+              label={t("settings.fullName")}
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              placeholder={t("settings.fullNamePlaceholder")}
+              containerClassName="flex-1"
+            />
+            <Button
+              type="submit"
+              variant="outline"
+              className="shrink-0"
+              loading={savingName}
+              disabled={!fullName.trim() || fullName.trim() === user?.name}
+            >
+              {t("settings.save")}
+            </Button>
+          </form>
         </CardBody>
       </Card>
 
@@ -161,27 +220,32 @@ export function SettingsView() {
         <CardHeader title={t("settings.contactTitle")} />
         <CardBody className="grid gap-4 sm:grid-cols-2">
           <Input
+            form={companyFormId}
             label={t("settings.address")}
             value={form.address}
             onChange={(e) => set("address", e.target.value)}
             containerClassName="sm:col-span-2"
           />
           <Input
+            form={companyFormId}
             label={t("settings.city")}
             value={form.city}
             onChange={(e) => set("city", e.target.value)}
           />
           <Input
+            form={companyFormId}
             label={t("settings.country")}
             value={form.country}
             onChange={(e) => set("country", e.target.value)}
           />
           <Input
+            form={companyFormId}
             label={t("settings.phone")}
             value={form.phone}
             onChange={(e) => set("phone", e.target.value)}
           />
           <Input
+            form={companyFormId}
             label={t("settings.email")}
             type="email"
             value={form.email}
@@ -197,6 +261,7 @@ export function SettingsView() {
         />
         <CardBody className="grid gap-4 sm:grid-cols-2">
           <Select
+            form={companyFormId}
             label={t("settings.currency")}
             options={[
               { value: "CDF", label: t("settings.currencyCDF") },
@@ -207,28 +272,40 @@ export function SettingsView() {
             onChange={(e) => set("currency", e.target.value as Company["currency"])}
           />
           <Input
+            form={companyFormId}
             label={t("settings.tvaRate")}
             type="number"
             min={0}
             suffix="%"
-            value={form.defaultTvaRate}
-            onChange={(e) => set("defaultTvaRate", Number(e.target.value))}
+            value={Number.isNaN(form.defaultTvaRate) ? "" : form.defaultTvaRate}
+            onFocus={(e) => e.target.select()}
+            onChange={(e) => {
+              const raw = e.target.value;
+              set("defaultTvaRate", raw === "" ? NaN : Number(raw));
+            }}
           />
           <Input
+            form={companyFormId}
             label={t("settings.invoicePrefix")}
             value={form.invoicePrefix}
             onChange={(e) => set("invoicePrefix", e.target.value)}
             hint={t("settings.invoicePrefixHint")}
           />
           <Input
+            form={companyFormId}
             label={t("settings.paymentTerms")}
             type="number"
             min={0}
             suffix={t("settings.paymentTermsSuffix")}
-            value={form.paymentTermsDays}
-            onChange={(e) => set("paymentTermsDays", Number(e.target.value))}
+            value={Number.isNaN(form.paymentTermsDays) ? "" : form.paymentTermsDays}
+            onFocus={(e) => e.target.select()}
+            onChange={(e) => {
+              const raw = e.target.value;
+              set("paymentTermsDays", raw === "" ? NaN : Number(raw));
+            }}
           />
           <Textarea
+            form={companyFormId}
             label={t("settings.bankDetails")}
             value={form.bankDetails ?? ""}
             onChange={(e) => set("bankDetails", e.target.value)}
@@ -243,7 +320,7 @@ export function SettingsView() {
           title={t("settings.helpTitle")}
           description={t("settings.helpDesc")}
           action={
-            <Button variant="outline" onClick={replayTutorial}>
+            <Button type="button" variant="outline" onClick={replayTutorial}>
               {t("settings.replayTutorial")}
             </Button>
           }
@@ -259,6 +336,7 @@ export function SettingsView() {
               </p>
             </div>
             <Button
+              type="button"
               variant="outline"
               className="shrink-0"
               onClick={() => setResetOpen(true)}
@@ -274,7 +352,7 @@ export function SettingsView() {
           title={t("settings.dangerTitle")}
           description={t("settings.dangerDesc")}
           action={
-            <Button variant="danger" onClick={() => setDeleteOpen(true)}>
+            <Button type="button" variant="danger" onClick={() => setDeleteOpen(true)}>
               {t("settings.deleteAccount")}
             </Button>
           }
@@ -282,7 +360,9 @@ export function SettingsView() {
       </Card>
 
       <div className="flex justify-end">
-        <Button onClick={handleSave}>{t("settings.saveAll")}</Button>
+        <Button type="submit" form={companyFormId}>
+          {t("settings.saveAll")}
+        </Button>
       </div>
 
       <ConfirmDialog

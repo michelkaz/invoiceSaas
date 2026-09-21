@@ -20,8 +20,10 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [error, setError] = useState<string | null>(params.get("error"));
   const [loading, setLoading] = useState(false);
+  const loggedOut = params.get("loggedOut") === "1";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,11 +43,20 @@ export function AuthForm({ mode }: { mode: Mode }) {
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
+          data: fullName.trim() ? { full_name: fullName.trim() } : undefined,
         },
       });
       setLoading(false);
       if (err) {
         setError(authErrorMessage(err, t));
+        return;
+      }
+      // Supabase renvoie un utilisateur « fantôme » (identities: []) sans erreur
+      // quand l'email est déjà enregistré, pour ne pas révéler son existence.
+      // On le détecte ici pour rediriger vers la connexion au lieu de laisser
+      // croire qu'un nouveau compte vient d'être créé.
+      if (data.user && data.user.identities && data.user.identities.length === 0) {
+        setError(t("auth.err.userExists"));
         return;
       }
       if (!data.session) {
@@ -72,10 +83,27 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {loggedOut && mode === "login" && (
+        <p className="rounded-xl bg-emerald-50 px-3.5 py-2.5 text-sm text-emerald-700">
+          {t("auth.loggedOut")}
+        </p>
+      )}
+
+      {mode === "signup" && (
+        <Input
+          label={t("auth.fullName")}
+          autoComplete="name"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          placeholder={t("auth.fullNamePlaceholder")}
+          hint={t("auth.fullNameOptionalHint")}
+        />
+      )}
       <Input
         label={t("auth.email")}
         type="email"
         autoComplete="email"
+        autoFocus={mode === "login"}
         required
         value={email}
         onChange={(e) => setEmail(e.target.value)}

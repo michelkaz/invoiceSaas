@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Plus, Pencil, Trash2, Users } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Plus, Pencil, Trash2, Users, FileText } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import { useT } from "@/components/providers/i18n-provider";
 import type { Client } from "@/lib/data/types";
 
 export function ClientsView() {
+  const router = useRouter();
   const { hydrated, clients, invoiceCountForClient, deleteClient } = useData();
   const { toast } = useToast();
   const t = useT();
@@ -125,7 +127,7 @@ export function ClientsView() {
             </THead>
             <TBody>
               {rows.map((client) => (
-                <TR key={client.id}>
+                <TR key={client.id} onClick={() => router.push(`/clients/${client.id}`)}>
                   <TD>
                     <div className="flex items-center gap-3">
                       <Avatar name={client.name} size="sm" />
@@ -145,22 +147,29 @@ export function ClientsView() {
                     {invoiceCountForClient(client.id)}
                   </TD>
                   <TD className="text-right">
-                    <DropdownMenu
-                      items={[
-                        {
-                          label: t("clients.edit"),
-                          icon: Pencil,
-                          onClick: () => openEdit(client),
-                        },
-                        {
-                          label: t("clients.delete"),
-                          icon: Trash2,
-                          danger: true,
-                          separatorBefore: true,
-                          onClick: () => askDelete(client),
-                        },
-                      ]}
-                    />
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <DropdownMenu
+                        items={[
+                          {
+                            label: t("clients.viewInvoices"),
+                            icon: FileText,
+                            onClick: () => router.push(`/clients/${client.id}`),
+                          },
+                          {
+                            label: t("clients.edit"),
+                            icon: Pencil,
+                            onClick: () => openEdit(client),
+                          },
+                          {
+                            label: t("clients.delete"),
+                            icon: Trash2,
+                            danger: true,
+                            separatorBefore: true,
+                            onClick: () => askDelete(client),
+                          },
+                        ]}
+                      />
+                    </div>
                   </TD>
                 </TR>
               ))}

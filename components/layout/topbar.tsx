@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Menu, Search, Bell, Plus, ChevronDown, LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Menu, Search, Plus, ChevronDown, LogOut } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { DropdownMenu } from "@/components/ui/dropdown-menu";
 import { LanguageSwitcher } from "@/components/ui/language-switcher";
@@ -11,8 +13,16 @@ import { useT } from "@/components/providers/i18n-provider";
 export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
   const { user, signOut } = useData();
   const t = useT();
+  const router = useRouter();
+  const [search, setSearch] = useState("");
   const name = user?.name ?? "…";
   const firstName = name.split(" ")[0];
+
+  const submitSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = search.trim();
+    router.push(q ? `/invoices?q=${encodeURIComponent(q)}` : "/invoices");
+  };
 
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
@@ -35,26 +45,19 @@ export function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
           </p>
         </div>
 
-        <div className="relative hidden md:block">
+        <form onSubmit={submitSearch} className="relative hidden md:block">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <input
             type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             aria-label={t("topbar.search")}
             placeholder={t("topbar.search")}
             className="w-56 rounded-xl border border-slate-200 bg-slate-50 py-2 pl-9 pr-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-brand-400 focus:bg-white lg:w-72"
           />
-        </div>
+        </form>
 
         <LanguageSwitcher variant="compact" className="hidden sm:inline-flex" />
-
-        <button
-          type="button"
-          aria-label={t("topbar.notifications")}
-          className="relative grid h-10 w-10 shrink-0 place-items-center rounded-lg text-slate-600 hover:bg-slate-100"
-        >
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-brand-600 ring-2 ring-white" />
-        </button>
 
         <Link
           href="/invoices/new"
