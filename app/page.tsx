@@ -37,7 +37,7 @@ export default async function LandingPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (user?.email_confirmed_at) redirect("/dashboard");
+  if (user) redirect("/dashboard");
 
   const t = getServerT();
 

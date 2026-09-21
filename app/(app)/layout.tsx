@@ -16,7 +16,6 @@ export default async function AppLayout({
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
-  if (!user.email_confirmed_at) redirect("/verify-email");
 
   // Onboarding : un compte tout neuf (entreprise non renseignée, aucune donnée)
   // est redirigé une fois vers le parcours de démarrage.

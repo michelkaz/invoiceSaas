@@ -20,6 +20,7 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [error, setError] = useState<string | null>(params.get("error"));
   const [loading, setLoading] = useState(false);
@@ -33,16 +34,22 @@ export function AuthForm({ mode }: { mode: Mode }) {
       setError(t("auth.invalidForm"));
       return;
     }
+    if (mode === "signup" && password !== confirmPassword) {
+      setError(t("auth.passwordMismatch"));
+      return;
+    }
 
     setLoading(true);
     const supabase = createClient();
 
     if (mode === "signup") {
+      // Création de compte synchrone : pas d'email de confirmation (désactivé
+      // côté Supabase — Authentication → Sign In / Up → Email → "Confirm
+      // email"). signUp() renvoie donc directement une session active.
       const { data, error: err } = await supabase.auth.signUp({
         email: email.trim(),
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
           data: fullName.trim() ? { full_name: fullName.trim() } : undefined,
         },
       });
@@ -53,14 +60,17 @@ export function AuthForm({ mode }: { mode: Mode }) {
       }
       // Supabase renvoie un utilisateur « fantôme » (identities: []) sans erreur
       // quand l'email est déjà enregistré, pour ne pas révéler son existence.
-      // On le détecte ici pour rediriger vers la connexion au lieu de laisser
-      // croire qu'un nouveau compte vient d'être créé.
+      // On le détecte ici pour informer clairement l'utilisateur (l'unicité de
+      // l'email est une exigence produit) plutôt que de laisser croire qu'un
+      // nouveau compte vient d'être créé.
       if (data.user && data.user.identities && data.user.identities.length === 0) {
         setError(t("auth.err.userExists"));
         return;
       }
       if (!data.session) {
-        router.push(`/verify-email?email=${encodeURIComponent(email.trim())}`);
+        // Ne devrait pas arriver avec "Confirm email" désactivé côté Supabase ;
+        // filet de sécurité si ce réglage venait à être réactivé par erreur.
+        setError(t("auth.err.generic"));
         return;
       }
       router.push(next);
@@ -116,6 +126,16 @@ export function AuthForm({ mode }: { mode: Mode }) {
         onChange={(e) => setPassword(e.target.value)}
         hint={mode === "signup" ? t("auth.passwordHint") : undefined}
       />
+
+      {mode === "signup" && (
+        <PasswordInput
+          label={t("auth.confirmPassword")}
+          autoComplete="new-password"
+          required
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+        />
+      )}
 
       {mode === "login" && (
         <div className="text-right">

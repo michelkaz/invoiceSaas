@@ -82,7 +82,6 @@ export const fr = {
     passwordUpdated: "Mot de passe mis à jour. Redirection en cours…",
     err: {
       invalidCredentials: "Email ou mot de passe incorrect.",
-      emailNotConfirmed: "Votre adresse email n'est pas encore confirmée.",
       userExists: "Un compte existe déjà avec cet email.",
       weakPassword: "Mot de passe trop faible (8 caractères minimum).",
       rateLimit: "Trop de tentatives. Réessayez dans quelques minutes.",
@@ -91,19 +90,6 @@ export const fr = {
       generic: "Une erreur est survenue. Réessayez.",
       linkInvalid: "Lien invalide ou expiré",
     },
-  },
-  verify: {
-    title: "Vérifiez votre email",
-    body: "Nous avons envoyé un lien de confirmation à {email}. Cliquez dessus pour activer votre compte.",
-    bodyNoEmail:
-      "Nous avons envoyé un lien de confirmation. Cliquez dessus pour activer votre compte.",
-    confirmed: "J'ai confirmé mon email",
-    resend: "Renvoyer l'email",
-    signOut: "Se déconnecter",
-    pending:
-      "Adresse pas encore confirmée. Cliquez sur le lien reçu par email.",
-    resent:
-      "Email de confirmation renvoyé. Vérifiez votre boîte mail (et vos spams).",
   },
   dashboard: {
     title: "Tableau de bord",

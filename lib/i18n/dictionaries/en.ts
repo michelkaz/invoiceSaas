@@ -83,7 +83,6 @@ export const en: Dictionary = {
     passwordUpdated: "Password updated. Redirecting…",
     err: {
       invalidCredentials: "Incorrect email or password.",
-      emailNotConfirmed: "Your email address is not confirmed yet.",
       userExists: "An account already exists with this email.",
       weakPassword: "Password too weak (8 characters minimum).",
       rateLimit: "Too many attempts. Try again in a few minutes.",
@@ -92,17 +91,6 @@ export const en: Dictionary = {
       generic: "Something went wrong. Please try again.",
       linkInvalid: "Invalid or expired link",
     },
-  },
-  verify: {
-    title: "Verify your email",
-    body: "We sent a confirmation link to {email}. Click it to activate your account.",
-    bodyNoEmail:
-      "We sent a confirmation link. Click it to activate your account.",
-    confirmed: "I've confirmed my email",
-    resend: "Resend email",
-    signOut: "Sign out",
-    pending: "Email not confirmed yet. Click the link you received by email.",
-    resent: "Confirmation email resent. Check your inbox (and spam folder).",
   },
   dashboard: {
     title: "Dashboard",

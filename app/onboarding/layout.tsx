@@ -19,7 +19,6 @@ export default async function OnboardingLayout({
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
-  if (!user.email_confirmed_at) redirect("/verify-email");
 
   const { data: company } = await supabase
     .from("companies")

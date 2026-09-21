@@ -15,8 +15,6 @@ export function authErrorMessage(err: unknown, t: Translate): string {
 
   if (code === "invalid_credentials" || msg.includes("invalid login"))
     return t("auth.err.invalidCredentials");
-  if (code === "email_not_confirmed" || msg.includes("not confirmed"))
-    return t("auth.err.emailNotConfirmed");
   if (code === "user_already_exists" || msg.includes("already registered"))
     return t("auth.err.userExists");
   if (code === "weak_password" || msg.includes("password"))

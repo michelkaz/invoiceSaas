@@ -55,7 +55,6 @@ export interface SessionUser {
   id: string;
   email: string;
   name: string;
-  emailVerified: boolean;
   avatarUrl?: string;
 }
 
@@ -113,7 +112,6 @@ function toSessionUser(u: User): SessionUser {
     id: u.id,
     email,
     name,
-    emailVerified: Boolean(u.email_confirmed_at),
     avatarUrl:
       typeof meta.avatar_url === "string" ? meta.avatar_url : undefined,
   };
@@ -290,7 +288,6 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
           })
           .catch(() => {});
       } else if (
-        su.emailVerified !== prev?.emailVerified ||
         su.avatarUrl !== prev?.avatarUrl ||
         su.name !== prev?.name
       ) {

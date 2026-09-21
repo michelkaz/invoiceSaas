@@ -2,21 +2,22 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 /** Pages accessibles sans session. */
-const PUBLIC_PAGES = ["/login", "/signup", "/forgot-password", "/verify-email"];
-/** Préfixes toujours autorisés, quel que soit l'état de session : callbacks
- *  de confirmation, choix d'un nouveau mot de passe après lien email, et
- *  pages légales (consultables aussi bien connecté que non connecté). */
+const PUBLIC_PAGES = ["/login", "/signup", "/forgot-password"];
+/** Préfixes toujours autorisés, quel que soit l'état de session : callback
+ *  de réinitialisation de mot de passe (lien email), et pages légales
+ *  (consultables aussi bien connecté que non connecté). */
 const ALWAYS_OPEN = ["/auth", "/reset-password", "/terms", "/privacy"];
-const VERIFY_PAGE = "/verify-email";
 
 const startsWithAny = (path: string, list: string[]) =>
   list.some((p) => path === p || path.startsWith(`${p}/`));
 
 /**
  * Rafraîchit la session Supabase et applique les règles d'accès :
- * - non connecté         → /login
- * - connecté non vérifié → /verify-email (métier bloqué)
- * - connecté vérifié sur une page d'auth → /dashboard
+ * - non connecté           → /login
+ * - connecté sur une page d'auth → /dashboard
+ *
+ * Pas de vérification d'email : la création de compte est synchrone
+ * (voir auth-form.tsx) et ne dépend d'aucune étape de confirmation.
  */
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -62,7 +63,6 @@ export async function updateSession(request: NextRequest) {
 
   const isPublic = startsWithAny(pathname, PUBLIC_PAGES);
   const isAlwaysOpen = startsWithAny(pathname, ALWAYS_OPEN);
-  const isVerifyPage = pathname === VERIFY_PAGE;
 
   if (isAlwaysOpen) return response;
 
@@ -79,14 +79,7 @@ export async function updateSession(request: NextRequest) {
     return isPublic ? response : redirect("/login", true);
   }
 
-  const verified = Boolean(user.email_confirmed_at);
-
-  // Connecté mais email non vérifié : seule /verify-email est permise.
-  if (!verified) {
-    return isVerifyPage ? response : redirect(VERIFY_PAGE);
-  }
-
-  // Connecté + vérifié : les pages publiques d'auth renvoient vers l'app.
+  // Connecté sur une page d'auth publique : renvoyer vers l'app.
   if (isPublic) {
     return redirect("/dashboard");
   }
